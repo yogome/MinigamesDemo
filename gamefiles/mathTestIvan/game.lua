@@ -18,17 +18,19 @@ local isFirstTime
 local correctBox, wrongBox
 local gameTutorial
 local backgroundImage
+local instructionImage
 ----------------------------------------------- Constants
 local OFFSET_X_ANSWERS = 200
-local OFFSET_TEXT = {x = 0, y = -200}
+local OFFSET_TEXT = {x = 0, y = -300}
 local SIZE_BOXES = 100
 local COLOR_WRONG = colors.red
 local COLOR_CORRECT = colors.green
 local WRONG_ANSWERS = 6
 local SIZE_FONT = 40
 local SCALE_BGX = 1.25
+local SCALE_IBI = 1.2
 local TIME_BOX_ANIMATION = 500
-
+local INSTRUCTION_TEXT = "Arrastra la respuesta correcta"
 local PADDING_WRONG_ANSWERS = 140
 local OFFSET_Y_WRONG_ANSWERS = 200
 ----------------------------------------------- Functions
@@ -113,7 +115,7 @@ local function initialize(event)
 	
 	
 	
-	instructions.text = localization.getString("testMinigameInstructions")
+	instructions.text = INSTRUCTION_TEXT 
 end
 
 local function enableButtons()
@@ -158,8 +160,13 @@ function game:create(event)
 	sceneView:insert(textLayer)
 	
 	backgroundImage = display.newImage( assetPath.."fondo.png", display.contentCenterX, display.contentCenterY )
-	backgroundImage.xScale = (backgroundImage.contentWidth * SCALE_BGX) /  backgroundImage.contentWidth
+	backgroundImage.xScale = SCALE_BGX
 	backgroundLayer:insert( backgroundImage )
+	
+	instructionImage = display.newImage ( assetPath.."instruccion.png", display.contentCenterX + OFFSET_TEXT.x, display.contentCenterY + OFFSET_TEXT.y )
+	instructionImage.xScale = SCALE_IBI
+	instructionImage.yScale = SCALE_IBI
+	backgroundLayer:insert( instructionImage )
 	
 	correctBox = display.newRect(display.contentCenterX + -OFFSET_X_ANSWERS, display.contentCenterY, SIZE_BOXES, SIZE_BOXES)
 	correctBox.isCorrect = true 
@@ -219,3 +226,4 @@ game:addEventListener( "hide" )
 game:addEventListener( "show" )
 
 return game
+
