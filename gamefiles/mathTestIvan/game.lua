@@ -17,6 +17,7 @@ local tapsEnabled
 local isFirstTime
 local correctBox, wrongBox
 local gameTutorial
+local backgroundImage
 ----------------------------------------------- Constants
 local OFFSET_X_ANSWERS = 200
 local OFFSET_TEXT = {x = 0, y = -200}
@@ -25,7 +26,7 @@ local COLOR_WRONG = colors.red
 local COLOR_CORRECT = colors.green
 local WRONG_ANSWERS = 6
 local SIZE_FONT = 40
-
+local SCALE_BGX = 1.25
 local TIME_BOX_ANIMATION = 500
 
 local PADDING_WRONG_ANSWERS = 140
@@ -146,6 +147,7 @@ function game:create(event)
 	local sceneView = self.view
 	
 	
+	
 	backgroundLayer = display.newGroup() 
 	sceneView:insert(backgroundLayer)
 	
@@ -155,6 +157,9 @@ function game:create(event)
 	textLayer = display.newGroup()
 	sceneView:insert(textLayer)
 	
+	backgroundImage = display.newImage( assetPath.."fondo.png", display.contentCenterX, display.contentCenterY )
+	backgroundImage.xScale = (backgroundImage.contentWidth * SCALE_BGX) /  backgroundImage.contentWidth
+	backgroundLayer:insert( backgroundImage )
 	
 	correctBox = display.newRect(display.contentCenterX + -OFFSET_X_ANSWERS, display.contentCenterY, SIZE_BOXES, SIZE_BOXES)
 	correctBox.isCorrect = true 
