@@ -11,9 +11,24 @@ local function startManager(event)
 	local parameters = event.params or {}
 	
 	local minigames = parameters.minigames or {}
-	for index = 1, #minigames do
-		director.showOverlay(minigames[index], {isModal = true, effect = "fade", time = 500})
-		break
+	if minigames and #minigames >= 1 then
+		local minigameRequire = require(minigames[1])
+		
+		local info = minigameRequire.getInfo()
+		print(info.category)
+		
+		local generatedParameters = {
+			category = "addition",
+			operation = {
+				operands = {5,5},
+				result = 10,
+				operation = "5+5=10",
+				operand = "+"
+			},
+			wrongAnswers = {2,3,4,6,7}
+		}
+		
+		director.showOverlay(minigames[1], {isModal = true, effect = "fade", time = 500, params = generatedParameters})
 	end
 end
 ----------------------------------------------- Class functions
