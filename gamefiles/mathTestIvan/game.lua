@@ -24,13 +24,13 @@ local answer_box1, answer_box2, answer_box3
 local OFFSET_TEXT = {x = 0, y = -300}
 local SIZE_FONT = 40
 local SCALE_BGX = 1.25
+local SCALE_BGY = 1.1
 local SCALE_IBI = 1.2
-local INSTRUCTION_TEXT = "Arrastra la respuesta correcta"
 local BOXES = 3
 local BOX_IMG_SIZE = 200
 local BOX_IMG_POSY = 225
 local PADDING_ANSWERS = 300
-local OPERATION_PADDING = 225
+local OPERATION_PADDING = 200
 local PROBLEM_LAYOUT_POSY = display.contentCenterY - 125
 
 ----------------------------------------------- Functions
@@ -42,7 +42,7 @@ local function initialize(event)
 	isFirstTime = params.isFirstTime 
 	manager = event.parent 
 	
-	instructions.text = INSTRUCTION_TEXT 
+	instructions.text = localization.getString("testMinigameInstructions") 
 end
 
 local function onTouchBox( event )
@@ -196,7 +196,7 @@ end
 local function problemLayout( sceneView )
 	firstNumberLayout = display.newGroup()
 	sceneView:insert( firstNumberLayout)
-	firstNumberLayout.x = display.contentCenterX + -450
+	firstNumberLayout.x = display.contentCenterX + -400
 	firstNumberLayout.y = PROBLEM_LAYOUT_POSY
 
 	operation = display.newImage( assetPath.."suma.png", firstNumberLayout.x + OPERATION_PADDING, PROBLEM_LAYOUT_POSY, BOX_IMG_SIZE, BOX_IMG_SIZE )
@@ -270,6 +270,7 @@ function game:create( event )
 	
 	backgroundImage = display.newImage( assetPath.."fondo.png", display.contentCenterX, display.contentCenterY )
 	backgroundImage.xScale = SCALE_BGX
+	backgroundImage.yScale = SCALE_BGY
 	backgroundLayer:insert( backgroundImage )
 	
 	instructionImage = display.newImage ( assetPath.."instruccion.png", display.contentCenterX + OFFSET_TEXT.x, display.contentCenterY + OFFSET_TEXT.y )

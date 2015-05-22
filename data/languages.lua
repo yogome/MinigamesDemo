@@ -2,17 +2,17 @@ local languages = {}
 
 languages.en = {
 	["test"] = "test",
-	["testMinigameInstructions"] = "Touch the green box",
+	["testMinigameInstructions"] = "Drag the correct answer",
 }
 
 languages.es = {
 	["test"] = "prueba",
-	["testMinigameInstructions"] = "Toca la caja verde",
+	["testMinigameInstructions"] = "Arrastra la respuesta correcta",
 }
 
 languages.pt = {
 	["test"] = "teste",
-	["testMinigameInstructions"] = "Toque na caixa verde",
+	["testMinigameInstructions"] = "???????????????????",
 }
 
 return languages
