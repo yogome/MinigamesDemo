@@ -42,7 +42,7 @@ local function initialize(event)
 	isFirstTime = params.isFirstTime 
 	manager = event.parent 
 	
-	instructions.text = localization.getString("testMinigameInstructions") 
+	instructions.text = localization.getString("testMinigameIvanInstructions") 
 end
 
 local function onTouchBox( event )
