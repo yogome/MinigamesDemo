@@ -74,7 +74,7 @@ local function onTouchBox( event )
 				end
 			else
 				object.isTouchable = false
-				transition.to( object,{ time = 1000, x = object.markX, y = object.markY, onComplete = function () object.isTouchable = true end})
+				transition.to( object,{ time = 500, x = object.markX, y = object.markY, onComplete = function () object.isTouchable = true end})
 				display.getCurrentStage():setFocus(nil)
 			end
 		end
@@ -136,6 +136,7 @@ local function createBoxes( num , num_Group1 ,num_Group2 ,num_Group3)
 	local startX = display.contentCenterX - totalWidth * 0.5
 	local correctAnswer = math.random( 3 )
 	local object
+	local wrongNumber1, wrongNumber2, wrongNumber3
 	
 	print("correctAnswer "..correctAnswer)
 	for boxIndex = 1, BOXES do	
@@ -151,7 +152,7 @@ local function createBoxes( num , num_Group1 ,num_Group2 ,num_Group3)
 			if correctAnswer == 1 then
 				addFruit( num , num_Group1 )
 			else
-				local wrongNumber1 = math.random(9)
+				wrongNumber1 = math.random(9)
 				while wrongNumber1 == num do
 					wrongNumber1 = math.random(9)
 				end
@@ -169,8 +170,8 @@ local function createBoxes( num , num_Group1 ,num_Group2 ,num_Group3)
 			if correctAnswer == 2 then
 				addFruit( num , num_Group2 )
 			else
-				local wrongNumber2 = math.random(9)
-				while wrongNumber2 == num do
+				wrongNumber2 = math.random(9)
+				while wrongNumber2 == num  or wrongNumber2 == wrongNumber1 do
 					wrongNumber2 = math.random(9)
 				end
 				addFruit( wrongNumber2 , num_Group2 )
@@ -187,8 +188,8 @@ local function createBoxes( num , num_Group1 ,num_Group2 ,num_Group3)
 			if correctAnswer == 3 then
 				addFruit( num , num_Group3 )
 			else
-				local wrongNumber3 = math.random(9)
-				while wrongNumber3 == num do
+				wrongNumber3 = math.random(9)
+				while wrongNumber3 == num or wrongNumber3 == wrongNumber1 or wrongNumber3 == wrongNumber2 do
 					wrongNumber3 = math.random(9)
 				end
 				addFruit( wrongNumber3 , num_Group3 )
