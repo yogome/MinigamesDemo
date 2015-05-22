@@ -50,32 +50,33 @@ local function onTouchBox( event )
 	local answerPosX, answerPosY = answer.x, answer.y
 	print("touch")
 	
-	if event.phase == "began" then
-		object.markX = object.x
-		object.markY = object.y
-		display.getCurrentStage():setFocus( object )
-	elseif event.phase == "moved" then 
-		local x = (event.x - event.xStart) + object.markX
-		local y = (event.y - event.yStart) + object.markY
+	if object.isTouchable then
+		if event.phase == "began" then
+			object.markX = object.x
+			object.markY = object.y
+			display.getCurrentStage():setFocus( object )
+		elseif event.phase == "moved" then 
+			local x = (event.x - event.xStart) + object.markX
+			local y = (event.y - event.yStart) + object.markY
 
-		object.x, object.y = x, y
+			object.x, object.y = x, y
 
-	elseif event.phase == "ended" then
-		local objPosX, objPosY = object.x, object.y
-		local distanceToPointX, distanceToPointY = math.abs( answerPosX - objPosX ), math.abs( answerPosY - objPosY )
+		elseif event.phase == "ended" then
+			local objPosX, objPosY = object.x, object.y
+			local distanceToPointX, distanceToPointY = math.abs( answerPosX - objPosX ), math.abs( answerPosY - objPosY )
 
-		if object.total == result and distanceToPointX < 100 and distanceToPointY < 100 then 
-			object.x = answer.x
-			object.y = answer.y
+			if object.total == result and distanceToPointX < 100 and distanceToPointY < 100 then 
+				object.x = answer.x
+				object.y = answer.y
 
-			if manager then 
-				manager.correct()
+				if manager then 
+					manager.correct()
+				end
+			else
+				object.isTouchable = false
+				transition.to( object,{ time = 1000, x = object.markX, y = object.markY, onComplete = function () object.isTouchable = true end})
+				display.getCurrentStage():setFocus(nil)
 			end
-		else
-			--object.x, object.y = object.markX, object.markY
-			--touchable = false
-			transition.to( object,{ time = 100, x = object.markX, y = object.markY})
-			display.getCurrentStage():setFocus(nil)
 		end
 	end
 	return true
@@ -145,6 +146,7 @@ local function createBoxes( num , num_Group1 ,num_Group2 ,num_Group3)
 			num_Group1.y = display.contentCenterY + BOX_IMG_POSY
 			num_Group1:addEventListener("touch", onTouchBox)
 			num_Group1:addEventListener("tap", onTapBox)
+			num_Group1.isTouchable = true
 			
 			if correctAnswer == 1 then
 				addFruit( num , num_Group1 )
@@ -162,6 +164,7 @@ local function createBoxes( num , num_Group1 ,num_Group2 ,num_Group3)
 			num_Group2.y = display.contentCenterY + BOX_IMG_POSY
 			num_Group2:addEventListener("touch", onTouchBox)
 			num_Group2:addEventListener("tap", onTapBox)
+			num_Group2.isTouchable = true
 			
 			if correctAnswer == 2 then
 				addFruit( num , num_Group2 )
@@ -179,6 +182,7 @@ local function createBoxes( num , num_Group1 ,num_Group2 ,num_Group3)
 			num_Group3.y = display.contentCenterY + BOX_IMG_POSY
 			num_Group3:addEventListener("touch", onTouchBox)
 			num_Group3:addEventListener("tap", onTapBox)
+			num_Group3.isTouchable = true
 			
 			if correctAnswer == 3 then
 				addFruit( num , num_Group3 )
