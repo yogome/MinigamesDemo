@@ -31,6 +31,7 @@ local BOX_IMG_SIZE = 200
 local BOX_IMG_POSY = 225
 local PADDING_ANSWERS = 300
 local OPERATION_PADDING = 225
+local PROBLEM_LAYOUT_POSY = display.contentCenterY - 125
 
 ----------------------------------------------- Functions
 
@@ -56,25 +57,26 @@ local function onTouchBox( event )
 	elseif event.phase == "moved" then 
 		local x = (event.x - event.xStart) + object.markX
 		local y = (event.y - event.yStart) + object.markY
-		
+
 		object.x, object.y = x, y
-	
+
 	elseif event.phase == "ended" then
 		local objPosX, objPosY = object.x, object.y
 		local distanceToPointX, distanceToPointY = math.abs( answerPosX - objPosX ), math.abs( answerPosY - objPosY )
-		
+
 		if object.total == result and distanceToPointX < 100 and distanceToPointY < 100 then 
 			object.x = answer.x
 			object.y = answer.y
-			
+
 			if manager then 
 				manager.correct()
 			end
 		else
-			object.x, object.y = object.markX, object.markY
+			--object.x, object.y = object.markX, object.markY
+			--touchable = false
+			transition.to( object,{ time = 100, x = object.markX, y = object.markY})
+			display.getCurrentStage():setFocus(nil)
 		end
-		
-		display.getCurrentStage():setFocus(nil)
 	end
 	return true
 end
@@ -195,20 +197,20 @@ local function problemLayout( sceneView )
 	firstNumberLayout = display.newGroup()
 	sceneView:insert( firstNumberLayout)
 	firstNumberLayout.x = display.contentCenterX + -450
-	firstNumberLayout.y = display.contentCenterY - 125
+	firstNumberLayout.y = PROBLEM_LAYOUT_POSY
 
-	operation = display.newImage( assetPath.."suma.png", firstNumberLayout.x + OPERATION_PADDING, firstNumberLayout.y, BOX_IMG_SIZE, BOX_IMG_SIZE )
+	operation = display.newImage( assetPath.."suma.png", firstNumberLayout.x + OPERATION_PADDING, PROBLEM_LAYOUT_POSY, BOX_IMG_SIZE, BOX_IMG_SIZE )
 	sceneView:insert( operation )
 	
 	secondNumberLayout = display.newGroup()
 	sceneView:insert( secondNumberLayout )
 	secondNumberLayout.x = operation.x + OPERATION_PADDING
-	secondNumberLayout.y = operation.y
+	secondNumberLayout.y = PROBLEM_LAYOUT_POSY
 	
-	equals = display.newImage( assetPath.."igual.png", secondNumberLayout.x + OPERATION_PADDING, secondNumberLayout.y, BOX_IMG_SIZE, BOX_IMG_SIZE )
+	equals = display.newImage( assetPath.."igual.png", secondNumberLayout.x + OPERATION_PADDING, PROBLEM_LAYOUT_POSY, BOX_IMG_SIZE, BOX_IMG_SIZE )
 	sceneView:insert( equals )
 	
-	answer = display.newImage( assetPath.."respuesta.png", equals.x + OPERATION_PADDING, equals.y, BOX_IMG_SIZE, BOX_IMG_SIZE )
+	answer = display.newImage( assetPath.."respuesta.png", equals.x + OPERATION_PADDING, PROBLEM_LAYOUT_POSY, BOX_IMG_SIZE, BOX_IMG_SIZE )
 	sceneView:insert( answer )
 	
 	answer_box1 = display.newGroup()
@@ -290,8 +292,8 @@ function game:show( event )
 	local phase = event.phase
 
 	if phase == "will" then 
-		initialize(event)
-		problemLayout( sceneView ) 
+		initialize( event )
+		problemLayout( sceneView )
 	elseif phase == "did" then 
 		
 	end
@@ -304,19 +306,19 @@ function game:hide( event )
 	if phase == "will" then 
 		
 	elseif phase == "did" then 
-		display.remove(firstNumberLayout)
+		display.remove( firstNumberLayout )
 		firstNumberLayout = nil
 		
-		display.remove(secondNumberLayout)
+		display.remove( secondNumberLayout )
 		secondNumberLayout = nil
 		
-		display.remove(answer_box1)
+		display.remove( answer_box1 )
 		answer_box1 = nil
 		
-		display.remove(answer_box2)
+		display.remove( answer_box2 )
 		answer_box2 = nil
 		
-		display.remove(answer_box3)
+		display.remove( answer_box3 )
 		answer_box3 = nil
 	end
 end
