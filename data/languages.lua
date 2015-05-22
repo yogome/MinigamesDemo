@@ -2,22 +2,32 @@ local languages = {}
 
 languages.en = {
 	["test"] = "test",
-	["testMinigameIvanInstructions"] = "Drag the correct answer",
+<<<<<<< HEAD
+	["testMinigameInstructions"] = "Drag the correct answer",
+=======
+	["testMinigameInstructions"] = "Touch the green box",
 	["testMinigameHectorInstructions"] = "Drag the Correct Answer",
+>>>>>>> origin/master
 }
 
 languages.es = {
 	["test"] = "prueba",
-	["testMinigameIvanInstructions"] = "Arrastra la respuesta correcta",
+<<<<<<< HEAD
+	["testMinigameInstructions"] = "Arrastra la respuesta correcta",
+=======
 	["testMinigameInstructions"] = "Toca la caja verde",
 	["testMinigameHectorInstructions"] = "Arrastra la Respuesta Correcta",
+>>>>>>> origin/master
 }
 
 languages.pt = {
 	["test"] = "teste",
-	["testMinigameIvanInstructions"] = "???????????????????",
+<<<<<<< HEAD
+	["testMinigameInstructions"] = "???????????????????",
+=======
 	["testMinigameInstructions"] = "Toque na caixa verde",
 	["testMinigameHectorInstructions"] = "Arraste a resposta correta",
+>>>>>>> origin/master
 }
 
 return languages
