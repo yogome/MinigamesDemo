@@ -26,7 +26,8 @@ local initPosX, initPosY
 local paddingAnswers
 ----------------------------------------------- Constants
 local SIZE_BOXES = 100
-local FONT_SIZE = display.contentCenterY * 0.6
+local SIZE_FONT = display.contentCenterY * 0.13
+local SIZE_OP = display.contentCenterY * 0.4
 local COLOR_CORRECT = colors.green
 local TOTAL_OP_ELEMENTS = 6
 local PADDING_X_OPERATION = (display.contentWidth / TOTAL_OP_ELEMENTS)
@@ -38,8 +39,8 @@ local SECOND_ROW_FACTOR = 1.2
 local SCALE_OPERATOR = 0.8
 local SCALE_BACKGROUND = 1.5
 local TIME_BOX_ANIMATION = 400
-local TEXT_POSX = display.contentCenterY * 0.11
-local TEXT_POSY = native.systemFontBold, display.contentCenterY * 0.13
+local TEXT_POSX = display.contentCenterX
+local TEXT_POSY = display.contentCenterY * 0.11
 ----------------------------------------------- Functions
 local function onAnswerTouched(event)
 	if event.phase == "began" then
@@ -117,7 +118,7 @@ local function createOperation()
 	operationLayer:insert(operationGroup)
 	drawOperationElements(firstOperandVal, PADDING_X_OPERATION)
 	drawOperationElements(secondOperandVal, PADDING_X_OPERATION * 3)
-	operator = display.newText(""..operationType, PADDING_X_OPERATION * 2, POS_Y_RESULT * 0.9, native.systemFontBold, FONT_SIZE)
+	operator = display.newText(""..operationType, PADDING_X_OPERATION * 2, POS_Y_RESULT * 0.9, native.systemFontBold, SIZE_OP)
 	equalOperator = display.newImage(assetPath.."igual.png", PADDING_X_OPERATION * 4, POS_Y_RESULT)
 	equalOperator.xScale = SCALE_OPERATOR
 	equalOperator.yScale = SCALE_OPERATOR
@@ -158,8 +159,9 @@ local function initialize(event)
 	manager = event.parent 
 	local operation = params.operation 
 	local wrongAnswers = params.wrongAnswers
-	answers = wrongAnswers	
-	table.insert(answers,2,operation.result)
+	local solutionPos = math.random( 1, #wrongAnswers )
+	answers = wrongAnswers
+	table.insert(answers,solutionPos,operation.result)
 	firstOperandVal = operation.operands[1]
 	secondOperandVal = operation.operands[2]
 	operationType = operation.operand
@@ -281,7 +283,7 @@ function game:create(event)
 	sheetAnswers = graphics.newImageSheet( assetPath.."acomodo de frutas.png", optionFrame )
 	instructionsBg = display.newImage(assetPath.."instruccion.png",display.contentCenterX,display.contentCenterY * 0.12)
 	instructionsBg.xScale = SCALE_BACKGROUND 
-	instructions = display.newText("", display.contentCenterX, TEXT_POSX, TEXT_POSY)
+	instructions = display.newText("", TEXT_POSX, TEXT_POSY, native.systemFontBold, SIZE_FONT)
 	textLayer:insert(instructionsBg)
 	textLayer:insert(instructions)	
 	
