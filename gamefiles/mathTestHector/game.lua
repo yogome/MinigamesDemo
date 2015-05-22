@@ -15,85 +15,66 @@ local operationLayer, operationGroup
 local textLayer, instructions, instructionsBg
 local manager
 local tapsEnabled
-local isFirstTime
-local correctBox, wrongBox
-local gameTutorial
+--local isFirstTime
 local sheetAnswers
 local operationType
 local firstOperandVal, secondOperandVal, result
-local firsOperandImg, secondOperandImg, resultImg 
-local resultImgWidth, resultImgHeight
+local resultImg 
 local equalOperator, operator
 local answers, totalAnswers
-local originX, originY
+local initPosX, initPosY
 local paddingAnswers
 ----------------------------------------------- Constants
-local OFFSET_X_ANSWERS = 400
-local OFFSET_TEXT = {x = 0, y = -200}
 local SIZE_BOXES = 100
-local COLOR_WRONG = colors.red
+local FONT_SIZE = display.contentCenterY * 0.6
 local COLOR_CORRECT = colors.green
-local TOTAL_ANSWERS = 3
-local SIZE_FONT = 40
-local PADDING_X_OPERATION = (display.contentWidth / 6)
+local TOTAL_OP_ELEMENTS = 6
+local PADDING_X_OPERATION = (display.contentWidth / TOTAL_OP_ELEMENTS)
 local POS_X_RESULT = PADDING_X_OPERATION * 5
 local POS_Y_RESULT = display.contentCenterY * 0.70
-local TIME_BOX_ANIMATION = 500
-
 local OFFSET_Y_WRONG_ANSWERS = display.contentHeight * 0.30
+local FIRST_ROW_FACTOR = 0.8
+local SECOND_ROW_FACTOR = 1.2
+local SCALE_OPERATOR = 0.8
+local SCALE_BACKGROUND = 1.5
+local TIME_BOX_ANIMATION = 400
+local TEXT_POSX = display.contentCenterY * 0.11
+local TEXT_POSY = native.systemFontBold, display.contentCenterY * 0.13
 ----------------------------------------------- Functions
 local function onAnswerTouched(event)
-	
-	
-	
 	if event.phase == "began" then
-		
 		event.target:toFront()
-        event.target.markX = event.target.x    -- store x location of object
-        event.target.markY = event.target.y    -- store y location of object
-		originX = event.target.x
-		originY = event.target.y
-	
+        event.target.markX = event.target.x   
+        event.target.markY = event.target.y   
+		initPosX = event.target.x
+		initPosY = event.target.y
     elseif event.phase == "moved" then
-	
         local x = (event.x - event.xStart) + event.target.markX
         local y = (event.y - event.yStart) + event.target.markY
-        
-        event.target.x, event.target.y = x, y    -- move object based on calculations above
-	
+        event.target.x, event.target.y = x, y   
 	elseif event.phase == "ended" then
-		print("x  "..event.target.x.." y "..event.target.y)
-		print("xR  "..POS_X_RESULT.." yR "..POS_Y_RESULT)
-		print(event.target.isCorrect)
-		print(POS_X_RESULT - resultImgWidth.."   "..POS_X_RESULT + resultImgWidth.."   "..POS_Y_RESULT - resultImgHeight.."   "..POS_Y_RESULT + resultImgHeight)
-		if event.target.isCorrect == true and (event.target.x > (POS_X_RESULT - resultImgWidth) and event.target.x < (POS_X_RESULT + resultImgWidth)) and (event.target.y > (POS_Y_RESULT - resultImgHeight) and event.target.y < (POS_Y_RESULT + resultImgHeight)) then
+		if event.target.isCorrect == true and (event.target.x > (POS_X_RESULT - resultImg.width) and event.target.x < (POS_X_RESULT + resultImg.width)) and (event.target.y > (POS_Y_RESULT - resultImg.height) and event.target.y < (POS_Y_RESULT + resultImg.height)) then
 			event.target.x, event.target.y = POS_X_RESULT, POS_Y_RESULT
 			if manager then 
 				manager.correct()
 			end
-		elseif event.target.isCorrect == false and (event.target.x > (POS_X_RESULT - resultImgWidth) and event.target.x < (POS_X_RESULT + resultImgWidth)) and (event.target.y > (POS_Y_RESULT - resultImgHeight) and event.target.y < (POS_Y_RESULT + resultImgHeight)) then
+		elseif event.target.isCorrect == false and (event.target.x > (POS_X_RESULT - resultImg.width) and event.target.x < (POS_X_RESULT + resultImg.width)) and (event.target.y > (POS_Y_RESULT - resultImg.height) and event.target.y < (POS_Y_RESULT + resultImg.height)) then
 			event.target.x, event.target.y = POS_X_RESULT, POS_Y_RESULT
-			print("Incorrecto...")
 			if manager then 
 				local correctGroup = display.newGroup() 
 				correctGroup.isVisible = false
-				
 				local box = display.newRect(0, 0, SIZE_BOXES, SIZE_BOXES)
 				box:setFillColor(unpack(COLOR_CORRECT))
 				correctGroup:insert(box)
-				
 				manager.wrong({id = "group", group = correctGroup}) 
 			end
 		else
-			event.target.x, event.target.y = originX, originY
+			transition.to(event.target, {time = TIME_BOX_ANIMATION, x = initPosX, y = initPosY, transition = easing.outQuad})
 		end
-
-	
 	end
-    
     return true
 end
---local function drawAnswersElements (value, positionX,)
+
 local function drawOperationElements(value, positionX)
 	if value == 1 then
 		local element = display.newImage(assetPath.."sandia.png",positionX,POS_Y_RESULT)
@@ -101,33 +82,27 @@ local function drawOperationElements(value, positionX)
 		element.yScale = 1.5
 		operationGroup:insert(element)
 	elseif value == 2 then
-		
-		local paddingElements = (display.contentWidth / 6)/3
-		
-		local elementFirstRow = display.newImage(assetPath.."sandia.png",positionX-paddingElements,POS_Y_RESULT)
+		local paddingElements = (display.contentWidth / TOTAL_OP_ELEMENTS)
+		local elementFirstRow = display.newImage(assetPath.."sandia.png", positionX - paddingElements / 3, POS_Y_RESULT)
+		local elementSecondRow = display.newImage(assetPath.."sandia.png", positionX + paddingElements / 3, POS_Y_RESULT)
 		operationGroup:insert(elementFirstRow)
-		local elementSecondRow = display.newImage(assetPath.."sandia.png",positionX+paddingElements,POS_Y_RESULT)
 		operationGroup:insert(elementSecondRow)
 	else
 		local firstRowElements = value / 2 + value % 2
 		local secondRowElements = firstRowElements - value % 2
-		
-		local firstRowPaddingElements = (display.contentWidth / 6)/firstRowElements
-		local secondRowPaddingElements = (display.contentWidth / 6)/secondRowElements
-		
+		local firstRowPaddingElements = PADDING_X_OPERATION / firstRowElements
+		local secondRowPaddingElements = PADDING_X_OPERATION / secondRowElements
 		for index = 1, firstRowElements do
-			local element = display.newImage(assetPath.."sandia.png",positionX - (display.contentWidth / 12) + ((index) * firstRowPaddingElements),POS_Y_RESULT * 0.8)
+			local element = display.newImage(assetPath.."sandia.png",positionX - (PADDING_X_OPERATION / 2) + ((index) * firstRowPaddingElements),POS_Y_RESULT * FIRST_ROW_FACTOR)
 			element.xScale = 0.5
 			element.yScale = 0.5
 			operationGroup:insert(element)
-			index = index + 1
 		end
 		for index = 1, secondRowElements do
-			local element = display.newImage(assetPath.."sandia.png",positionX - (display.contentWidth / 12) + ((index) * secondRowPaddingElements),POS_Y_RESULT * 1.2)
+			local element = display.newImage(assetPath.."sandia.png",positionX - (PADDING_X_OPERATION / 2) + ((index) * secondRowPaddingElements),POS_Y_RESULT * SECOND_ROW_FACTOR)
 			element.xScale = 0.5
 			element.yScale = 0.5
 			operationGroup:insert(element)
-			index = index + 1
 		end
 	end
 end
@@ -136,45 +111,27 @@ local function removeDynamicAnswers()
 	display.remove(answersGroup) 
 	answersGroup = nil
 end
+
 local function createOperation()
-	
 	operationGroup = display.newGroup()
 	operationLayer:insert(operationGroup)
-	
-	local firstOperandPositionX = display.contentWidth / 6
-	local secondOperandPositionX = (display.contentWidth / 6) * 3
-	
-	drawOperationElements(firstOperandVal, firstOperandPositionX)
-	drawOperationElements(secondOperandVal, secondOperandPositionX)
-	
-	operator = display.newText(""..operationType, (display.contentWidth / 6) * 2, POS_Y_RESULT * 0.9, native.systemFontBold, display.contentCenterY * 0.6)
-	equalOperator = display.newImage(assetPath.."igual.png", (display.contentWidth / 6) * 4, POS_Y_RESULT)
-	equalOperator.xScale = 0.8
-	equalOperator.yScale = 0.8
+	drawOperationElements(firstOperandVal, PADDING_X_OPERATION)
+	drawOperationElements(secondOperandVal, PADDING_X_OPERATION * 3)
+	operator = display.newText(""..operationType, PADDING_X_OPERATION * 2, POS_Y_RESULT * 0.9, native.systemFontBold, FONT_SIZE)
+	equalOperator = display.newImage(assetPath.."igual.png", PADDING_X_OPERATION * 4, POS_Y_RESULT)
+	equalOperator.xScale = SCALE_OPERATOR
+	equalOperator.yScale = SCALE_OPERATOR
 	resultImg = display.newImage(assetPath.."respuesta.png", POS_X_RESULT, POS_Y_RESULT)
-	resultImgWidth = resultImg.width
-	resultImgHeight = resultImg.height
 	operationGroup:insert(operator)
 	operationGroup:insert(equalOperator)
 	operationGroup:insert(resultImg)
-	
 end
+
 local function createDynamicAnswers()
-	
 	removeDynamicAnswers() 
-	
 	answersGroup = display.newGroup() 
 	answersLayer:insert(answersGroup) 
-	
-
-	local totalWidth = (totalAnswers - 1) * paddingAnswers
 	local startX = display.contentWidth / (totalAnswers + 1)
-	
-	local function boxAnimation(box) 
-		local originalY = box.y
-		local targetY = originalY - 50
-	end
-	
 	for index = 1, totalAnswers do
 		local answerBox = display.newImage(sheetAnswers, answers[index], startX * index, display.contentCenterY + OFFSET_Y_WRONG_ANSWERS)
 		local finalScale
@@ -190,38 +147,25 @@ local function createDynamicAnswers()
 		else
 			answerBox.isCorrect = false
 		end
-			
 		answerBox:addEventListener("touch", onAnswerTouched)
 		answersGroup:insert(answerBox)
-		
-		boxAnimation(answerBox)
 	end
-	
-	--transition.to(answersGroup, {tag = scenePath, time = 20000, alpha = 0.2}) 
 end
 
 local function initialize(event)
 	event = event or {} 
 	local params = event.params or {} 
-	
-	isFirstTime = params.isFirstTime 
 	manager = event.parent 
-	
 	local operation = params.operation 
 	local wrongAnswers = params.wrongAnswers
-
 	answers = wrongAnswers	
 	table.insert(answers,2,operation.result)
-	
 	firstOperandVal = operation.operands[1]
 	secondOperandVal = operation.operands[2]
 	operationType = operation.operand
 	result = operation.result
 	totalAnswers = #answers
 	paddingAnswers = display.contentWidth / totalAnswers
-	
-
-	
 	instructions.text = localization.getString("testMinigameHectorInstructions")
 end
 
@@ -238,7 +182,6 @@ function game.getInfo()
 		available = false, 
 		correctDelay = 500, 
 		wrongDelay = 500, 
-		
 		name = "Minigame tester", 
 		category = "math", 
 		subcategories = {"addition", "subtraction"}, 
@@ -254,7 +197,6 @@ end
 
 function game:create(event) 
 	local sceneView = self.view
-	
 	backgroundLayer = display.newGroup() 
 	sceneView:insert(backgroundLayer)
 	backgroundImg = display.newImage(assetPath.."fondo.png",display.contentCenterX,display.contentCenterY)
@@ -263,86 +205,83 @@ function game:create(event)
 	backgroundLayer:insert(backgroundImg)
 	answersLayer = display.newGroup()
 	sceneView:insert(answersLayer)
-	
 	textLayer = display.newGroup()
 	sceneView:insert(textLayer)
-	
 	operationLayer = display.newGroup()
 	sceneView:insert(operationLayer)
-	
-	local options =
+	local optionFrame =
 	{
-		    frames =
+		frames =
+		{
+			--frame 1
 			{
-        --frame 1
-				{
-					x = 45,
-					y = 64,
-					width = 290,
-					height = 290
-				},
-        --frame 2
-				{    
-					x = 345,
-					y = 64,
-					width = 290,
-					height = 290
-				},
-		--frame 3
-				{
-					x = 640,
-					y = 64,
-					width = 290,
-					height = 290
-				},
-        --frame 4
-				{    
-					x = 50,
-					y = 370,
-					width = 290,
-					height = 290
-				},
-		--frame 5
-				{
-					x = 345,
-					y = 370,
-					width = 290,
-					height = 290
-				},
-        --frame 6
-				{    
-					x = 640,
-					y = 368,
-					width = 290,
-					height = 290
-				},
-		--frame 7
-				{
-					x = 50,
-					y = 677,
-					width = 290,
-					height = 290
-				},
-        --frame 8
-				{    
-					x = 345,
-					y = 675,
-					width = 290,
-					height = 290
-				},
-		--frame 9
-				{
-					x = 640,
-					y = 675,
-					width = 290,
-					height = 290
-				}
-			}	
+				x = 45,
+				y = 64,
+				width = 290,
+				height = 290
+			},
+			--frame 2
+			{    
+				x = 345,
+				y = 64,
+				width = 290,
+				height = 290
+			},
+			--frame 3
+			{
+				x = 640,
+				y = 64,
+				width = 290,
+				height = 290
+			},
+			--frame 4
+			{    
+				x = 50,
+				y = 370,
+				width = 290,
+				height = 290
+			},
+			--frame 5
+			{
+				x = 345,
+				y = 370,
+				width = 290,
+				height = 290
+			},
+			--frame 6
+			{    
+				x = 640,
+				y = 368,
+				width = 290,
+				height = 290
+			},
+			--frame 7
+			{
+				x = 50,
+				y = 677,
+				width = 290,
+				height = 290
+			},
+			--frame 8
+			{    
+				x = 345,
+				y = 675,
+				width = 290,
+				height = 290
+			},
+			--frame 9
+			{
+				x = 640,
+				y = 675,
+				width = 290,
+				height = 290
+			}
+		}	
 	}
-	sheetAnswers = graphics.newImageSheet( assetPath.."acomodo de frutas.png", options )
+	sheetAnswers = graphics.newImageSheet( assetPath.."acomodo de frutas.png", optionFrame )
 	instructionsBg = display.newImage(assetPath.."instruccion.png",display.contentCenterX,display.contentCenterY * 0.12)
-	instructionsBg.xScale = 1.5 
-	instructions = display.newText("", display.contentCenterX, display.contentCenterY * 0.11, native.systemFontBold, display.contentCenterY * 0.13)
+	instructionsBg.xScale = SCALE_BACKGROUND 
+	instructions = display.newText("", display.contentCenterX, TEXT_POSX, TEXT_POSY)
 	textLayer:insert(instructionsBg)
 	textLayer:insert(instructions)	
 	
