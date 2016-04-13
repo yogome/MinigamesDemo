@@ -14,6 +14,10 @@ local function startManager(event)
 	if minigames and #minigames >= 1 then
 		local minigameRequire = require(minigames[1])
 		
+		if not minigameRequire.getInfo then
+			error(tostring(minigames[1]).." is missing function .getInfo", 8)
+		end
+		
 		local info = minigameRequire.getInfo()
 		print(info.category)
 		

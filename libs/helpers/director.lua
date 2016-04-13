@@ -1,8 +1,31 @@
+----------------------------------------------- Director - Scene management mock
 local composer = require("composer")
 
+----------------------------------------------- Caches
 local oldNewScene = composer.newScene
-
 local tableRemove = table.remove
+----------------------------------------------- Local functions
+local function cancelSceneTimers(scene)
+	if scene and scene._timers and "table" == type(scene._timers) then
+		for index = #scene._timers, 1, -1 do
+			if scene._timers[index] then
+				timer.cancel(scene._timers[index])
+			end
+		end
+		scene._timers = {}
+	end
+end
+
+local function cancelSceneTransitions(scene)
+	if scene and scene._transitions and "table" == type(scene._transitions) then
+		for index = #scene._transitions, 1, -1 do
+			if scene._transitions[index] then
+				transition.cancel(scene._transitions[index])
+			end
+		end
+		scene._transitions = {}
+	end
+end
 
 local function removeItem(tab, item)
 	if tab and "table" == type(tab) then
@@ -15,25 +38,24 @@ local function removeItem(tab, item)
 	end
 	return false
 end
-
-local function didHideSceneHook(scene, event)
-	if event.phase == "did" then
-		
-	end
-end
-
+----------------------------------------------- Module functions
 function composer.newScene(...)
 	local newScene = oldNewScene(...)
 	
 	newScene._timers = {}
 	newScene._transitions = {}
-	newScene:addEventListener("hide", didHideSceneHook)
+	newScene:addEventListener("hide", function(event)
+		if event.phase == "did" then
+			cancelSceneTimers(newScene)
+			cancelSceneTransitions(newScene)
+		end
+	end)
 	
 	return newScene
 end
 
 function composer.performWithDelay(sceneName, delay, listener, iterations)
-	local scene = director.sceneDictionary[sceneName]
+	local scene = composer.loadedScenes[sceneName]
 	if scene and scene._timers then
 		local timerHandle = timer.performWithDelay(delay, function(event)
 			listener(event)
@@ -45,7 +67,7 @@ function composer.performWithDelay(sceneName, delay, listener, iterations)
 end
 
 function composer.to(sceneName, target, params)
-	local scene = director.sceneDictionary[sceneName]
+	local scene = composer.loadedScenes[sceneName]
 	if scene and scene._transitions and params then
 		local onComplete = params.onComplete
 		

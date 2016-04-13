@@ -74,7 +74,7 @@ local function onTouchBox( event )
 				end
 			else
 				object.isTouchable = false
-				transition.to( object,{ time = 500, x = object.markX, y = object.markY, onComplete = function () object.isTouchable = true end})
+				director.to(scenePath, object,{ time = 500, x = object.markX, y = object.markY, onComplete = function () object.isTouchable = true end})
 				display.getCurrentStage():setFocus(nil)
 			end
 		end
