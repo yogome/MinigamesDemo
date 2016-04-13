@@ -143,8 +143,8 @@ local function boxCandy()
 end
 
 local function packCandies()
-    director.to(scenePath,box,{time= 300, alpha = 1})
-    converyotLineG[40].alpha=0
+    director.to(scenePath, box ,{time= 300, alpha = 1})
+    --converyotLineG[40].alpha=0
     moveLines()
     director.performWithDelay(scenePath, 3000, boxCandy )
     
@@ -288,7 +288,7 @@ local function touchBox(event)
 end
 
 local function confirmation(answer)
-    local container = display.newRect( 0, 0, display.viewableContentWidth  ,display.viewableContentWidth )
+    local container = display.newRect( 0, 0, display.viewableContentWidth , display.viewableContentWidth )
     container.x = display.contentCenterX 
     container.y = display.contentCenterY -20
     container.alpha = 0
@@ -296,9 +296,10 @@ local function confirmation(answer)
     director.to(scenePath,container,{time = 100, alpha = 0.5})
     secondScene: insert(container)
     boxOptions = {}
-    local distance= 45
+
     for i = 1, 3 do
         boxOptions[i]= display.newImage(assetPath.."option.png")
+        boxOptions[i]:scale(0.7, 0.7)
         boxOptions[i].value = math.random(answer + sequence)
         while boxOptions[i].value == answer do
             for q = 1, 3 do
@@ -318,37 +319,35 @@ local function confirmation(answer)
         end
     boxOptions[3].value = answer
     boxOptions = shuffle(boxOptions)
-    
+    distance = 200
     for i = 1, 3 do
-        boxOptions[i].x = 100 + distance
-        boxOptions[i].y = display.contentCenterY + 70
-        local number =  display.newText("+"..boxOptions[i].value, 105 + distance, display.contentCenterY + 75, native.systemFont, 20)
+
+        boxOptions[i].x = 105 + distance
+        boxOptions[i].y = display.contentCenterY + 100
+        local number =  display.newText("+"..boxOptions[i].value, 120 + distance, display.contentCenterY + 110, native.systemFont)
         number:setTextColor(0,0,0)
-        boxOptions[i]:scale(0.6, 0.6)
-        distance = distance + 85
+        distance = distance + boxOptions[i].width
         boxOptions[i]:addEventListener( "touch", touchBox )
         secondScene: insert(number)
     end
     
     local candyConfirmation
 
-    local distance = 70
+    local distance = 230
     local candyConfirmation= {}
      for i=5, 1, -1 do
- 
         candyConfirmation[i] = display.newImage(assetPath..candyNumberT[i].path)
-        candyConfirmation[i]:scale(0.4, 0.4)
-        local number = display.newText(candyNumberT[i].value, distance, 100 , native.systemFont, 20)
+        local number = display.newText(candyNumberT[i].value, distance, 130 , native.systemFont)
         number:setTextColor(0,0,0)
         candyConfirmation[i].x = distance
-        candyConfirmation[i].y = 100
-        distance = distance + 70
+        candyConfirmation[i].y = 130
+        distance = distance + candyConfirmation[i].height * 1.3
         secondScene: insert(candyConfirmation[i])
         secondScene: insert(number)
     end
     for i= 1, 5 do
-        transition.scaleTo(candyConfirmation[i], {time=500, delay= 200, xScale= 0.5, yScale = 0.5, transition=easing.outBounce})
-        transition.scaleTo(candyConfirmation[i], {time=500, delay= 300, xScale= 0.4, yScale = 0.4, transition=easing.outBounce})
+        transition.scaleTo(candyConfirmation[i], {time=500, delay= 200, transition=easing.outBounce})
+        transition.scaleTo(candyConfirmation[i], {time=500, delay= 300, transition=easing.outBounce})
     end
     
     
@@ -415,7 +414,7 @@ local function barrels()
         
         
         local candyButtonOption = display.newGroup()
-        local number =  display.newText(candyButtonsGroup[i].value, display.contentCenterX , display.contentCenterY , native.systemFont, 55)
+        local number =  display.newText(candyButtonsGroup[i].value, display.contentCenterX , display.contentCenterY , native.systemFont)
     
         number.y = 3
         number.x = 0
