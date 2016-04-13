@@ -11,6 +11,7 @@ local buttonList
 local menuView
 local language
 local languageIndex
+local addedButtons
 ----------------------------------------------- Constants
 local BUTTON_SHOW_WIDTH = 100
 local BUTTON_SHOW_HEIGHT = 35
@@ -31,6 +32,10 @@ end
 
 local function goHector()
 	director.gotoScene("scenes.manager", {params = {minigames = {"gamefiles.mathTestHector.game"}}})
+end
+
+local function goOsiel()
+	director.gotoScene("scenes.manager", {params = {minigames = {"gamefiles.mathTestOsiel.game"}}})
 end
 
 local function toggleLanguage(event)
@@ -165,6 +170,7 @@ function scene:create(event)
 	
 	self.addButton("Go Ivan", goIvan, COLOR_DEFAULT, 1)
 	self.addButton("Go Hector", goHector, COLOR_DEFAULT, 1)
+	self.addButton("Go Osiel", goOsiel, COLOR_DEFAULT, 1)
 	self.addButton("Lang:"..language, toggleLanguage, COLOR_DEFAULT, 1)
 end
 
