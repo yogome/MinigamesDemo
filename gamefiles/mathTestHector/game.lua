@@ -161,7 +161,7 @@ local function initialize(event)
 	local wrongAnswers = params.wrongAnswers
 	local solutionPos = math.random( 1, #wrongAnswers )
 	answers = wrongAnswers
-	table.insert(answers,solutionPos,operation.result)
+	answers[solutionPos] = operation.result
 	firstOperandVal = operation.operands[1]
 	secondOperandVal = operation.operands[2]
 	operationType = operation.operand

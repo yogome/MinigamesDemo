@@ -24,12 +24,12 @@ local function startManager(event)
 		local generatedParameters = {
 			category = "addition",
 			operation = {
-				operands = {5,5},
-				result = 10,
-				operation = "5+5=10",
+				operands = {3, 3},
+				result = 6,
+				operation = "3+3=6",
 				operand = "+"
 			},
-			wrongAnswers = {2,3,4,6,7}
+			wrongAnswers = {2,3,4,5,7}
 		}
 		
 		director.showOverlay(minigames[1], {isModal = true, effect = "fade", time = 500, params = generatedParameters})
