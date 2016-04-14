@@ -62,7 +62,7 @@ local function shuffle(tableS)
 	return oTable
 end
 
-local function scenario()
+local function createScenario()
     local ventilador = display.newImage(assetPath.."ventilador.png")
     ventilador.x = display.contentCenterX * 0.5
     ventilador.y = display.contentCenterY * 0.3
@@ -126,23 +126,20 @@ local function moveLines()
     end
 end
 
-local function tube()
+local function playTube()
     tubeEx:play()
 end
 
-local function boxCandy()
+local function playBoxCandy()
     box:play()
 end
 
 local function packCandies()
     director.to(scenePath, box ,{time= 300, alpha = 1})
     moveLines()
-    director.performWithDelay(scenePath, 3000, boxCandy )
+    director.performWithDelay(scenePath, 3000, playBoxCandy )
     
     local distance = conveyor.height * 2
-    candyButtonQuestion:insert(candiesGroup[rndNumber])
-    candyButtonQuestion:insert(candyNumberT[rndNumber])
-
     for i=5, 1, -1 do
         director.to(scenePath,candyNumberT[i], {time= 500 + (i * 500), x = distance, transition=easing.linear})
         director.to(scenePath,candyNumberT[i], {time= 50 + (i * 50), delay = 500 + (i * 500), y = display.contentCenterY + 20, alpha = 0, transition=easing.linear})
@@ -163,8 +160,7 @@ local function moveCandy()
 end
 
 local function createCandy()  
-    local tubeOptions =
-    {
+    local tubeOptions = {
         width = 190,
         height = 293.33,
         numFrames = 12
@@ -240,7 +236,7 @@ local sequenceCounter = sequence * 6
             if candiesIndex == 5 then transition.cancel("BELT") end
         end})
 
-        director.performWithDelay(scenePath,  1020 * candiesIndex, tube )
+        director.performWithDelay(scenePath,  1020 * candiesIndex, playTube )
         distance = distance - candyNumber.width * 1.2
         candiesGroup[rndNumber].pX = candiesGroup[rndNumber].x
         candiesGroup[rndNumber].pY = candiesGroup[rndNumber].y
@@ -279,7 +275,7 @@ local function touchBox(event)
     return true  
 end
 
-local function confirmation(answer)
+local function showSecondScene(answer)
     local container = display.newRect( 0, 0, display.viewableContentWidth , display.viewableContentWidth )
     container.x = display.contentCenterX 
     container.y = display.contentCenterY -20
@@ -362,7 +358,7 @@ local function touchCandyButton(event)
            currentCandy.contentBounds.yMin - 30 < candiesGroup[rndNumber].contentBounds.yMin and
            currentCandy.contentBounds.yMax + 30 > candiesGroup[rndNumber].contentBounds.yMax and
            currentCandy.value == questionCandy) then
-            confirmation(sequence)
+            showSecondScene(sequence)
             secondScene:toFront()
             
             candiesGroup[rndNumber].alpha = 0
@@ -376,7 +372,7 @@ local function touchCandyButton(event)
     return true  
 end
 
-local function barrels()
+local function createBarrels()
     for i=1, 2 do
         candy = math.random(1,4)
         candyButtonsTable[i] = display.newImage(assetPath..CANDY_BUTTONS[candy].path)
@@ -435,9 +431,6 @@ local function initialize()
     candyNumberT = {}
     candyButtonT = {}
 
-    
-    candyButtonQuestion = display.newGroup()
-    
     conveyorGroup = display.newGroup()
     backgroundLayer:insert(conveyorGroup)
 
@@ -492,9 +485,9 @@ function game:show(event)
 
 	if phase == "will" then
         initialize()
-        scenario()
+        createScenario()
 		createCandy()
-        barrels()
+        createBarrels()
         
 	elseif phase == "did" then
 	
@@ -508,6 +501,9 @@ function game:hide( event )
 		
 	elseif phase == "did" then
 		display.remove(conveyorGroup)
+        display.remove(conveyorCandyGroup)
+        display.remove(barrelsGroup)
+        display.remove(secondScene)
 	end
 end
 
