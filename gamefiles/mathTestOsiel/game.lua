@@ -47,6 +47,9 @@ local SCREEN_WIDTH = display.viewableContentWidth
 local SCREEN_HEIGHT = display.viewableContentHeight
 
 local CONVEYOR_SIZE = 35
+local CANDY_NUMBER = 5
+local BARREL_NUMBER = 3
+local BOX_OPTION_NUMBER = 3
 
 --Caches
 
@@ -114,9 +117,6 @@ local function createScenario()
     caja.y = conveyor.y * 0.83
     conveyorGroup:insert(caja)
     caja:toBack()
-
-    
-
 end
 
 local function moveLines()
@@ -153,9 +153,8 @@ local function packCandies()
 end
 
 local function moveCandy()
-    for i=5, 1, -1 do
-    director.to(scenePath,candyNumberT[i], {time= 300 , x = math.random (100, 300), transition=easing.linear})
-    --director.to(scenePath,candyNumberT[i], {time= 600 , x = math.random (100, 300), transition=easing.linear})
+    for moveCandyIndex=CANDY_NUMBER, 1, -1 do
+    director.to(scenePath,candyNumberT[moveCandyIndex], {time= 300 , x = math.random (100, 300), transition=easing.linear})
     end
 end
 
@@ -192,34 +191,34 @@ local function createCandy()
     moveLines()
 
 local sequenceCounter = sequence * 6
-    for i=1, 5 do
+    for moveCandyIndex=1, CANDY_NUMBER do
         candy = math.random(1,4)
-        candiesGroup[i] = display.newImage(assetPath..CANDIES[candy].path)
-        candiesGroup[i].path = candy
-        candiesGroup[i].value = sequenceCounter 
+        candiesGroup[moveCandyIndex] = display.newImage(assetPath..CANDIES[candy].path)
+        candiesGroup[moveCandyIndex].path = candy
+        candiesGroup[moveCandyIndex].value = sequenceCounter 
 
         sequenceCounter = sequenceCounter - sequence
         
-        local number =  display.newText(candiesGroup[i].value, display.screenOriginX, display.screenOriginY, native.systemFont)
+        local number =  display.newText(candiesGroup[moveCandyIndex].value, display.screenOriginX, display.screenOriginY, native.systemFont)
         number:setTextColor(0,0,0)
         
         candyNumber = display.newGroup()
-        questionCandy =candiesGroup[i].value
-        candyNumber: insert(candiesGroup[i])
+        questionCandy =candiesGroup[moveCandyIndex].value
+        candyNumber: insert(candiesGroup[moveCandyIndex])
         candyNumber: insert(number)
         candyNumber.anchorChildren = true
         candyNumber.x = display.screenOriginX + tubeEx.width * 0.75
         candyNumber.y = display.screenOriginY - tubeEx.width * 1
         
-        candyNumberT[i] = candyNumber
-        candyNumberT[i].path = (CANDY_BUTTONS[candy].path)
-        candyNumberT[i].value = candiesGroup[i].value
-        conveyorCandyGroup:insert(candyNumberT[i])
+        candyNumberT[moveCandyIndex] = candyNumber
+        candyNumberT[moveCandyIndex].path = (CANDY_BUTTONS[candy].path)
+        candyNumberT[moveCandyIndex].value = candiesGroup[moveCandyIndex].value
+        conveyorCandyGroup:insert(candyNumberT[moveCandyIndex])
         
     end
         
         questionCandy=candiesGroup[rndNumber].value
-        candiesGroup[rndNumber] = display.newImage(assetPath..CANDIES[5].path)
+        candiesGroup[rndNumber] = display.newImage(assetPath..CANDIES[CANDY_NUMBER].path)
         
         candyNumber = display.newGroup()
         candyNumber: insert(candiesGroup[rndNumber])
@@ -230,10 +229,10 @@ local sequenceCounter = sequence * 6
         conveyorCandyGroup:insert(candyNumberT[rndNumber])
 
     local distance = conveyor.height * 1.7       
-    for candiesIndex = 1, 5 do
+    for candiesIndex = 1, CANDY_NUMBER do
         director.to(scenePath,candyNumberT[candiesIndex], {time=1400, delay= candiesIndex * 1000, y = display.contentCenterY * 0.9, transition=easing.outBounce})
         director.to(scenePath,candyNumberT[candiesIndex], {time= 4500 - (candiesIndex * 1000), delay= (candiesIndex + 1) * 1000, x = distance, transition=easing.linear, onComplete = function() 
-            if candiesIndex == 5 then transition.cancel("BELT") end
+            if candiesIndex == CANDY_NUMBER then transition.cancel("BELT") end
         end})
 
         director.performWithDelay(scenePath,  1020 * candiesIndex, playTube )
@@ -263,10 +262,10 @@ local function touchBox(event)
             local green = { 0.72, 0.9, 0.16, 0.78 }
             currentBox:setFillColor(  1, 0.2, 0.2)
 
-            for i = 1, 3 do
-                if(boxOptions[i].value == sequence) then
-                boxOptions[i]:setFillColor( 0.72, 0.9, 0.16 )
-                transition.scaleTo( boxOptions[i],{time=500, xScale= 0.7, yScale = 0.7, transition = easing.inOutBack })
+            for boxOptionIndex = 1, BOX_OPTION_NUMBER do
+                if(boxOptions[boxOptionIndex].value == sequence) then
+                boxOptions[boxOptionIndex]:setFillColor( 0.72, 0.9, 0.16 )
+                transition.scaleTo( boxOptions[boxOptionIndex],{time=500, xScale= 0.7, yScale = 0.7, transition = easing.inOutBack })
                 
                 end
             end
@@ -285,37 +284,31 @@ local function showSecondScene(answer)
     secondScene: insert(container)
     boxOptions = {}
 
-    for i = 1, 3 do
-        boxOptions[i]= display.newImage(assetPath.."option.png")
-        boxOptions[i]:scale(0.7, 0.7)
-        boxOptions[i].value = math.random(answer + sequence)
-        while boxOptions[i].value == answer do
+    for boxOptionIndex = 1, BOX_OPTION_NUMBER do
+        boxOptions[boxOptionIndex]= display.newImage(assetPath.."option.png")
+        boxOptions[boxOptionIndex]:scale(0.7, 0.7)
+        boxOptions[boxOptionIndex].value = math.random(answer + sequence)
+        while boxOptions[boxOptionIndex].value == answer do
             for q = 1, 3 do
-                if boxOptions[i].value == boxOptions[q].value then
-                    boxOptions[i].value = math.random(answer + sequence)
+                if boxOptions[boxOptionIndex].value == boxOptions[q].value then
+                    boxOptions[boxOptionIndex].value = math.random(answer + sequence)
                 end
             end
         end
-        secondScene: insert(boxOptions[i])
+        secondScene: insert(boxOptions[boxOptionIndex])
     end
-    while boxOptions[2].value == boxOptions[1].value do
-            for q = 1, 3 do
-                if boxOptions[i].value == boxOptions[q].value then
-                    boxOptions[i].value = math.random(answer + sequence)
-                end
-            end
-        end
-    boxOptions[3].value = answer
+    
+    boxOptions[BOX_OPTION_NUMBER].value = answer
     boxOptions = shuffle(boxOptions)
     distance = 200
-    for i = 1, 3 do
+    for boxOptionIndex = 1, BOX_OPTION_NUMBER do
 
-        boxOptions[i].x = 105 + distance
-        boxOptions[i].y = display.contentCenterY + 100
-        local number =  display.newText("+"..boxOptions[i].value, 120 + distance, display.contentCenterY + 110, native.systemFont)
+        boxOptions[boxOptionIndex].x = 105 + distance
+        boxOptions[boxOptionIndex].y = display.contentCenterY + 100
+        local number =  display.newText("+"..boxOptions[boxOptionIndex].value, 120 + distance, display.contentCenterY + 110, native.systemFont)
         number:setTextColor(0,0,0)
-        distance = distance + boxOptions[i].width
-        boxOptions[i]:addEventListener( "touch", touchBox )
+        distance = distance + boxOptions[boxOptionIndex].width
+        boxOptions[boxOptionIndex]:addEventListener( "touch", touchBox )
         secondScene: insert(number)
     end
     
@@ -323,19 +316,15 @@ local function showSecondScene(answer)
 
     local distance = 230
     local candyConfirmation= {}
-     for i=5, 1, -1 do
-        candyConfirmation[i] = display.newImage(assetPath..candyNumberT[i].path)
-        local number = display.newText(candyNumberT[i].value, distance, 130 , native.systemFont)
+     for candyIndex=CANDY_NUMBER, 1, -1 do
+        candyConfirmation[candyIndex] = display.newImage(assetPath..candyNumberT[candyIndex].path)
+        local number = display.newText(candyNumberT[candyIndex].value, distance, 130 , native.systemFont)
         number:setTextColor(0,0,0)
-        candyConfirmation[i].x = distance
-        candyConfirmation[i].y = 130
-        distance = distance + candyConfirmation[i].height * 1.3
-        secondScene: insert(candyConfirmation[i])
+        candyConfirmation[candyIndex].x = distance
+        candyConfirmation[candyIndex].y = 130
+        distance = distance + candyConfirmation[candyIndex].height * 1.3
+        secondScene: insert(candyConfirmation[candyIndex])
         secondScene: insert(number)
-    end
-    for i= 1, 5 do
-        transition.scaleTo(candyConfirmation[i], {time=500, delay= 200, transition=easing.outBounce})
-        transition.scaleTo(candyConfirmation[i], {time=500, delay= 300, transition=easing.outBounce})
     end
     
     
@@ -373,48 +362,47 @@ local function touchCandyButton(event)
 end
 
 local function createBarrels()
-    for i=1, 2 do
+    for barrelIndex=1, BARREL_NUMBER do
         candy = math.random(1,4)
-        candyButtonsTable[i] = display.newImage(assetPath..CANDY_BUTTONS[candy].path)
-        candyButtonsTable[i].barrel = BARRELS[candy].path
-        candyButtonsTable[i].value = math.random(questionCandy - sequence ,questionCandy + sequence) 
-        while sequence == candyButtonsTable[i].value do
-            candyButtonsTable[i].value = math.random(questionCandy - sequence,questionCandy + sequence) 
+        candyButtonsTable[barrelIndex] = display.newImage(assetPath..CANDY_BUTTONS[candy].path)
+        candyButtonsTable[barrelIndex].barrel = BARRELS[candy].path
+        candyButtonsTable[barrelIndex].value = math.random(questionCandy - sequence ,questionCandy + sequence) 
+        while sequence == candyButtonsTable[barrelIndex].value do
+            candyButtonsTable[barrelIndex].value = math.random(questionCandy - sequence,questionCandy + sequence) 
         end
     end
-    
-    candyButtonsTable[3] = display.newImage(assetPath..CANDY_BUTTONS[rndNumber].path)
-    candyButtonsTable[3].barrel = BARRELS[rndNumber].path
-    candyButtonsTable[3].value = questionCandy
+    candyButtonsTable[BARREL_NUMBER].barrel = BARRELS[rndNumber].path
+    candyButtonsTable[BARREL_NUMBER].value = questionCandy
     candyNumberT[rndNumber].path = (CANDY_BUTTONS[rndNumber].path)
     candyNumberT[rndNumber].value = questionCandy
+
     local dis= 40
     candyButtonsTable = shuffle(candyButtonsTable)
-    for i=1, 3 do
-        local barrel = display.newImage(assetPath..candyButtonsTable[i].barrel)
+    for barrelIndex=1, BARREL_NUMBER do
+        local barrel = display.newImage(assetPath..candyButtonsTable[barrelIndex].barrel)
         barrel.x = barrel.height + dis
         barrel.y = display.contentHeight - barrel.height * 0.5
         barrelsGroup:insert(barrel)
         
         local candyButtonOption = display.newGroup()
-        local number =  display.newText(candyButtonsTable[i].value, display.contentCenterX , display.contentCenterY , native.systemFont)
+        local number =  display.newText(candyButtonsTable[barrelIndex].value, display.contentCenterX , display.contentCenterY , native.systemFont)
     
         number.y = 3
         number.x = 0
         number:setTextColor(0,0,0)
         
-        candyButtonOption: insert(candyButtonsTable[i])
+        candyButtonOption: insert(candyButtonsTable[barrelIndex])
         candyButtonOption: insert(number)
         candyButtonOption.anchorChildren = true
-        candyButtonOption.position = i
+        candyButtonOption.position = barrelIndex
         candyButtonOption: addEventListener( "touch", touchCandyButton )
         candyButtonOption.x = barrel.x
         candyButtonOption.y = barrel.y - barrel.height * 0.5 - 20
-        candyButtonOption.value = candyButtonsTable[i].value
+        candyButtonOption.value = candyButtonsTable[barrelIndex].value
         candyButtonOption.pX = candyButtonOption.x
         candyButtonOption.pY = candyButtonOption.y
         dis = dis + barrel.height * 1.5
-        candyButtonT[i] = candyButtonOption
+        candyButtonT[barrelIndex] = candyButtonOption
         barrelsGroup:insert(candyButtonOption)
     end
 end
