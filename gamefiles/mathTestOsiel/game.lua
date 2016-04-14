@@ -13,10 +13,11 @@ local answersLayer
 local backgroundLayer
 local candyButtonsTable, candyNumberTable, candyTable, candyConveyorTable
 local selectedCandyButton, valueMissingCandy, candyNumber, randomCandy, candyPattern, candy
-local secondScene
+local instructions, secondScene
 local tubeExecution, conveyor, converyotLineTable, lineDistance,  barrelsTable
 local boxOptions, candyBox, box
 local conveyorGroup, conveyorCandyGroup, barrelsGroup, candyButtons
+local instructionsBar, instructionsText
 
 --Constants
 local CANDIES = {
@@ -53,6 +54,10 @@ local CANDY_NUMBER = 5
 local BARREL_NUMBER = 3
 local BOX_OPTION_NUMBER = 3
 
+local FONT_SIZE_CANDY = 45
+local FONT_SIZE_INSTRUCTIONS = 30
+local FONT_NAME = settings.fontName
+
 --Local functions
 
 local function shuffle(tableS)
@@ -81,20 +86,16 @@ local function createScenario()
     director.to(scenePath, fan2, { rotation = 360, time = 1400, transition = easing.lineal, iterations = -1 } )
     backgroundLayer:insert(fan2)
     
-    candyBox = display.newImage(assetPath.."candyBox.png")
-    candyBox.x = display.contentCenterX + 196
-    candyBox.y = display.contentCenterY + 30
-    candyBox:scale(0.47,0.47)
-    candyBox.alpha = 0   
+    
     
     local boxOptions = {
-        width = 375,
-        height = 300,
+        width = 254,
+        height = 236,
         numFrames = 16
     }
 
-    local candyPatternsBox = { 
-        name= "on",
+    local candyBoxSequence = { 
+        name = "packCandies",
         start = 1,
         count = 16,
         time = 800,
@@ -108,12 +109,15 @@ local function createScenario()
     conveyorGroup:insert(conveyor)
     
     local boxSprite = graphics.newImageSheet(assetPath.."box.png", boxOptions )
-    box = display.newSprite( boxSprite, candyPatternsBox )
-    box.x = conveyor.x * 2.05
-    box.y = conveyor.y * 0.75
-    box.alpha = 0
-    backgroundLayer:insert(box)
-    box:toBack()
+
+    boxAnimation = display.newSprite( boxSprite, candyBoxSequence )
+    boxAnimation.x = conveyor.x * 2.05
+    boxAnimation.y = conveyor.y * 0.75
+    boxAnimation:setSequence("packCandies")
+    boxAnimation:scale(1.4, 1.4)
+    boxAnimation.alpha = 0
+    backgroundLayer:insert(boxAnimation)
+    --boxAnimation:toBack()
 
     local emptyBox = display.newImage(assetPath.."cajavacia.png")
     emptyBox.x = conveyor.x * 2.05
@@ -133,18 +137,18 @@ local function playTube()
 end
 
 local function playBoxCandy()
-    box:play()
+    boxAnimation:play()
 end
 
 local function packCandies()
-    director.to(scenePath, box ,{time = 300, alpha = 1})
+    director.to(scenePath, boxAnimation ,{time = 300, alpha = 1})
     moveLines()
-    director.performWithDelay(scenePath, 3000, playBoxCandy )
+    director.performWithDelay(scenePath, 3000, playBoxCandy)
     
     local distance = conveyor.height * 2
     for moveCandyIndex = CANDY_NUMBER, 1, -1 do
         director.to(scenePath,candyNumberTable[moveCandyIndex], {time = 500 + (moveCandyIndex * 500), x = distance, transition=easing.linear})
-        director.to(scenePath,candyNumberTable[moveCandyIndex], {time = 50 + (moveCandyIndex * 50), delay = 500 + (moveCandyIndex * 500), y = display.contentCenterY + 20, alpha = 0, transition=easing.linear})
+        director.to(scenePath,candyNumberTable[moveCandyIndex], {time = 50 + (moveCandyIndex * 50), delay = 500 + (moveCandyIndex * 500), y = display.contentCenterY + 20, alpha = 0, transition = easing.linear})
 
         if( moveCandyIndex == randomCandy) then
             director.to(scenePath,candyTable[selectedCandyButton], {time = 500 + (moveCandyIndex * 500), x = distance, transition=easing.linear})
@@ -200,7 +204,7 @@ local candyPatternCounter = candyPattern * CANDY_NUMBER + 1
 
         candyPatternCounter = candyPatternCounter - candyPattern
         
-        local number =  display.newText(candyConveyorTable[moveCandyIndex].value, display.screenOriginX, display.screenOriginY, native.systemFont)
+        local number =  display.newText(candyConveyorTable[moveCandyIndex].value, display.screenOriginX, display.screenOriginY, FONT_NAME, FONT_SIZE_CANDY)
         number:setTextColor(0, 0, 0)
         
         candyNumber = display.newGroup()
@@ -271,13 +275,13 @@ local function touchBox(event)
 end
 
 local function showSecondScene(answer)
-    local container = display.newRect( 0, 0, display.viewableContentWidth , display.viewableContentWidth )
-    container.x = display.contentCenterX 
-    container.y = display.contentCenterY -20
-    container.alpha = 0
-    container.fill = {0}
-    director.to(scenePath,container,{time = 100, alpha = 0.5})
-    secondScene: insert(container)
+    local secondSceneBackground = display.newRect( 0, 0, display.viewableContentWidth , display.viewableContentWidth )
+    secondSceneBackground.x = display.contentCenterX 
+    secondSceneBackground.y = display.contentCenterY -20
+    secondSceneBackground.alpha = 0
+    secondSceneBackground.fill = {0}
+    director.to(scenePath,secondSceneBackground,{time = 100, alpha = 0.5})
+    secondScene: insert(secondSceneBackground)
     boxOptions = {}
 
     for boxOptionIndex = 1, BOX_OPTION_NUMBER do
@@ -294,6 +298,10 @@ local function showSecondScene(answer)
         secondScene:insert(boxOptions[boxOptionIndex])
     end
     
+    local secondSceneText = display.newText("", display.contentCenterX, display.contentCenterY - 60, FONT_NAME, FONT_SIZE_CANDY)
+    secondScene:insert(secondSceneText)
+    secondSceneText.text = localization.getString("testMinigameOsielInstructionsSecondScene")
+
     boxOptions[BOX_OPTION_NUMBER].value = answer
     boxOptions = shuffle(boxOptions)
     local distance = 200
@@ -301,7 +309,7 @@ local function showSecondScene(answer)
     for boxOptionIndex = 1, BOX_OPTION_NUMBER do
         boxOptions[boxOptionIndex].x = 105 + distance
         boxOptions[boxOptionIndex].y = display.contentCenterY + 100
-        local number =  display.newText("+"..boxOptions[boxOptionIndex].value, 120 + distance, display.contentCenterY + 110, native.systemFont)
+        local number =  display.newText("+"..boxOptions[boxOptionIndex].value, 120 + distance, display.contentCenterY + 110, FONT_NAME, FONT_SIZE_CANDY)
         number:setTextColor(0,0,0)
         
         distance = distance + boxOptions[boxOptionIndex].width
@@ -314,7 +322,7 @@ local function showSecondScene(answer)
     local candyConfirmation= {}
     for candyIndex = CANDY_NUMBER, 1, -1 do
         candyConfirmation[candyIndex] = display.newImage(assetPath..candyNumberTable[candyIndex].path)
-        local number = display.newText(candyNumberTable[candyIndex].value, distance, 130 , native.systemFont)
+        local number = display.newText(candyNumberTable[candyIndex].value, distance, 130 , FONT_NAME)
         number:setTextColor(0,0,0)
         
         candyConfirmation[candyIndex].x = distance
@@ -374,23 +382,24 @@ local function createBarrels()
     candyNumberTable[randomCandy].path = (CANDY_BUTTONS[randomCandy].path)
     candyNumberTable[randomCandy].value = valueMissingCandy
 
-    local dis= 40
+    local distance = 40
     candyButtonsTable = shuffle(candyButtonsTable)
+    
     for barrelIndex = 1, BARREL_NUMBER do
         local barrel = display.newImage(assetPath..candyButtonsTable[barrelIndex].barrel)
-        barrel.x = barrel.height + dis
+        barrel.x = barrel.height + distance
         barrel.y = display.contentHeight - barrel.height * 0.5
         barrelsGroup:insert(barrel)
         
         local candyButtonOption = display.newGroup()
-        local number =  display.newText(candyButtonsTable[barrelIndex].value, display.contentCenterX , display.contentCenterY , native.systemFont)
+        local numberButton =  display.newText(candyButtonsTable[barrelIndex].value, display.contentCenterX , display.contentCenterY , FONT_NAME, FONT_SIZE_CANDY)
     
-        number.y = 3
-        number.x = 0
-        number:setTextColor(0,0,0)
+        numberButton.y = 3
+        numberButton.x = 0
+        numberButton:setTextColor(0,0,0)
         
         candyButtonOption: insert(candyButtonsTable[barrelIndex])
-        candyButtonOption: insert(number)
+        candyButtonOption: insert(numberButton)
         candyButtonOption.anchorChildren = true
         candyButtonOption.position = barrelIndex
         candyButtonOption: addEventListener( "touch", touchCandyButton )
@@ -399,7 +408,7 @@ local function createBarrels()
         candyButtonOption.value = candyButtonsTable[barrelIndex].value
         candyButtonOption.pX = candyButtonOption.x
         candyButtonOption.pY = candyButtonOption.y
-        dis = dis + barrel.height * 1.5
+        distance = distance + barrel.height * 1.5
         candyTable[barrelIndex] = candyButtonOption
         barrelsGroup:insert(candyButtonOption)
     end
@@ -416,6 +425,7 @@ local function initialize()
     candyConveyorTable = {}
     candyNumberTable = {}
     candyTable = {}
+    instructionsText.text = localization.getString("testMinigameOsielInstructions")
 
     conveyorGroup = display.newGroup()
     backgroundLayer:insert(conveyorGroup)
@@ -427,7 +437,9 @@ local function initialize()
     answersLayer:insert(barrelsGroup)
 
     secondScene = display.newGroup()
-    answersLayer:insert(secondScene)
+    textLayer:insert(secondScene)
+
+
 
 end
 ----------------------------------------------- Module functions
@@ -459,11 +471,22 @@ function game:create(event)
     answersLayer = display.newGroup() 
     sceneView:insert(answersLayer)
 
+    textLayer = display.newGroup()
+    sceneView:insert(textLayer)
+
     local background = display.newImageRect(assetPath.."fondo.png", SCREEN_WIDTH + 1, SCREEN_HEIGHT)
     background.x = display.contentCenterX
     background.y = display.contentCenterY
     backgroundLayer:insert(background)
 
+    local instructionsBar = display.newImage(assetPath.."bar.png")
+    instructionsBar.x = SCREEN_WIDTH / 2
+    instructionsBar.y = display.screenOriginY + instructionsBar.height * 0.5
+    instructionsBar.width = SCREEN_WIDTH
+    textLayer:insert(instructionsBar)
+
+    instructionsText = display.newText("",  instructionsBar.x, instructionsBar.y, FONT_NAME, FONT_SIZE_INSTRUCTIONS)
+    textLayer:insert(instructionsText)
 end
 
 function game:show(event)
@@ -473,8 +496,7 @@ function game:show(event)
         initialize()
         createScenario()
 		createCandy()
-        createBarrels()
-        
+        createBarrels()  
 	elseif phase == "did" then
 	
 	end
@@ -494,7 +516,7 @@ function game:hide( event )
 end
 
 ----------------------------------------------- Execution
-game:addEventListener( "create", game )
+game:addEventListener( "create" )
 game:addEventListener( "show" )
 game:addEventListener( "hide" )
 
