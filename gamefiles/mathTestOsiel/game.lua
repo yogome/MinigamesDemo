@@ -260,7 +260,7 @@ local function touchBox(event)
             local red = { 1, 0.2, 0.2 }
             local green = { 0.72, 0.9, 0.16, 0.78 }
             currentBox:setFillColor(  1, 0.2, 0.2)
-            --manager.wrong()
+            manager.wrong()
             for boxOptionIndex = 1, BOX_OPTION_NUMBER do
                 if boxOptions[boxOptionIndex].value == candyPattern then
                     boxOptions[boxOptionIndex]:setFillColor( 0.72, 0.9, 0.16 )
@@ -455,7 +455,7 @@ function game.getInfo()
         available = false, 
         correctDelay = 1000, 
         wrongDelay = 1000, 
-        name = "Minigame tester", 
+        name = "Math Candy Patterns", 
         category = "math", 
         subcategories = {"addition", "subtraction"}, 
         age = {min = 0, max = 99}, 
