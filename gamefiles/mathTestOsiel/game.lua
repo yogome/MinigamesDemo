@@ -44,7 +44,7 @@ local POSITIONS = {
     [3] = {x = 150, y = 200}, 
 	[4] = {x = 200, y = 200},
     [5] = {x = 250, y = 200}	
-}
+    }
 local SCREEN_WIDTH = display.viewableContentWidth
 local SCREEN_HEIGHT = display.viewableContentHeight
 
@@ -94,22 +94,20 @@ local function createScenario()
     conveyorGroup:insert(conveyor)
     
     local boxSprite = graphics.newImageSheet(assetPath.."box.png", boxOptions )
+    boxAnimation = display.newSprite( boxSprite, candyBoxSequence )
+    boxAnimation.x = conveyor.x * 2.05 + 5
+    boxAnimation.y = conveyor.y * 0.75 - 13
+    boxAnimation:setSequence("packCandies")
+    boxAnimation:scale(1.4, 1.4)
+    boxAnimation.alpha = 0
+    conveyorGroup:insert(boxAnimation)
+    boxAnimation:toBack()
 
     local emptyBox = display.newImage(assetPath.."cajavacia.png")
     emptyBox.x = conveyor.x * 2.05
     emptyBox.y = conveyor.y * 0.83
     conveyorGroup:insert(emptyBox)
     emptyBox:toBack()
-
-    boxAnimation = display.newSprite( boxSprite, candyBoxSequence )
-    boxAnimation.x = conveyor.x * 2.05
-    boxAnimation.y = conveyor.y * 0.75
-    boxAnimation:setSequence("packCandies")
-    boxAnimation:scale(1.4, 1.4)
-    boxAnimation.alpha = 0
-    boxAnimation:toBack()
-    backgroundLayer:insert(boxAnimation)
-    
 end
 
 local function moveLines()
@@ -351,7 +349,6 @@ local function touchCandyButton(event)
            currentCandy.value == valueMissingCandy then
 
            showSecondScene(candyPattern)
-           secondScene:toFront()
            candyConveyorTable[randomCandy].alpha = 0
            selectedCandyButton = currentCandy.position
            director.to(scenePath, currentCandy, { time = 200, x = candyNumberTable[randomCandy].x, y = candyNumberTable[randomCandy].y, transition = easing.linear })
