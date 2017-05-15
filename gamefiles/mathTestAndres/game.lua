@@ -4,15 +4,13 @@ local folder = scenePath:match("(.-)[^%.]+$")
 local assetPath = string.gsub(folder,"[%.]","/") 
 local localization = require("libs.helpers.localization")
 local director = require("libs.helpers.director")
-local colors = require("libs.helpers.colors")
-local settings = require("settings") 
 
 local game = director.newScene() 
 ----------------------------------------------- Variables
 local backgroundLayer, attemptsLayer, targetsLayer
 local boardGroup, targetsGroup, timerGroup
 local boardImg, timerTxt, progressTable, naoPortrait, naoJumping
-local missingImg, correctTxt
+local missingImg, correctTxt, answersList
 local secondsRemaining, currentAttempt, tapsEnabled
 local manager
 ----------------------------------------------- Constants
@@ -70,11 +68,12 @@ local function createNaoSprite()
 	local options = { width = 45, height = 76, numFrames = 20, sheetContentWidth = 225, sheetContentHeight = 304 }
 	local sequenceData = { name = "jumping", start = 1, count = 20, time = 1000, loopCount = 1 }
 	local imageSheet = graphics.newImageSheet(assetPath.."Spritesheet/naojump.png", options)
+	
 	naoJumping = display.newSprite(imageSheet, sequenceData)
 	attemptsLayer:insert(naoJumping)
+	naoJumping.anchorY = 0.8
 	naoJumping.x = progressTable[1].x
 	naoJumping.y = progressTable[2].y
-	naoJumping.anchorY = 0.8
 end
 
 local function createQuestion()
@@ -96,8 +95,8 @@ local function createQuestion()
 		[4] = {text = "="},
 		[5] = {text = missingImg}
 	}
-	display.remove(boardGroup)
 	
+	display.remove(boardGroup)
 	boardGroup = display.newGroup()
 	backgroundLayer:insert(boardGroup)
 	
@@ -132,17 +131,17 @@ local function createNao()
 end
 	
 local function moveNao(targetX, targetY)
-	director.to(scenePath, naoPortrait, { time = 500, x = targetX, y = targetY })
+	director.to(scenePath, naoPortrait, { time = 1000, x = targetX, y = targetY })
 	
 	if currentAttempt % 2 == 0 then
-		director.performWithDelay(scenePath, 500,
+		director.performWithDelay(scenePath, 1000,
 			function()
 				director.to(scenePath, naoPortrait, { time = 500, x = display.contentWidth * 0.20, y = display.contentHeight * 0.85 })
 				naoPortrait.xScale = (display.contentWidth * 0.10) / naoPortrait.width
 			end
 		)
 	else
-		director.performWithDelay(scenePath, 500,
+		director.performWithDelay(scenePath, 1000,
 			function()
 				director.to(scenePath, naoPortrait, { time = 500, x = display.contentWidth * 0.80, y = display.contentHeight * 0.85 })
 				naoPortrait.xScale = -(display.contentWidth * 0.10) / naoPortrait.width
@@ -159,7 +158,8 @@ local function onSignTap(event)
 		powerCubeImg.anchorY = 1
 		powerCubeImg.x = event.target.realX
 		powerCubeImg.y = event.target.realY - event.target.contentHeight
-		moveNao(event.target.realX, event.target.realY)
+		
+		director.performWithDelay(scenePath, 1000, function() moveNao(event.target.realX, event.target.realY) end)
 		
 		if event.target.isCorrect and currentAttempt <= 5 then
 			director.to(scenePath, powerCubeImg, { time = 500, alpha = 1, y = powerCubeImg.y - 20 })
@@ -169,6 +169,7 @@ local function onSignTap(event)
 		end
 		
 		currentAttempt = currentAttempt + 1
+		
 		director.to(scenePath, missingImg, { time = 300, alpha = 0})
 		director.to(scenePath, correctTxt, { time = 500, alpha = 1})
 		director.to(scenePath, targetsGroup, { time = 1000, alpha = 0, onComplete = function() display.remove(targetsGroup) end })
@@ -193,7 +194,6 @@ local function createTargets(answersList)
 	targetsGroup = display.newGroup()
 	targetsGroup.alpha = 0
 	targetsLayer:insert(targetsGroup)
-	
 	local targetPos = math.random(1,2)
 	
 	for targetIndex = 1, NUM_TARGETS do	
@@ -282,6 +282,7 @@ local function initialize(event)
 	currentAttempt = 1
 	secondsRemaining = 60
 	tapsEnabled = true
+	answersList = createQuestion()
 end
 ----------------------------------------------- Module functions
 function game.getInfo() 
@@ -322,18 +323,18 @@ function game:create(event)
 	
 	for bannerIndex = 1, #bannerTable do
 		local bannerImg = display.newImage(assetPath.."flag.png")
-		bannerImg.anchorY = 1
-		bannerImg.y = display.contentHeight * 0.54
-		bannerImg.x = bannerTable[bannerIndex].x
 		bannerImg.xScale = bannerTable[bannerIndex].xScale
 		bannerImg.yScale = (display.contentWidth * 0.1) / BANNER_DIMENSIONS.x
+		bannerImg.anchorY = 1
+		bannerImg.x = bannerTable[bannerIndex].x
+		bannerImg.y = display.contentHeight * 0.54
 		backgroundLayer:insert(bannerImg)
 	end
 	
 	boardImg = display.newImage(assetPath.."board.png")
+	boardImg:scale((display.contentWidth * 0.45) / boardImg.width, (display.contentWidth * 0.45) / boardImg.width)
 	boardImg.x = display.contentCenterX
 	boardImg.y = display.screenOriginY + 100
-	boardImg:scale((display.contentWidth * 0.45) / boardImg.width, (display.contentWidth * 0.45) / boardImg.width)
 	backgroundLayer:insert(boardImg)
 end
 
@@ -346,7 +347,6 @@ function game:show(event)
 		createAttempts()
 		createNao()
 		createNaoSprite()
-		local answersList = createQuestion()
 		createTargets(answersList)
 		createTimer()
 	elseif phase == "did" then 
