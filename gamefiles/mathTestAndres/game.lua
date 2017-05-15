@@ -12,7 +12,7 @@ local boardGroup, targetsGroup, timerGroup
 local boardImg, timerTxt, progressTable, naoPortrait, naoJumping
 local missingImg, correctTxt, answersList
 local secondsRemaining, currentAttempt, tapsEnabled
-local manager
+local manager, isFirstTime
 ----------------------------------------------- Constants
 local BANNER_DIMENSIONS = {x = 98, y = 220}
 local TOTAL_ATTEMPTS = 5
