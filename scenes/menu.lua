@@ -26,6 +26,14 @@ local COLOR_DEFAULT = {0.3,0.3,0.8}
 
 local LANGUAGES = {"en","es","pt"}
 ----------------------------------------------- Functions
+local function goAndres()
+	director.gotoScene("scenes.manager", {params = {minigames = {"gamefiles.mathTestAndres.game"}}})
+end
+
+local function goPablo()
+	director.gotoScene("scenes.manager", {params = {minigames = {"gamefiles.mathTestPablo.game"}}})
+end
+
 local function goIvan()
 	director.gotoScene("scenes.manager", {params = {minigames = {"gamefiles.mathTestIvan.game"}}})
 end
@@ -168,6 +176,8 @@ function scene:create(event)
 	menuView = createMenuView()
 	self.view:insert(menuView)
 	
+	self.addButton("Go Andres", goAndres, COLOR_DEFAULT, 1)
+	self.addButton("Go Pablo", goPablo, COLOR_DEFAULT, 1)
 	self.addButton("Go Ivan", goIvan, COLOR_DEFAULT, 1)
 	self.addButton("Go Hector", goHector, COLOR_DEFAULT, 1)
 	self.addButton("Go Osiel", goOsiel, COLOR_DEFAULT, 1)
