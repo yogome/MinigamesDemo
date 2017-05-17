@@ -12,7 +12,7 @@ local boardGroup, targetsGroup, timerGroup, attemptsGroup
 local boardImg, timerTxt, progressTable, naoPortrait, naoJumping
 local missingImg, correctTxt, answersList
 local secondsRemaining, currentAttempt, tapsEnabled
-local manager, isFirstTime
+local manager, isFirstTime, clockTimer
 ----------------------------------------------- Constants
 local BANNER_DIMENSIONS = {x = 98, y = 220}
 local TOTAL_ATTEMPTS = 5
@@ -130,7 +130,7 @@ local function createNao()
 	naoPortrait.anchorY = 1
 	naoPortrait.x = display.contentWidth * 0.20
 	naoPortrait.y = display.contentHeight * 0.85
-	backgroundLayer:insert(naoPortrait)
+	targetsLayer:insert(naoPortrait)
 end
 	
 local function moveNao(targetX, targetY)
@@ -185,16 +185,21 @@ local function onSignTap(event)
 		
 		currentAttempt = currentAttempt + 1
 		
+		if currentAttempt <= TOTAL_ATTEMPTS then
+			director.to(scenePath, naoJumping, { time = 1000, x = progressTable[currentAttempt].x, y = progressTable[currentAttempt].y, onStart = function() naoJumping:play() end })
+		else
+			director.to(scenePath, naoJumping, { time = 1000, alpha = 0})
+		end
+		
 		director.to(scenePath, missingImg, { time = 300, alpha = 0})
 		director.to(scenePath, correctTxt, { time = 500, alpha = 1})
-		director.to(scenePath, naoJumping, { time = 1000, x = progressTable[currentAttempt].x, y = progressTable[currentAttempt].y, onStart = function() naoJumping:play() end })
 		
 		director.performWithDelay(scenePath, 2500, 
 			function()		
 				director.to(scenePath, powerCubeImg, { time = 500, alpha = 0, onComplete = function() display.remove(powerCubeImg) end  })
 				if currentAttempt <= TOTAL_ATTEMPTS then
-					local answersList = createQuestion()
-					event.target:callCreateTarget(answersList)
+					answersList = createQuestion()
+					event.target:callCreateTarget()
 				else
 					manager.correct()
 				end
@@ -204,7 +209,7 @@ local function onSignTap(event)
 	end
 end
 
-local function createTargets(answersList)
+local function createTargets()
 	targetsGroup = display.newGroup()
 	targetsGroup.alpha = 0
 	targetsLayer:insert(targetsGroup)
@@ -239,11 +244,12 @@ local function createTargets(answersList)
 		local targetTxt = display.newText(answersList[targetIndex].number, 0, -targetBoxGroup.contentHeight * 0.16, native.systemFont, 60)
 		targetBoxGroup:insert(targetTxt)
 		
-		function targetImg:callCreateTarget(answersList)
-			createTargets(answersList)
+		function targetImg:callCreateTarget()
+			createTargets()
 		end
 	end       
 	director.to(scenePath, targetsGroup, { time = 500, alpha = 1 })
+	targetsGroup:toBack()
 end
 
 local function createTimer()
@@ -270,19 +276,18 @@ local function createTimer()
 	timerTxt.y = timerImg.y + timerImg.contentHeight * 0.05
 	timerGroup:insert(timerTxt)
 	
-	if secondsRemaining > 0 then
-		director.performWithDelay(scenePath, 1000, 
-			function()
-				secondsRemaining = secondsRemaining - 1
-				timerTxt.text = secondsRemaining
-				if secondsRemaining == 10 then
-					timerTxt:setFillColor(1, 0, 0)
-				elseif secondsRemaining == 0 then
-					manager.wrong()
-				end
+
+	clockTimer = director.performWithDelay(scenePath, 1000, 
+		function()
+			secondsRemaining = secondsRemaining - 1
+			timerTxt.text = secondsRemaining
+			if secondsRemaining == 0 then
+				timer.cancel(clockTimer)
+				manager.wrong()
 			end
-		, secondsRemaining)
-	end
+		end
+	, secondsRemaining)
+
 end
 
 local function cleanVariables()
@@ -292,11 +297,13 @@ local function cleanVariables()
 		display.remove(boardGroup)
 		boardGroup = nil
 		
+		timer.cancel(clockTimer)
 		display.remove(timerGroup)
 		timerGroup = nil
 		
 		display.remove(attemptsGroup)
 		attemptsGroup = nil
+		
 end
 
 local function initialize(event)
@@ -375,7 +382,7 @@ function game:show(event)
 		createAttempts()
 		createNao()
 		createNaoSprite()
-		createTargets(answersList)
+		createTargets()
 		createTimer()
 	elseif phase == "did" then 
 		
