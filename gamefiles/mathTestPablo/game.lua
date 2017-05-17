@@ -100,6 +100,9 @@ local function showBoard()
 end
 
 local function createProgressBar()
+	progressBarGroup = display.newGroup()
+	backgroundLayer:insert(progressBarGroup)
+	
 	local attemptFill = {type = "image", filename = assetPath.."progress.png"}
 	local attemptRight = {type = "image", filename = assetPath.."progress_right.png"}
 	local attempWrong = {type = "image", filename = assetPath.."progress_wrong.png"}
@@ -114,7 +117,7 @@ local function createProgressBar()
 		attemptImg.right = attemptRight
 		attemptImg.wrong = attempWrong
 		progressTable[attemptIndex] = attemptImg
-		groundLayer:insert(attemptImg)
+		progressBarGroup:insert(attemptImg)
 	end
 end
 
@@ -152,7 +155,7 @@ local function createTapDummy()
 	
 	local function tapDummy(event)
 		
-		local currentDummy = event.target
+		local currentDummy = event.target 
 		counterStage = counterStage + 1
 			
 			director.to(scenePath, star, { time=650, x = currentDummy.x, y = currentDummy.y, rotation = star.rotation + 1080, transition = easing.outInQuad, onComplete = function()
@@ -363,6 +366,9 @@ function game:hide( event )
 		
 	elseif phase == "did" then 
 	display.remove(dummyGroup)
+	display.remove(boardGroup)
+	display.remove(clockGroup)
+	display.remove(progressBarGroup)
 	end
 end
 
