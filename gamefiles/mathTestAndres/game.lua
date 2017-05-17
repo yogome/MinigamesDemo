@@ -13,6 +13,7 @@ local boardImg, timerTxt, progressTable, naoPortrait, naoJumping
 local missingImg, correctTxt, answersList
 local secondsRemaining, currentAttempt, tapsEnabled
 local manager, isFirstTime, clockTimer
+local backIndex, middleIndex, frontIndex
 ----------------------------------------------- Constants
 local BANNER_DIMENSIONS = {x = 98, y = 220}
 local TOTAL_ATTEMPTS = 5
@@ -130,12 +131,10 @@ local function createNao()
 	naoPortrait.anchorY = 1
 	naoPortrait.x = display.contentWidth * 0.20
 	naoPortrait.y = display.contentHeight * 0.85
-	targetsLayer:insert(naoPortrait)
+	middleIndex:insert(naoPortrait)
 end
 	
-local function moveNao(targetX, targetY)
-	director.to(scenePath, naoPortrait, { time = 800, x = targetX, y = targetY })
-	
+local function moveNao()
 	if currentAttempt % 2 == 0 then
 		director.performWithDelay(scenePath, 1500,
 			function()
@@ -154,34 +153,51 @@ local function moveNao(targetX, targetY)
 end	
 
 local function onSignTap(event)
+	local currentTarget = event.target
 	if tapsEnabled then
 		tapsEnabled = false
 		local powerCubeImg = display.newImage(assetPath.."powercube.png")
 		powerCubeImg.alpha = 0
 		powerCubeImg.anchorY = 1
-		powerCubeImg.x = event.target.realX
-		powerCubeImg.y = event.target.realY - event.target.contentHeight
+		powerCubeImg.x = currentTarget.x
+		powerCubeImg.y = currentTarget.y - currentTarget.contentHeight
 		
-		moveNao(event.target.realX, event.target.realY)
+		backIndex:insert(currentTarget)
+		director.to(scenePath, naoPortrait, { time = 800, x = currentTarget.x, y = currentTarget.y })
+		moveNao()
 		
-		if event.target.isCorrect and currentAttempt <= 5 then
-			director.performWithDelay(scenePath, 1000,
+		if currentTarget.isCorrect and currentAttempt <= 5 then
+			director.performWithDelay(scenePath, 1500,
 				function()
 					director.to(scenePath, powerCubeImg, { 
 						time = 500, 
 						alpha = 1, 
 						y = powerCubeImg.y - 20,
 						onComplete = function()
-							director.to(scenePath, targetsGroup, { time = 500, alpha = 0, onComplete = function() display.remove(targetsGroup) end })
+							director.to(scenePath, targetsGroup, { 
+								time = 500, 
+								alpha = 0, 
+								onComplete = function() 
+									targetsGroup:insert(currentTarget)
+									director.to(scenePath, targetsGroup, { time = 500, alpha = 0, onComplete = function() display.remove(targetsGroup) end })
+								end
+							})
 						end
 					})
 				end
 			)
 			progressTable[currentAttempt].fill = progressTable[currentAttempt].rightFill
 		elseif currentAttempt <= 5 then
-			director.performWithDelay(scenePath, 1000,
+			director.performWithDelay(scenePath, 1500,
 				function()
-					director.to(scenePath, targetsGroup, { time = 1000, alpha = 0, onComplete = function() display.remove(targetsGroup) end })
+					director.to(scenePath, targetsGroup, { 
+						time = 500, 
+						alpha = 0, 
+						onComplete = function() 
+							targetsGroup:insert(currentTarget)
+							director.to(scenePath, targetsGroup, { time = 500, alpha = 0, onComplete = function() display.remove(targetsGroup) end })
+						end
+					})
 				end
 			)
 			progressTable[currentAttempt].fill = progressTable[currentAttempt].wrongFill
@@ -198,12 +214,12 @@ local function onSignTap(event)
 		director.to(scenePath, missingImg, { time = 300, alpha = 0})
 		director.to(scenePath, correctTxt, { time = 500, alpha = 1})
 		
-		director.performWithDelay(scenePath, 2500, 
-			function()		
-				director.to(scenePath, powerCubeImg, { time = 500, alpha = 0, onComplete = function() display.remove(powerCubeImg) end  })
+		director.performWithDelay(scenePath, 3100, 
+			function()	
+				director.to(scenePath, powerCubeImg, { time = 500, alpha = 0, onComplete = function() display.remove(powerCubeImg) end })
 				if currentAttempt <= TOTAL_ATTEMPTS then
 					answersList = createQuestion()
-					event.target:callCreateTarget()
+					currentTarget:callCreateTarget()
 				else
 					manager.correct()
 				end
@@ -216,7 +232,7 @@ end
 local function createTargets()
 	targetsGroup = display.newGroup()
 	targetsGroup.alpha = 0
-	targetsLayer:insert(targetsGroup)
+	frontIndex:insert(targetsGroup)
 	local targetPos = math.random(1,2)
 	
 	for targetIndex = 1, NUM_TARGETS do	
@@ -234,26 +250,25 @@ local function createTargets()
 		
 		local targetImg = display.newImage(assetPath.."answers.png")
 		targetImg:scale((display.contentWidth * 0.13) / targetImg.width, (display.contentWidth * 0.13) / targetImg.width)
-		targetImg:addEventListener("tap", onSignTap)
-		targetImg.realX = targetBoxGroup.x
-		targetImg.realY = targetBoxGroup.y
-		tapsEnabled = true
-		if targetIndex == 1 then
-			targetImg.isCorrect = true
-		else
-			targetImg.isCorrect = false
-		end
 		targetBoxGroup:insert(targetImg)
 		
 		local targetTxt = display.newText(answersList[targetIndex].number, 0, -targetBoxGroup.contentHeight * 0.16, native.systemFont, 60)
 		targetBoxGroup:insert(targetTxt)
 		
-		function targetImg:callCreateTarget()
+		tapsEnabled = true
+		if targetIndex == 1 then
+			targetBoxGroup.isCorrect = true
+		else
+			targetBoxGroup.isCorrect = false
+		end
+		targetBoxGroup:addEventListener("tap", onSignTap)
+		
+		
+		function targetBoxGroup:callCreateTarget()
 			createTargets()
 		end
 	end       
 	director.to(scenePath, targetsGroup, { time = 500, alpha = 1 })
-	targetsGroup:toBack()
 end
 
 local function createTimer()
@@ -308,6 +323,14 @@ local function cleanVariables()
 		display.remove(attemptsGroup)
 		attemptsGroup = nil
 		
+		display.remove(frontIndex)
+		frontIndex = nil
+		
+		display.remove(middleIndex)
+		middleIndex = nil
+		
+		display.remove(backIndex)
+		backIndex = nil
 end
 
 local function initialize(event)
@@ -349,7 +372,16 @@ function game:create(event)
 	
 	targetsLayer = display.newGroup() 
 	sceneView:insert(targetsLayer)
-
+	
+	backIndex = display.newGroup()
+	targetsLayer:insert(backIndex)
+	
+	middleIndex = display.newGroup()
+	targetsLayer:insert(middleIndex)
+	
+	frontIndex = display.newGroup()
+	targetsLayer:insert(frontIndex)
+	
 	local backgroundImg = display.newImage(assetPath.."bgd.png", display.contentCenterX,display.contentCenterY)
 	backgroundImg.height = display.contentHeight
 	backgroundImg.width = display.contentWidth
