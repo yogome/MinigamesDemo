@@ -179,8 +179,12 @@ local function onSignTap(event)
 			)
 			progressTable[currentAttempt].fill = progressTable[currentAttempt].rightFill
 		elseif currentAttempt <= 5 then
+			director.performWithDelay(scenePath, 1000,
+				function()
+					director.to(scenePath, targetsGroup, { time = 1000, alpha = 0, onComplete = function() display.remove(targetsGroup) end })
+				end
+			)
 			progressTable[currentAttempt].fill = progressTable[currentAttempt].wrongFill
-			director.to(scenePath, targetsGroup, { time = 1000, alpha = 0, onComplete = function() display.remove(targetsGroup) end })
 		end
 		
 		currentAttempt = currentAttempt + 1
