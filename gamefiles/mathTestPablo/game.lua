@@ -4,17 +4,16 @@ local folder = scenePath:match("(.-)[^%.]+$")
 local assetPath = string.gsub(folder,"[%.]","/") 
 local localization = require( "libs.helpers.localization" )
 local director = require( "libs.helpers.director" )
-local colors = require( "libs.helpers.colors" )
-local settings = require( "settings" ) 
 
 local game = director.newScene() 
 ----------------------------------------------- Variables
 local backgroundLayer, boardLayer, dummyLayer, groundLayer
 local star
-local boardGroup
+local boardGroup, dummyGroup, clockGroup, progressBarGroup
 local maxNumberOperation, minNumberOperation, resultOperation, alternativeNumberA, alternativeNumberB, dummyResults, dummyNumbers
 local progressTable
 local counterStage
+local isFirstTime, manager
 ----------------------------------------------- Constants
 local ATTEMPT_NUMBER = 5
 local LEVEL_SELECT = {
@@ -43,28 +42,37 @@ local boardElementsTable = {
 local mathRandom = math.random
 local tableSort = table.sort
 ----------------------------------------------- Functions
+local function cleanUp()
+	display.remove(dummyGroup)
+	dummyGroup = nil
+	display.remove(boardGroup)
+	boardGroup = nil
+	display.remove(clockGroup)
+	clockGroup = nil
+	display.remove(progressBarGroup)	
+	progressBarGroup = nil
+end
+
 local function randomNumbers()
-	
-	if alternativeNumberA == max and alternativeNumberA == min and alternativeNumberA == resultOperation then
+	if alternativeNumberA == maxNumberOperation and alternativeNumberA == minNumberOperation and alternativeNumberA == resultOperation then
 		alternativeNumberA = math.random(LEVEL_SELECT[2])
 		randomNumbers()
-	elseif alternativeNumberB == max and alternativeNumberB == min and alternativeNumberB == alternativeNumberA and alternativeNumberB == resultOperation then
+	elseif alternativeNumberB == maxNumberOperation and alternativeNumberB == minNumberOperation and alternativeNumberB == alternativeNumberA and alternativeNumberB == resultOperation then
 		alternativeNumberB = math.random(LEVEL_SELECT[2])
 		randomNumbers()
 	end
 	
 	dummyResults = {
-	[1] = {text = alternativeNumberA},
-	[2] = {text = resultOperation},
-	[3] = {text = alternativeNumberB}
+		[1] = {text = alternativeNumberA},
+		[2] = {text = resultOperation},
+		[3] = {text = alternativeNumberB}
 	}
 
 	dummyNumbers = {
-	[1] = {text = maxNumberOperation},
-	[2] = {text = minNumberOperation},
-	[3] = {text = ""}
+		[1] = {text = maxNumberOperation},
+		[2] = {text = minNumberOperation},
+		[3] = {text = ""}
 	}
-	
 end
 
 local function showBoard()
@@ -81,7 +89,6 @@ local function showBoard()
 
 	local textCounter = 0
 	for index = 1, #boardElementsTable do
-		
 		local boardElement = display.newImage(assetPath.. boardElementsTable[index].path)
 		boardElement:scale(0.8,0.8)
 		boardElement.x = board.x - board.contentWidth * 0.5 + (board.contentWidth / (#boardElementsTable + 1) * index)
@@ -101,7 +108,7 @@ end
 
 local function createProgressBar()
 	progressBarGroup = display.newGroup()
-	backgroundLayer:insert(progressBarGroup)
+	groundLayer:insert(progressBarGroup)
 	
 	local attemptFill = {type = "image", filename = assetPath.."progress.png"}
 	local attemptRight = {type = "image", filename = assetPath.."progress_right.png"}
@@ -109,7 +116,7 @@ local function createProgressBar()
 	progressTable = {}
 	
 	for attemptIndex = 1, ATTEMPT_NUMBER do
-		local attemptImg = display.newRect(0,0,50,50)
+		local attemptImg = display.newRect(0, 0, 50, 50)
 		attemptImg:scale((display.contentWidth * 0.05) / attemptImg.width, (display.contentWidth * 0.05) / attemptImg.width)
 		attemptImg.x = display.contentCenterX - ((ATTEMPT_NUMBER/2) - 0.5) * attemptImg.contentWidth + attemptImg.contentWidth*(attemptIndex - 1)
 		attemptImg.y = display.screenOriginY  + display.contentHeight - 40
@@ -124,7 +131,7 @@ end
 local function shuffleTable(tab)
 	local numberElements, order, resultTable = #tab, {}, {}
 	
-	for index = 1,numberElements do
+	for index = 1, numberElements do
 		order[index] = { rnd = mathRandom(), idx = index }
 	end
 	
@@ -132,14 +139,13 @@ local function shuffleTable(tab)
 		return a.rnd < b.rnd 
 	end)
 	
-	for index = 1,numberElements do
+	for index = 1, numberElements do
 		resultTable[index] = tab[order[index].idx]
 	end
 	return resultTable
 end
 
 local function generateNumbers()
-	
 	maxNumberOperation = LEVEL_SELECT[2]
 	minNumberOperation = math.random(LEVEL_SELECT[2])
 	resultOperation = maxNumberOperation - minNumberOperation
@@ -147,21 +153,19 @@ local function generateNumbers()
 	alternativeNumberB = math.random(LEVEL_SELECT[2])
 	
 	randomNumbers()
-	
 end
 
 local function createTapDummy()
 	display.remove(dummyGroup)
 	
 	local function tapDummy(event)
-		
 		local currentDummy = event.target 
 		counterStage = counterStage + 1
 			
 			director.to(scenePath, star, { time=650, x = currentDummy.x, y = currentDummy.y, rotation = star.rotation + 1080, transition = easing.outInQuad, onComplete = function()
 				
 				if counterStage == ATTEMPT_NUMBER then 
-					print("Game Ended")
+					manager.correct()
 				end
 				
 				if resultOperation == currentDummy.number then
@@ -182,7 +186,6 @@ local function createTapDummy()
 						createTapDummy()
 						showBoard()
 					end})
-				
 				end
 			end})
 		return true
@@ -200,7 +203,7 @@ local function createTapDummy()
 		newDummy.y = display.contentCenterY + 80
 		dummyGroup:insert(newDummy)
 		
-		local boardElement = display.newImageRect(assetPath.."dummy.png",200,350)
+		local boardElement = display.newImageRect(assetPath.."dummy.png", 200, 350)
 		newDummy:insert(boardElement)
 		
 		local dummyText = display.newText(dummyResults[index].text, 0, 0, native.systemFont, 40)
@@ -215,17 +218,18 @@ local function createTapDummy()
 end
 
 local function clock(hand, seconds)
-	transition.to(hand, { time=1000, rotation=360, onComplete=function()
+	director.to(scenePath, hand, {time = 1000, rotation = 360, onComplete = function()
 		hand.rotation = 0
 	end} )	
+
 	if seconds == 0  then
 		transition.cancel(hand)
 	end
 end
 
 local function updateTime(tiempo, secondsLeft, clockHand)
-	timer.performWithDelay( 1000, function() 
-		secondsLeft = secondsLeft -1
+	director.performWithDelay(scenePath, 1000, function() 
+		secondsLeft = secondsLeft - 1
 		local seconds = secondsLeft % 60
 		tiempo.text = seconds
 		
@@ -234,7 +238,6 @@ local function updateTime(tiempo, secondsLeft, clockHand)
 end
 	
 local function animatedClock()
-	
 	clockGroup = display.newGroup()
 	groundLayer:insert(clockGroup)
 	
@@ -263,7 +266,7 @@ local function initialize(event)
 	event = event or {} 
 	local params = event.params or {}
     local sceneParams = params.sceneParams
- --   local minigameLevel = sceneParams.level or 1
+	
 	isFirstTime = params.isFirstTime 
 	manager = event.parent 
 	
@@ -302,7 +305,6 @@ function game:create( event )
 	
 	groundLayer = display.newGroup() 
 	sceneView:insert(groundLayer)
-
 	
 	local background = display.newImageRect(assetPath.."background.png", display.contentWidth + 2, display.contentHeight + 2)
 	background.x = display.contentCenterX
@@ -323,7 +325,7 @@ function game:create( event )
 	
 	local road = display.newImage(assetPath.."road.png")
 	road.x = display.contentCenterX
-	road.y = display.screenOriginY+display.contentHeight
+	road.y = display.screenOriginY + display.contentHeight
 	road.anchorY = 1
 	road.width = display.contentWidth
     groundLayer:insert(road)
@@ -365,10 +367,7 @@ function game:hide( event )
 	if phase == "will" then 
 		
 	elseif phase == "did" then 
-	display.remove(dummyGroup)
-	display.remove(boardGroup)
-	display.remove(clockGroup)
-	display.remove(progressBarGroup)
+		cleanUp()
 	end
 end
 
