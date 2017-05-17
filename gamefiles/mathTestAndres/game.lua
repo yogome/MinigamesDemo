@@ -8,7 +8,7 @@ local director = require("libs.helpers.director")
 local game = director.newScene() 
 ----------------------------------------------- Variables
 local backgroundLayer, attemptsLayer, targetsLayer
-local boardGroup, targetsGroup, timerGroup
+local boardGroup, targetsGroup, timerGroup, attemptsGroup
 local boardImg, timerTxt, progressTable, naoPortrait, naoJumping
 local missingImg, correctTxt, answersList
 local secondsRemaining, currentAttempt, tapsEnabled
@@ -50,6 +50,9 @@ local function createAttempts()
 	local attemptWrong = { type = "image", filename = assetPath.."progress_wrong.png" }
 	progressTable = {}
 	
+	attemptsGroup = display.newGroup()
+	attemptsLayer:insert(attemptsGroup)
+	
 	for attemptIndex = 1, TOTAL_ATTEMPTS do
 		local attemptImg = display.newRect(0, 0, 50, 50)
 		attemptImg:scale((display.contentWidth * 0.05) / attemptImg.width, (display.contentWidth * 0.05) / attemptImg.width)
@@ -58,7 +61,7 @@ local function createAttempts()
 		attemptImg.fill = attemptFill
 		attemptImg.rightFill = attemptRight
 		attemptImg.wrongFill = attemptWrong
-		attemptsLayer:insert(attemptImg)
+		attemptsGroup:insert(attemptImg)
 		
 		progressTable[attemptIndex] = attemptImg
 	end
@@ -70,7 +73,7 @@ local function createNaoSprite()
 	local imageSheet = graphics.newImageSheet(assetPath.."Spritesheet/naojump.png", options)
 	
 	naoJumping = display.newSprite(imageSheet, sequenceData)
-	attemptsLayer:insert(naoJumping)
+	attemptsGroup:insert(naoJumping)
 	naoJumping.anchorY = 0.8
 	naoJumping.x = progressTable[1].x
 	naoJumping.y = progressTable[2].y
@@ -131,17 +134,17 @@ local function createNao()
 end
 	
 local function moveNao(targetX, targetY)
-	director.to(scenePath, naoPortrait, { time = 1000, x = targetX, y = targetY })
+	director.to(scenePath, naoPortrait, { time = 800, x = targetX, y = targetY })
 	
 	if currentAttempt % 2 == 0 then
-		director.performWithDelay(scenePath, 1000,
+		director.performWithDelay(scenePath, 1500,
 			function()
 				director.to(scenePath, naoPortrait, { time = 500, x = display.contentWidth * 0.20, y = display.contentHeight * 0.85 })
 				naoPortrait.xScale = (display.contentWidth * 0.10) / naoPortrait.width
 			end
 		)
 	else
-		director.performWithDelay(scenePath, 1000,
+		director.performWithDelay(scenePath, 1500,
 			function()
 				director.to(scenePath, naoPortrait, { time = 500, x = display.contentWidth * 0.80, y = display.contentHeight * 0.85 })
 				naoPortrait.xScale = -(display.contentWidth * 0.10) / naoPortrait.width
@@ -159,23 +162,34 @@ local function onSignTap(event)
 		powerCubeImg.x = event.target.realX
 		powerCubeImg.y = event.target.realY - event.target.contentHeight
 		
-		director.performWithDelay(scenePath, 1000, function() moveNao(event.target.realX, event.target.realY) end)
+		moveNao(event.target.realX, event.target.realY)
 		
 		if event.target.isCorrect and currentAttempt <= 5 then
-			director.to(scenePath, powerCubeImg, { time = 500, alpha = 1, y = powerCubeImg.y - 20 })
+			director.performWithDelay(scenePath, 1000,
+				function()
+					director.to(scenePath, powerCubeImg, { 
+						time = 500, 
+						alpha = 1, 
+						y = powerCubeImg.y - 20,
+						onComplete = function()
+							director.to(scenePath, targetsGroup, { time = 500, alpha = 0, onComplete = function() display.remove(targetsGroup) end })
+						end
+					})
+				end
+			)
 			progressTable[currentAttempt].fill = progressTable[currentAttempt].rightFill
 		elseif currentAttempt <= 5 then
 			progressTable[currentAttempt].fill = progressTable[currentAttempt].wrongFill
+			director.to(scenePath, targetsGroup, { time = 1000, alpha = 0, onComplete = function() display.remove(targetsGroup) end })
 		end
 		
 		currentAttempt = currentAttempt + 1
 		
 		director.to(scenePath, missingImg, { time = 300, alpha = 0})
 		director.to(scenePath, correctTxt, { time = 500, alpha = 1})
-		director.to(scenePath, targetsGroup, { time = 1000, alpha = 0, onComplete = function() display.remove(targetsGroup) end })
 		director.to(scenePath, naoJumping, { time = 1000, x = progressTable[currentAttempt].x, y = progressTable[currentAttempt].y, onStart = function() naoJumping:play() end })
 		
-		director.performWithDelay(scenePath, 1000, 
+		director.performWithDelay(scenePath, 2500, 
 			function()		
 				director.to(scenePath, powerCubeImg, { time = 500, alpha = 0, onComplete = function() display.remove(powerCubeImg) end  })
 				if currentAttempt <= TOTAL_ATTEMPTS then
@@ -264,11 +278,25 @@ local function createTimer()
 				if secondsRemaining == 10 then
 					timerTxt:setFillColor(1, 0, 0)
 				elseif secondsRemaining == 0 then
-					manager.correct()
+					manager.wrong()
 				end
 			end
 		, secondsRemaining)
 	end
+end
+
+local function cleanVariables()
+		display.remove(targetsGroup)
+		targetsGroup = nil
+		
+		display.remove(boardGroup)
+		boardGroup = nil
+		
+		display.remove(timerGroup)
+		timerGroup = nil
+		
+		display.remove(attemptsGroup)
+		attemptsGroup = nil
 end
 
 local function initialize(event)
@@ -361,11 +389,7 @@ function game:hide(event)
 	if phase == "will" then 
 		
 	elseif phase == "did" then 
-		display.remove(targetsGroup)
-		display.remove(boardGroup)
-		display.remove(timerGroup)
-		display.remove(attemptsLayer)
-		display.remove(backgroundLayer)
+		cleanVariables()
 	end
 end
 
