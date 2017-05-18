@@ -9,10 +9,10 @@ local game = director.newScene()
 ----------------------------------------------- Variables
 local backgroundLayer, boardLayer, dummyLayer, groundLayer
 local star
-local boardGroup, dummyGroup, clockGroup, progressBarGroup
+local boardGroup, dummyGroup, clockGroup, progressBarGroup, naoJumps
 local maxNumberOperation, minNumberOperation, resultOperation, alternativeNumberA, alternativeNumberB, dummyResults, dummyNumbers
 local progressTable
-local counterStage, flagState
+local counterStage
 local isFirstTime, manager
 ----------------------------------------------- Constants
 local ATTEMPT_NUMBER = 5
@@ -51,10 +51,13 @@ local function cleanUp()
 	clockGroup = nil
 	display.remove(progressBarGroup)	
 	progressBarGroup = nil
+--	timer.cancel(clockTimer)
+--	display.remove(timerGroup)
+--	timerGroup = nil
 end
 
 local function randomNumbers()
-	if alternativeNumberA == maxNumberOperation and alternativeNumberA == minNumberOperation and alternativeNumberA == resultOperation then
+	if alternativeNumberA == maxNumberOperation and alternativeNumberA == minNumberOperation and alternativeNumberA == resultOperation and alternativeNumberA == alternativeNumberB then
 		alternativeNumberA = math.random(LEVEL_SELECT[2])
 		randomNumbers()
 	elseif alternativeNumberB == maxNumberOperation and alternativeNumberB == minNumberOperation and alternativeNumberB == alternativeNumberA and alternativeNumberB == resultOperation then
@@ -128,6 +131,18 @@ local function createProgressBar()
 	end
 end
 
+local function createSpriteofnao()
+	local options = { width = 45, height = 76, numFrames = 20, sheetContentWidth = 225, sheetContentHeight = 304 }
+	local sequenceData = { name = "jumping", start = 1, count = 20, time = 1000, loopCount = 1 }
+	local imageSheet = graphics.newImageSheet(assetPath.."Spritesheet/naojump.png", options)
+	
+	naoJumps = display.newSprite(imageSheet, sequenceData)
+	progressBarGroup:insert(naoJumps)
+	naoJumps.anchorY = 0.8
+	naoJumps.x = progressTable[1].x
+	naoJumps.y = progressTable[2].y
+end
+
 local function shuffleTable(tab)
 	local numberElements, order, resultTable = #tab, {}, {}
 	
@@ -152,6 +167,11 @@ local function generateNumbers()
 	alternativeNumberA = math.random(LEVEL_SELECT[2])
 	alternativeNumberB = math.random(LEVEL_SELECT[2])
 	
+	if alternativeNumberA == alternativeNumberB or alternativeNumberB == alternativeNumberA then 
+		alternativeNumberA = math.random(LEVEL_SELECT[2])
+		generateNumbers()
+	end
+	
 	randomNumbers()
 end
 
@@ -161,27 +181,27 @@ local function createTapDummy()
 	local function tapDummy(event)
 		local currentDummy = event.target 
 		counterStage = counterStage + 1
-		flagState = true 
 			
 			director.to(scenePath, star, { time=650, x = currentDummy.x, y = currentDummy.y, rotation = star.rotation + 1080, transition = easing.outInQuad, onComplete = function()
 				
 				if counterStage == ATTEMPT_NUMBER then 
-					manager.correct()
+					--manager.correct()
 				end
 				
-				if resultOperation == currentDummy.number and flagState == true then
+				if resultOperation == currentDummy.number then
 					star.x = star.xStart
 					star.y = star.yStart
+					director.to(scenePath, naoJumps, { time = 1000, x = progressTable[counterStage + 1].x, y = progressTable[counterStage + 1].y, onStart = function() naoJumps:play() end })
 					progressTable[counterStage].fill = progressTable[counterStage].right
 					director.to(scenePath, dummyGroup, {time = 1000, alpha = 0, onComplete = function()
 						generateNumbers()
 						createTapDummy()
 						showBoard()
-					flagState = false
 					end})
 				elseif resultOperation ~= currentDummy.number then
 					star.x = star.xStart
 					star.y = star.yStart
+					director.to(scenePath, naoJumps, { time = 1000, alpha = 0})
 					progressTable[counterStage].fill = progressTable[counterStage].wrong
 					director.to(scenePath, dummyGroup, {time = 1000, alpha = 0, onComplete = function()
 						generateNumbers()
@@ -276,7 +296,6 @@ local function initialize(event)
 	
 	counterStage = 0
 	
-	flagState = false
 end
 ----------------------------------------------- Module functions
 function game.getInfo() 
@@ -359,6 +378,7 @@ function game:show( event )
 		createTapDummy()
 		showBoard()
 		createProgressBar()
+		createSpriteofnao()
 	elseif phase == "did" then 
 		
 	end
