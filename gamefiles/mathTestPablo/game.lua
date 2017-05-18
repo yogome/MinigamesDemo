@@ -12,7 +12,7 @@ local star
 local boardGroup, dummyGroup, clockGroup, progressBarGroup
 local maxNumberOperation, minNumberOperation, resultOperation, alternativeNumberA, alternativeNumberB, dummyResults, dummyNumbers
 local progressTable
-local counterStage
+local counterStage, flagState
 local isFirstTime, manager
 ----------------------------------------------- Constants
 local ATTEMPT_NUMBER = 5
@@ -161,6 +161,7 @@ local function createTapDummy()
 	local function tapDummy(event)
 		local currentDummy = event.target 
 		counterStage = counterStage + 1
+		flagState = true 
 			
 			director.to(scenePath, star, { time=650, x = currentDummy.x, y = currentDummy.y, rotation = star.rotation + 1080, transition = easing.outInQuad, onComplete = function()
 				
@@ -168,7 +169,7 @@ local function createTapDummy()
 					manager.correct()
 				end
 				
-				if resultOperation == currentDummy.number then
+				if resultOperation == currentDummy.number and flagState == true then
 					star.x = star.xStart
 					star.y = star.yStart
 					progressTable[counterStage].fill = progressTable[counterStage].right
@@ -176,6 +177,7 @@ local function createTapDummy()
 						generateNumbers()
 						createTapDummy()
 						showBoard()
+					flagState = false
 					end})
 				elseif resultOperation ~= currentDummy.number then
 					star.x = star.xStart
@@ -273,6 +275,8 @@ local function initialize(event)
 	dummyResults = {}
 	
 	counterStage = 0
+	
+	flagState = false
 end
 ----------------------------------------------- Module functions
 function game.getInfo() 
