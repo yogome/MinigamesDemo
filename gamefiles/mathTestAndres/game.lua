@@ -13,7 +13,7 @@ local boardImg, progressTable, naoPortrait, naoJumping
 local missingImg, correctTxt, answersList
 local currentAttempt, tapsEnabled, clockTimer
 local manager, isFirstTime
-local backIndex, middleIndex
+local backIndex, frontIndex
 ----------------------------------------------- Constants
 local BANNER_WIDTH = 98
 local TOTAL_ATTEMPTS = 5
@@ -87,10 +87,15 @@ local function createQuestion()
 	missingImg = display.newImage(assetPath.."missing.png")
 	
 	local answersList = {
-		[1] = {number = correctAnswer},
-		[2] = {number = correctAnswer - math.random(1, 4)},
-		[3] = {number = correctAnswer + math.random(1, 4)}
+		[1] = {number = correctAnswer, isCorrect = true },
+		[2] = {number = correctAnswer - math.random(1, 4), isCorrect = false },
+		[3] = {number = correctAnswer + math.random(1, 4), isCorrect = false }
 	}
+	
+    for tableIndex = 1, #answersList do
+        local randomizer = math.random(#answersList)
+        answersList[tableIndex], answersList[randomizer] = answersList[randomizer], answersList[tableIndex]
+	end
 	
 	local boardList = {
 		[1] = {text = firstNumber},
@@ -110,6 +115,7 @@ local function createQuestion()
 			missingImg.x = display.contentCenterX - ((#boardList / 2) - 0.5) * 75 + 75 * (boardIndex - 1)
 			missingImg.y = display.screenOriginY + 90
 			boardGroup:insert(missingImg)
+			
 			correctTxt = display.newText(correctAnswer, 0, 0, 75, 0, native.systemFont, 70)
 			correctTxt.x = missingImg.x
 			correctTxt.y = missingImg.y
@@ -131,7 +137,7 @@ local function createNao()
 	naoPortrait.anchorY = 1
 	naoPortrait.x = display.contentWidth * 0.20
 	naoPortrait.y = display.contentHeight * 0.85
-	middleIndex:insert(naoPortrait)
+	frontIndex:insert(naoPortrait)
 end
 	
 local function moveNao()
@@ -162,7 +168,6 @@ local function onSignTap(event)
 		powerCubeImg.x = currentTarget.x
 		powerCubeImg.y = currentTarget.y - currentTarget.contentHeight
 		
-		backIndex:insert(currentTarget)
 		director.to(scenePath, naoPortrait, { time = 800, x = currentTarget.x, y = currentTarget.y })
 		moveNao()
 		
@@ -178,7 +183,6 @@ local function onSignTap(event)
 								time = 500, 
 								alpha = 0, 
 								onComplete = function() 
-									targetsGroup:insert(currentTarget)
 									director.to(scenePath, targetsGroup, { time = 500, alpha = 0, onComplete = function() display.remove(targetsGroup) end })
 								end
 							})
@@ -194,7 +198,6 @@ local function onSignTap(event)
 						time = 500, 
 						alpha = 0, 
 						onComplete = function() 
-							targetsGroup:insert(currentTarget)
 							director.to(scenePath, targetsGroup, { time = 500, alpha = 0, onComplete = function() display.remove(targetsGroup) end })
 						end
 					})
@@ -226,6 +229,7 @@ local function onSignTap(event)
 			end
 		)	
 	end
+	return true
 end
 
 local function createTargets()
@@ -251,13 +255,8 @@ local function createTargets()
 		targetBoxGroup:insert(targetImg)
 		
 		local targetTxt = display.newText(answersList[targetIndex].number, 0, -targetBoxGroup.contentHeight * 0.16, native.systemFont, 60)
+		targetBoxGroup.isCorrect = answersList[targetIndex].isCorrect
 		targetBoxGroup:insert(targetTxt)
-		
-		if targetIndex == 1 then
-			targetBoxGroup.isCorrect = true
-		else
-			targetBoxGroup.isCorrect = false
-		end
 		
 		tapsEnabled = true
 		targetBoxGroup:addEventListener("tap", onSignTap)
@@ -322,8 +321,8 @@ local function cleanVariables()
 		display.remove(attemptsGroup)
 		attemptsGroup = nil
 		
-		display.remove(middleIndex)
-		middleIndex = nil
+		display.remove(frontIndex)
+		frontIndex = nil
 		
 		display.remove(backIndex)
 		backIndex = nil
@@ -371,8 +370,8 @@ function game:create(event)
 	backIndex = display.newGroup()
 	targetsLayer:insert(backIndex)
 	
-	middleIndex = display.newGroup()
-	targetsLayer:insert(middleIndex)
+	frontIndex = display.newGroup()
+	targetsLayer:insert(frontIndex)
 	
 	local backgroundImg = display.newImage(assetPath.."bgd.png", display.contentCenterX,display.contentCenterY)
 	backgroundImg.height = display.contentHeight
