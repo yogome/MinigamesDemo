@@ -51,9 +51,9 @@ local function cleanUp()
 	clockGroup = nil
 	display.remove(progressBarGroup)	
 	progressBarGroup = nil
---	timer.cancel(clockTimer)
---	display.remove(timerGroup)
---	timerGroup = nil
+	timer.cancel(updateTime)
+	display.remove(clockGroup)
+	clockGroup = nil
 end
 
 local function randomNumbers()
@@ -185,7 +185,7 @@ local function createTapDummy()
 			director.to(scenePath, star, { time=650, x = currentDummy.x, y = currentDummy.y, rotation = star.rotation + 1080, transition = easing.outInQuad, onComplete = function()
 				
 				if counterStage == ATTEMPT_NUMBER then 
-					--manager.correct()
+					manager.correct()
 				end
 				
 				if resultOperation == currentDummy.number then
@@ -201,8 +201,9 @@ local function createTapDummy()
 				elseif resultOperation ~= currentDummy.number then
 					star.x = star.xStart
 					star.y = star.yStart
-					director.to(scenePath, naoJumps, { time = 1000, alpha = 0})
 					progressTable[counterStage].fill = progressTable[counterStage].wrong
+					director.to(scenePath, naoJumps, { time = 1000, x = progressTable[counterStage + 1].x, y = progressTable[counterStage + 1].y, onStart = function() naoJumps:play() end })
+					director.to(scenePath, naoJumps, { time = 1000, alpha = 1})
 					director.to(scenePath, dummyGroup, {time = 1000, alpha = 0, onComplete = function()
 						generateNumbers()
 						createTapDummy()
@@ -254,6 +255,10 @@ local function updateTime(tiempo, secondsLeft, clockHand)
 		secondsLeft = secondsLeft - 1
 		local seconds = secondsLeft % 60
 		tiempo.text = seconds
+		if secondsLeft == 0 then
+			timer.cancel(updateTime)
+			manager.wrong()
+			end
 		
 		clock(clockHand, secondsLeft)
 	end, 60)
