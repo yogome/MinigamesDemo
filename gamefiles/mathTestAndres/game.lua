@@ -9,13 +9,13 @@ local game = director.newScene()
 ----------------------------------------------- Variables
 local backgroundLayer, attemptsLayer, targetsLayer
 local boardGroup, targetsGroup, timerGroup, attemptsGroup
-local boardImg, timerTxt, progressTable, naoPortrait, naoJumping
+local boardImg, progressTable, naoPortrait, naoJumping
 local missingImg, correctTxt, answersList
-local secondsRemaining, currentAttempt, tapsEnabled
-local manager, isFirstTime, clockTimer
-local backIndex, middleIndex, frontIndex
+local currentAttempt, tapsEnabled, clockTimer
+local manager, isFirstTime
+local backIndex, middleIndex
 ----------------------------------------------- Constants
-local BANNER_DIMENSIONS = {x = 98, y = 220}
+local BANNER_WIDTH = 98
 local TOTAL_ATTEMPTS = 5
 local NUM_TARGETS = 3
 local OPTIONS_LEFTPOS = {
@@ -219,7 +219,7 @@ local function onSignTap(event)
 				director.to(scenePath, powerCubeImg, { time = 500, alpha = 0, onComplete = function() display.remove(powerCubeImg) end })
 				if currentAttempt <= TOTAL_ATTEMPTS then
 					answersList = createQuestion()
-					currentTarget:callCreateTarget()
+					currentTarget:callCreateTargets()
 				else
 					manager.correct()
 				end
@@ -231,7 +231,6 @@ end
 local function createTargets()
 	targetsGroup = display.newGroup()
 	targetsGroup.alpha = 0
-	frontIndex:insert(targetsGroup)
 	local targetPos = math.random(1,2)
 	
 	for targetIndex = 1, NUM_TARGETS do	
@@ -254,16 +253,16 @@ local function createTargets()
 		local targetTxt = display.newText(answersList[targetIndex].number, 0, -targetBoxGroup.contentHeight * 0.16, native.systemFont, 60)
 		targetBoxGroup:insert(targetTxt)
 		
-		tapsEnabled = true
 		if targetIndex == 1 then
 			targetBoxGroup.isCorrect = true
 		else
 			targetBoxGroup.isCorrect = false
 		end
+		
+		tapsEnabled = true
 		targetBoxGroup:addEventListener("tap", onSignTap)
 		
-		
-		function targetBoxGroup:callCreateTarget()
+		function targetBoxGroup:callCreateTargets()
 			createTargets()
 		end
 	end       
@@ -288,7 +287,8 @@ local function createTimer()
 	director.to(scenePath, timerHand, { time = 1000, rotation = 360, iterations = 60 })
 	timerGroup:insert(timerHand)
 	
-	timerTxt = display.newText(secondsRemaining, 0, 0, native.systemFont, 35)
+	local secondsRemaining = 60
+	local timerTxt = display.newText(secondsRemaining, 0, 0, native.systemFont, 35)
 	timerTxt:setFillColor(0, 0, 0)
 	timerTxt.x = timerImg.x + timerImg.contentWidth * 0.15
 	timerTxt.y = timerImg.y + timerImg.contentHeight * 0.05
@@ -322,9 +322,6 @@ local function cleanVariables()
 		display.remove(attemptsGroup)
 		attemptsGroup = nil
 		
-		display.remove(frontIndex)
-		frontIndex = nil
-		
 		display.remove(middleIndex)
 		middleIndex = nil
 		
@@ -341,7 +338,6 @@ local function initialize(event)
 	manager = event.parent 
 	
 	currentAttempt = 1
-	secondsRemaining = 60
 	tapsEnabled = true
 	answersList = createQuestion()
 end
@@ -378,23 +374,20 @@ function game:create(event)
 	middleIndex = display.newGroup()
 	targetsLayer:insert(middleIndex)
 	
-	frontIndex = display.newGroup()
-	targetsLayer:insert(frontIndex)
-	
 	local backgroundImg = display.newImage(assetPath.."bgd.png", display.contentCenterX,display.contentCenterY)
 	backgroundImg.height = display.contentHeight
 	backgroundImg.width = display.contentWidth
 	backgroundLayer:insert(backgroundImg)
 
 	local bannerTable = {
-		[1] = {x = display.contentWidth * 0.9, xScale = (display.contentWidth * 0.1) / BANNER_DIMENSIONS.x},
-		[2] = {x = display.contentWidth * 0.1, xScale = -(display.contentWidth * 0.1) / BANNER_DIMENSIONS.x}
+		[1] = {x = display.contentWidth * 0.9, xScale = (display.contentWidth * 0.1) / BANNER_WIDTH},
+		[2] = {x = display.contentWidth * 0.1, xScale = -(display.contentWidth * 0.1) / BANNER_WIDTH}
 	}
 	
 	for bannerIndex = 1, #bannerTable do
 		local bannerImg = display.newImage(assetPath.."flag.png")
 		bannerImg.xScale = bannerTable[bannerIndex].xScale
-		bannerImg.yScale = (display.contentWidth * 0.1) / BANNER_DIMENSIONS.x
+		bannerImg.yScale = (display.contentWidth * 0.1) / BANNER_WIDTH
 		bannerImg.anchorY = 1
 		bannerImg.x = bannerTable[bannerIndex].x
 		bannerImg.y = display.contentHeight * 0.54
