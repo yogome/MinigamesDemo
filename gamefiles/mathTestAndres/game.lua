@@ -20,21 +20,21 @@ local TOTAL_ATTEMPTS = 5
 local NUM_TARGETS = 3
 local OPTIONS_LEFTPOS = {
 	[1] = { 
-		[1] = { x = display.contentWidth * 0.45, y = display.contentHeight * 0.90 },
-		[2] = { x = display.contentWidth * 0.10, y = display.contentHeight * 0.70 },
-		[3] = { x = display.contentWidth * 0.30, y = display.contentHeight * 0.85 }
+		[1] = { x = display.contentWidth * 0.45, y = display.contentHeight * 0.85 },
+		[2] = { x = display.contentWidth * 0.10, y = display.contentHeight * 0.65 },
+		[3] = { x = display.contentWidth * 0.30, y = display.contentHeight * 0.75 }
 	},
 	[2] =  { 
 		[1] = { x = display.contentWidth * 0.15, y = display.contentHeight * 0.85 },
-		[2] = { x = display.contentWidth * 0.45, y = display.contentHeight * 0.75 },
+		[2] = { x = display.contentWidth * 0.45, y = display.contentHeight * 0.80 },
 		[3] = { x = display.contentWidth * 0.30, y = display.contentHeight * 0.65 }
 	}
 }
 local OPTIONS_RIGHTPOS = {
 	[1] = { 
-		[1] = { x = display.contentWidth * 0.60, y = display.contentHeight * 0.70 },
-		[2] = { x = display.contentWidth * 0.70, y = display.contentHeight * 0.85 },
-		[3] = { x = display.contentWidth * 0.90, y = display.contentHeight * 0.90 }
+		[1] = { x = display.contentWidth * 0.60, y = display.contentHeight * 0.65 },
+		[2] = { x = display.contentWidth * 0.70, y = display.contentHeight * 0.80 },
+		[3] = { x = display.contentWidth * 0.90, y = display.contentHeight * 0.85 }
 	},
 	[2] =  { 
 		[1] = { x = display.contentWidth * 0.90, y = display.contentHeight * 0.85 },
@@ -58,7 +58,7 @@ local function createAttempts()
 		local attemptImg = display.newRect(0, 0, 50, 50)
 		attemptImg:scale((display.contentWidth * 0.05) / attemptImg.width, (display.contentWidth * 0.05) / attemptImg.width)
 		attemptImg.x = display.contentCenterX - ((TOTAL_ATTEMPTS/2) - 0.5) * attemptImg.contentWidth + attemptImg.contentWidth * (attemptIndex - 1)
-		attemptImg.y = display.screenOriginY + display.contentHeight - 60
+		attemptImg.y = display.screenOriginY + display.contentHeight - 40
 		attemptImg.fill = attemptFill
 		attemptImg.rightFill = attemptRight
 		attemptImg.wrongFill = attemptWrong
@@ -224,8 +224,7 @@ local function onSignTap(event)
 					manager.correct()
 				end
 			end
-		)
-		
+		)	
 	end
 end
 
@@ -238,7 +237,7 @@ local function createTargets()
 	for targetIndex = 1, NUM_TARGETS do	
 		local targetBoxGroup = display.newGroup()
 		targetBoxGroup.anchorChildren = true
-		targetBoxGroup.anchorY = 1
+		targetBoxGroup.anchorY = 2
 		if currentAttempt % 2 == 0 then
 			targetBoxGroup.x = OPTIONS_LEFTPOS[targetPos][targetIndex].x
 			targetBoxGroup.y = OPTIONS_LEFTPOS[targetPos][targetIndex].y
@@ -415,8 +414,8 @@ function game:show(event)
 	
 	if phase == "will" then 
 		initialize(event)		
-		createAttempts()
 		createNao()
+		createAttempts()
 		createNaoSprite()
 		createTargets()
 		createTimer()
