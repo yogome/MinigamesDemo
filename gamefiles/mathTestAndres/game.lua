@@ -2,7 +2,6 @@
 local scenePath = ... 
 local folder = scenePath:match("(.-)[^%.]+$") 
 local assetPath = string.gsub(folder,"[%.]","/") 
-local localization = require("libs.helpers.localization")
 local director = require("libs.helpers.director")
 
 local game = director.newScene() 
@@ -140,11 +139,13 @@ local function createNao()
 end
 	
 local function moveNao()
+	local naoXScale = (display.contentWidth * 0.10) / naoPortrait.width
+	
 	if currentAttempt % 2 == 0 then
 		director.performWithDelay(scenePath, 1500,
 			function()
 				director.to(scenePath, naoPortrait, { time = 500, x = display.contentWidth * 0.20, y = display.contentHeight * 0.85 })
-				naoPortrait.xScale = (display.contentWidth * 0.10) / naoPortrait.width
+				naoPortrait.xScale = naoXScale
 				targetsLayer:insert(naoPortrait)
 			end
 		)
@@ -152,7 +153,7 @@ local function moveNao()
 		director.performWithDelay(scenePath, 1500,
 			function()
 				director.to(scenePath, naoPortrait, { time = 500, x = display.contentWidth * 0.80, y = display.contentHeight * 0.85 })
-				naoPortrait.xScale = -(display.contentWidth * 0.10) / naoPortrait.width
+				naoPortrait.xScale = -naoXScale
 				targetsLayer:insert(naoPortrait)
 			end
 		)
@@ -167,6 +168,22 @@ local function arrangeZIndex(selectedLayer, objectToInsert)
 	elseif selectedLayer.zIndex == 3 then
 		backIndex:insert(objectToInsert)
 	end
+end
+
+local function removeTargets()
+	director.to(scenePath, targetsGroup, { 
+		time = 500, 
+		alpha = 0, 
+		onComplete = function() 
+			director.to(scenePath, targetsGroup, { 
+				time = 500, 
+				alpha = 0, 
+				onComplete = function() 
+					display.remove(targetsGroup) 
+				end 
+			})
+		end
+	})
 end
 
 local function onSignTap(event)
@@ -192,13 +209,7 @@ local function onSignTap(event)
 						alpha = 1, 
 						y = powerCubeImg.y - 20,
 						onComplete = function()
-							director.to(scenePath, targetsGroup, { 
-								time = 500, 
-								alpha = 0, 
-								onComplete = function() 
-									director.to(scenePath, targetsGroup, { time = 500, alpha = 0, onComplete = function() display.remove(targetsGroup) end })
-								end
-							})
+							removeTargets()
 						end
 					})
 				end
@@ -207,13 +218,7 @@ local function onSignTap(event)
 		elseif currentAttempt <= 5 then
 			director.performWithDelay(scenePath, 1500,
 				function()
-					director.to(scenePath, targetsGroup, { 
-						time = 500, 
-						alpha = 0, 
-						onComplete = function() 
-							director.to(scenePath, targetsGroup, { time = 500, alpha = 0, onComplete = function() display.remove(targetsGroup) end })
-						end
-					})
+					removeTargets()
 				end
 			)
 			progressTable[currentAttempt].fill = progressTable[currentAttempt].wrongFill
