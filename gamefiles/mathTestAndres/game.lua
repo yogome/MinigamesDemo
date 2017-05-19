@@ -14,87 +14,77 @@ local currentAttempt, tapsEnabled, clockTimer
 local manager, isFirstTime
 local backIndex, middleIndex, frontIndex
 ----------------------------------------------- Constants
-local BANNER_WIDTH = 98
+local TRANSITION_TAG = "gameAnimation"
+local BANNER_SCALE = (display.contentWidth * 0.1) / 98
+local GAME_TIME = 60
 local TOTAL_ATTEMPTS = 5
 local NUM_TARGETS = 3
 local OPTIONS_LEFTPOS = {
-	[1] = { 
-		[1] = { x = display.contentWidth * 0.45, y = display.contentHeight * 0.85, zIndex = 1 },
-		[2] = { x = display.contentWidth * 0.10, y = display.contentHeight * 0.65, zIndex = 3 },
-		[3] = { x = display.contentWidth * 0.30, y = display.contentHeight * 0.75, zIndex = 2 }
+	[1] = {
+		[1] = {x = display.contentWidth * 0.45, y = display.contentHeight * 0.85, zIndex = 1},
+		[2] = {x = display.contentWidth * 0.10, y = display.contentHeight * 0.65, zIndex = 3},
+		[3] = {x = display.contentWidth * 0.30, y = display.contentHeight * 0.75, zIndex = 2}
 	},
-	[2] =  { 
-		[1] = { x = display.contentWidth * 0.15, y = display.contentHeight * 0.85, zIndex = 1 },
-		[2] = { x = display.contentWidth * 0.45, y = display.contentHeight * 0.80, zIndex = 2 },
-		[3] = { x = display.contentWidth * 0.30, y = display.contentHeight * 0.65, zIndex = 3 }
+	[2] =  {
+		[1] = {x = display.contentWidth * 0.15, y = display.contentHeight * 0.85, zIndex = 1},
+		[2] = {x = display.contentWidth * 0.45, y = display.contentHeight * 0.80, zIndex = 2},
+		[3] = {x = display.contentWidth * 0.30, y = display.contentHeight * 0.65, zIndex = 3}
 	}
 }
 local OPTIONS_RIGHTPOS = {
-	[1] = { 
-		[1] = { x = display.contentWidth * 0.60, y = display.contentHeight * 0.65, zIndex = 3 },
-		[2] = { x = display.contentWidth * 0.70, y = display.contentHeight * 0.80, zIndex = 2},
-		[3] = { x = display.contentWidth * 0.90, y = display.contentHeight * 0.85, zIndex = 1 }
+	[1] = {
+		[1] = {x = display.contentWidth * 0.60, y = display.contentHeight * 0.65, zIndex = 3},
+		[2] = {x = display.contentWidth * 0.70, y = display.contentHeight * 0.80, zIndex = 2},
+		[3] = {x = display.contentWidth * 0.90, y = display.contentHeight * 0.85, zIndex = 1}
 	},
-	[2] =  { 
-		[1] = { x = display.contentWidth * 0.90, y = display.contentHeight * 0.85, zIndex = 1 },
-		[2] = { x = display.contentWidth * 0.60, y = display.contentHeight * 0.75, zIndex = 2 },
-		[3] = { x = display.contentWidth * 0.75, y = display.contentHeight * 0.65, zIndex = 3 }
+	[2] =  {
+		[1] = {x = display.contentWidth * 0.90, y = display.contentHeight * 0.85, zIndex = 1},
+		[2] = {x = display.contentWidth * 0.60, y = display.contentHeight * 0.75, zIndex = 2},
+		[3] = {x = display.contentWidth * 0.75, y = display.contentHeight * 0.65, zIndex = 3}
 	}
 }
 ----------------------------------------------- Caches
-
+local mathRandom = math.random
 ----------------------------------------------- Functions
-local function createAttempts()
-	local attemptFill = { type = "image", filename = assetPath.."progress.png" }
-	local attemptRight = { type = "image", filename = assetPath.."progress_right.png" }
-	local attemptWrong = { type = "image", filename = assetPath.."progress_wrong.png" }
-	progressTable = {}
-	
-	attemptsGroup = display.newGroup()
-	attemptsLayer:insert(attemptsGroup)
-	
-	for attemptIndex = 1, TOTAL_ATTEMPTS do
-		local attemptImg = display.newRect(0, 0, 50, 50)
-		attemptImg:scale((display.contentWidth * 0.05) / attemptImg.width, (display.contentWidth * 0.05) / attemptImg.width)
-		attemptImg.x = display.contentCenterX - ((TOTAL_ATTEMPTS/2) - 0.5) * attemptImg.contentWidth + attemptImg.contentWidth * (attemptIndex - 1)
-		attemptImg.y = display.screenOriginY + display.contentHeight - 40
-		attemptImg.fill = attemptFill
-		attemptImg.rightFill = attemptRight
-		attemptImg.wrongFill = attemptWrong
-		attemptsGroup:insert(attemptImg)
-		
-		progressTable[attemptIndex] = attemptImg
-	end
+local function animateRotation(self)
+	director.to(scenePath, self, {tag = TRANSITION_TAG, time = 1000, rotation = self.rotation + 360, onComplete = function()
+		animateRotation(self)
+	end})
 end
 
-local function createNaoSprite()
-	local options = { width = 45, height = 76, numFrames = 20, sheetContentWidth = 225, sheetContentHeight = 304 }
-	local sequenceData = { name = "jumping", start = 1, count = 20, time = 1000, loopCount = 1 }
-	local imageSheet = graphics.newImageSheet(assetPath.."Spritesheet/naojump.png", options)
+local function shuffleTable(table)
+	for tableIndex = 1, #table do
+        local randomizer = mathRandom(#table)
+        table[tableIndex], table[randomizer] = table[randomizer], table[tableIndex]
+	end
 	
-	naoJumping = display.newSprite(imageSheet, sequenceData)
-	attemptsGroup:insert(naoJumping)
-	naoJumping.anchorY = 0.8
-	naoJumping.x = progressTable[1].x
-	naoJumping.y = progressTable[2].y
+	return table
+end
+
+local function arrangeZIndex(selectedLayer, objectToInsert)
+	if selectedLayer.zIndex == 1 then
+		frontIndex:insert(objectToInsert)
+	elseif selectedLayer.zIndex == 2 then
+		middleIndex:insert(objectToInsert)
+	elseif selectedLayer.zIndex == 3 then
+		backIndex:insert(objectToInsert)
+	end
 end
 
 local function createQuestion()
-	local firstNumber = math.random(1, 9)
-	local secondNumber = math.random(1, 9)
+	local firstNumber = mathRandom(1, 9)
+	local secondNumber = mathRandom(1, 9)
 	local correctAnswer = firstNumber + secondNumber
+	
 	missingImg = display.newImage(assetPath.."missing.png")
 	
 	local answersList = {
-		[1] = {number = correctAnswer, isCorrect = true },
-		[2] = {number = correctAnswer - math.random(1, 4), isCorrect = false },
-		[3] = {number = correctAnswer + math.random(1, 4), isCorrect = false }
+		[1] = {number = correctAnswer, isCorrect = true},
+		[2] = {number = correctAnswer - mathRandom(1, 4), isCorrect = false},
+		[3] = {number = correctAnswer + mathRandom(1, 4), isCorrect = false}
 	}
 	
-    for tableIndex = 1, #answersList do
-        local randomizer = math.random(#answersList)
-        answersList[tableIndex], answersList[randomizer] = answersList[randomizer], answersList[tableIndex]
-	end
+	answersList = shuffleTable(answersList)
 	
 	local boardList = {
 		[1] = {text = firstNumber},
@@ -111,79 +101,88 @@ local function createQuestion()
 	for boardIndex = 1, #boardList do
 		if boardIndex == #boardList then
 			missingImg:scale((display.contentWidth * 0.08) / missingImg.width, (display.contentWidth * 0.08) / missingImg.width)
-			missingImg.x = display.contentCenterX - ((#boardList / 2) - 0.5) * 75 + 75 * (boardIndex - 1)
-			missingImg.y = display.screenOriginY + 90
+			missingImg.x, missingImg.y = display.contentCenterX - ((#boardList / 2) - 0.5) * 75 + 75 * (boardIndex - 1), display.screenOriginY + 90
 			boardGroup:insert(missingImg)
 			
 			correctTxt = display.newText(correctAnswer, 0, 0, 75, 0, native.systemFont, 70)
-			correctTxt.x = missingImg.x
-			correctTxt.y = missingImg.y
 			correctTxt.alpha = 0
+			correctTxt.x, correctTxt.y = missingImg.x, missingImg.y
 			boardGroup:insert(correctTxt)
 		else
 			local boardTxt = display.newText(boardList[boardIndex].text, 0, 0, 75, 0, native.systemFont, 70)
-			boardTxt.x = display.contentCenterX - ((#boardList / 2) - 0.5) * 75 + 75 * (boardIndex - 1)
-			boardTxt.y = display.screenOriginY + 90
+			boardTxt.x, boardTxt.y = display.contentCenterX - ((#boardList / 2) - 0.5) * 75 + 75 * (boardIndex - 1), display.screenOriginY + 90
 			boardGroup:insert(boardTxt)
 		end
 	end
+	
 	return answersList
+end
+
+local function createAttempts()
+	local attemptFill = {type = "image", filename = assetPath.."progress.png"}
+	local attemptRight = {type = "image", filename = assetPath.."progress_right.png"}
+	local attemptWrong = {type = "image", filename = assetPath.."progress_wrong.png"}
+	progressTable = {}
+	
+	attemptsGroup = display.newGroup()
+	attemptsLayer:insert(attemptsGroup)
+	
+	for attemptIndex = 1, TOTAL_ATTEMPTS do
+		local attemptImg = display.newRect(0, 0, 50, 50)
+		attemptImg:scale((display.contentWidth * 0.05) / attemptImg.width, (display.contentWidth * 0.05) / attemptImg.width)
+		attemptImg.x, attemptImg.y = display.contentCenterX - ((TOTAL_ATTEMPTS/2) - 0.5) * attemptImg.contentWidth + attemptImg.contentWidth * (attemptIndex - 1), display.screenOriginY + display.contentHeight - 40
+		attemptImg.fill = attemptFill
+		attemptImg.rightFill = attemptRight
+		attemptImg.wrongFill = attemptWrong
+		attemptsGroup:insert(attemptImg)
+		
+		progressTable[attemptIndex] = attemptImg
+	end
+end
+
+local function createAttemptsSprite()
+	local options = {width = 45, height = 76, numFrames = 20, sheetContentWidth = 225, sheetContentHeight = 304}
+	local sequenceData = {name = "jumping", start = 1, count = 20, time = 1000, loopCount = 1}
+	local imageSheet = graphics.newImageSheet(assetPath.."Spritesheet/naojump.png", options)
+	
+	naoJumping = display.newSprite(imageSheet, sequenceData)
+	naoJumping.anchorY = 0.8
+	naoJumping.x, naoJumping.y = progressTable[1].x, progressTable[1].y
+	attemptsGroup:insert(naoJumping)
 end
 
 local function createNao()
 	naoPortrait = display.newImage(assetPath.."nao.png")
 	naoPortrait:scale((display.contentWidth * 0.10) / naoPortrait.width, (display.contentWidth * 0.10) / naoPortrait.width)
 	naoPortrait.anchorY = 1
-	naoPortrait.x = display.contentWidth * 0.20
-	naoPortrait.y = display.contentHeight * 0.85
+	naoPortrait.x, naoPortrait.y = display.contentWidth * 0.20, display.contentHeight * 0.85
+	targetsLayer:insert(naoPortrait)
 end
 	
 local function moveNao()
 	local naoXScale = (display.contentWidth * 0.10) / naoPortrait.width
 	
 	if currentAttempt % 2 == 0 then
-		director.performWithDelay(scenePath, 1500,
-			function()
-				director.to(scenePath, naoPortrait, { time = 500, x = display.contentWidth * 0.20, y = display.contentHeight * 0.85 })
-				naoPortrait.xScale = naoXScale
-				targetsLayer:insert(naoPortrait)
-			end
-		)
+		director.performWithDelay(scenePath, 1500, function()
+			director.to(scenePath, naoPortrait, {time = 500, x = display.contentWidth * 0.20, y = display.contentHeight * 0.85})
+			naoPortrait.xScale = naoXScale
+			targetsLayer:insert(naoPortrait)
+		end)
 	else
-		director.performWithDelay(scenePath, 1500,
-			function()
-				director.to(scenePath, naoPortrait, { time = 500, x = display.contentWidth * 0.80, y = display.contentHeight * 0.85 })
-				naoPortrait.xScale = -naoXScale
-				targetsLayer:insert(naoPortrait)
-			end
-		)
+		director.performWithDelay(scenePath, 1500, function()
+			director.to(scenePath, naoPortrait, {time = 500, x = display.contentWidth * 0.80, y = display.contentHeight * 0.85})
+			naoPortrait.xScale = -naoXScale
+			targetsLayer:insert(naoPortrait)
+		end)
 	end
 end	
 
-local function arrangeZIndex(selectedLayer, objectToInsert)
-	if selectedLayer.zIndex == 1 then
-		frontIndex:insert(objectToInsert)
-	elseif selectedLayer.zIndex == 2 then
-		middleIndex:insert(objectToInsert)
-	elseif selectedLayer.zIndex == 3 then
-		backIndex:insert(objectToInsert)
-	end
-end
-
 local function removeTargets()
-	director.to(scenePath, targetsGroup, { 
-		time = 500, 
-		alpha = 0, 
-		onComplete = function() 
-			director.to(scenePath, targetsGroup, { 
-				time = 500, 
-				alpha = 0, 
-				onComplete = function() 
-					display.remove(targetsGroup) 
-				end 
-			})
-		end
-	})
+	director.to(scenePath, targetsGroup, {time = 500, alpha = 0, onComplete = function() 
+		director.to(scenePath, targetsGroup, {time = 500, alpha = 0, onComplete = function() 
+			display.remove(targetsGroup) 
+		end})
+	end})
 end
 
 local function onSignTap(event)
@@ -194,63 +193,54 @@ local function onSignTap(event)
 		local powerCubeImg = display.newImage(assetPath.."powercube.png")
 		powerCubeImg.alpha = 0
 		powerCubeImg.anchorY = 1
-		powerCubeImg.x = selectedTarget.x
-		powerCubeImg.y = selectedTarget.y - selectedTarget.contentHeight
+		powerCubeImg.x, powerCubeImg.y = selectedTarget.x, selectedTarget.y - selectedTarget.contentHeight
+		targetsGroup:insert(powerCubeImg)
 		
 		arrangeZIndex(selectedTarget, naoPortrait)
-		director.to(scenePath, naoPortrait, { time = 800, x = selectedTarget.x, y = selectedTarget.y })
+		director.to(scenePath, naoPortrait, {time = 800, x = selectedTarget.x, y = selectedTarget.y})
 		moveNao()
 		
 		if selectedTarget.isCorrect and currentAttempt <= 5 then
-			director.performWithDelay(scenePath, 1500,
-				function()
-					director.to(scenePath, powerCubeImg, { 
-						time = 500, 
-						alpha = 1, 
-						y = powerCubeImg.y - 20,
-						onComplete = function()
-							removeTargets()
-						end
-					})
-				end
-			)
+			director.performWithDelay(scenePath, 1500, function()
+				director.to(scenePath, powerCubeImg, {time = 500, alpha = 1, y = powerCubeImg.y - 20, onComplete = function()
+					removeTargets()
+				end})
+			end)
 			progressTable[currentAttempt].fill = progressTable[currentAttempt].rightFill
 		elseif currentAttempt <= 5 then
-			director.performWithDelay(scenePath, 1500,
-				function()
-					removeTargets()
-				end
-			)
+			director.performWithDelay(scenePath, 1500, function()
+				removeTargets()
+			end)
 			progressTable[currentAttempt].fill = progressTable[currentAttempt].wrongFill
 		end
 		
 		currentAttempt = currentAttempt + 1
 		
 		if currentAttempt <= TOTAL_ATTEMPTS then
-			director.to(scenePath, naoJumping, { time = 1000, x = progressTable[currentAttempt].x, y = progressTable[currentAttempt].y, onStart = function() naoJumping:play() end })
+			director.to(scenePath, naoJumping, {time = 1000, x = progressTable[currentAttempt].x, y = progressTable[currentAttempt].y, onStart = function() naoJumping:play() end})
 		else
-			director.to(scenePath, naoJumping, { time = 1000, alpha = 0})
+			director.to(scenePath, naoJumping, {time = 1000, alpha = 0})
 		end
 		
-		director.to(scenePath, missingImg, { time = 300, alpha = 0})
-		director.to(scenePath, correctTxt, { time = 500, alpha = 1})
+		director.to(scenePath, missingImg, {time = 300, alpha = 0})
+		director.to(scenePath, correctTxt, {time = 500, alpha = 1})
 		
-		director.performWithDelay(scenePath, 3100, 
-			function()	
-				director.to(scenePath, powerCubeImg, { time = 500, alpha = 0, onComplete = function() display.remove(powerCubeImg) end })
-				if currentAttempt <= TOTAL_ATTEMPTS then
-					answersList = createQuestion()
-					selectedTarget:callCreateTargets()
-				else
-					manager.correct()
-				end
+		director.performWithDelay(scenePath, 3100, function()	
+			director.to(scenePath, powerCubeImg, {time = 500, alpha = 0})
+			if currentAttempt <= TOTAL_ATTEMPTS then
+				answersList = createQuestion()
+				selectedTarget:callCreateTargets()
+			else
+				manager.correct()
 			end
-		)	
+		end)	
 	end
+	
 	return true
 end
 
 local function createTargets()
+	display.remove(targetsGroup) 
 	targetsGroup = display.newGroup()
 	targetsLayer:insert(targetsGroup)
 	
@@ -264,7 +254,7 @@ local function createTargets()
 	targetsGroup:insert(frontIndex)
 	
 	targetsGroup.alpha = 0
-	local targetPos = math.random(1,2)
+	local targetPos = mathRandom(1,2)
 	
 	for targetIndex = 1, NUM_TARGETS do	
 		local targetBoxGroup = display.newGroup()
@@ -272,12 +262,10 @@ local function createTargets()
 		targetBoxGroup.anchorY = 2
 		
 		if currentAttempt % 2 == 0 then
-			targetBoxGroup.x = OPTIONS_LEFTPOS[targetPos][targetIndex].x
-			targetBoxGroup.y = OPTIONS_LEFTPOS[targetPos][targetIndex].y
+			targetBoxGroup.x, targetBoxGroup.y = OPTIONS_LEFTPOS[targetPos][targetIndex].x, OPTIONS_LEFTPOS[targetPos][targetIndex].y
 			targetBoxGroup.zIndex = OPTIONS_LEFTPOS[targetPos][targetIndex].zIndex
 		else
-			targetBoxGroup.x = OPTIONS_RIGHTPOS[targetPos][targetIndex].x
-			targetBoxGroup.y = OPTIONS_RIGHTPOS[targetPos][targetIndex].y
+			targetBoxGroup.x, targetBoxGroup.y = OPTIONS_RIGHTPOS[targetPos][targetIndex].x, OPTIONS_RIGHTPOS[targetPos][targetIndex].y
 			targetBoxGroup.zIndex = OPTIONS_RIGHTPOS[targetPos][targetIndex].zIndex
 		end
 		
@@ -297,8 +285,9 @@ local function createTargets()
 		function targetBoxGroup:callCreateTargets()
 			createTargets()
 		end
-	end       
-	director.to(scenePath, targetsGroup, { time = 500, alpha = 1 })
+	end   
+    
+	director.to(scenePath, targetsGroup, {time = 500, alpha = 1})
 end
 
 local function createTimer()
@@ -307,47 +296,45 @@ local function createTimer()
 	
 	local timerImg = display.newImage(assetPath.."timer.png")
 	timerImg:scale((display.contentWidth * 0.15) / timerImg.width, (display.contentWidth * 0.15) / timerImg.width)
-	timerImg.x = display.screenOriginX + timerImg.width
-	timerImg.y = display.screenOriginY + display.contentHeight - timerImg.height
+	timerImg.x, timerImg.y = display.screenOriginX + timerImg.width, display.screenOriginY + display.contentHeight - timerImg.height
 	timerGroup:insert(timerImg)
 	
 	local timerHand = display.newImage(assetPath.."hand.png")
 	timerHand:scale((display.contentWidth * 0.008) / timerHand.width, (display.contentWidth * 0.008) / timerHand.width)
 	timerHand.anchorY = 0.8
-	timerHand.x = timerImg.x - timerImg.contentWidth * 0.25
-	timerHand.y = timerImg.y + timerImg.contentWidth * 0.03
-	director.to(scenePath, timerHand, { time = 1000, rotation = 360, iterations = 60 })
+	timerHand.x, timerHand.y = timerImg.x - timerImg.contentWidth * 0.25, timerImg.y + timerImg.contentWidth * 0.03
 	timerGroup:insert(timerHand)
 	
-	local secondsRemaining = 60
+	animateRotation(timerHand)
+	
+	local secondsRemaining = GAME_TIME
 	local timerTxt = display.newText(secondsRemaining, 0, 0, native.systemFont, 35)
+	timerTxt.x, timerTxt.y = timerImg.x + timerImg.contentWidth * 0.15, timerImg.y + timerImg.contentHeight * 0.05
 	timerTxt:setFillColor(0, 0, 0)
-	timerTxt.x = timerImg.x + timerImg.contentWidth * 0.15
-	timerTxt.y = timerImg.y + timerImg.contentHeight * 0.05
 	timerGroup:insert(timerTxt)
 	
-
-	clockTimer = director.performWithDelay(scenePath, 1000, 
-		function()
-			secondsRemaining = secondsRemaining - 1
-			timerTxt.text = secondsRemaining
-			if secondsRemaining == 0 then
-				timer.cancel(clockTimer)
-				manager.wrong()
-			end
+	clockTimer = director.performWithDelay(scenePath, 1000, function()
+		secondsRemaining = secondsRemaining - 1
+		timerTxt.text = secondsRemaining
+		if secondsRemaining == 0 then
+			transition.cancel(TRANSITION_TAG)
+			timer.cancel(clockTimer)
+			manager.wrong()
 		end
-	, secondsRemaining)
-
+	end, secondsRemaining)
 end
 
 local function cleanVariables()
+		timer.cancel(clockTimer)
+		
+		transition.cancel(TRANSITION_TAG)
+	
 		display.remove(targetsGroup)
 		targetsGroup = nil
 		
 		display.remove(boardGroup)
 		boardGroup = nil
 		
-		timer.cancel(clockTimer)
 		display.remove(timerGroup)
 		timerGroup = nil
 		
@@ -404,30 +391,26 @@ function game:create(event)
 	targetsLayer = display.newGroup() 
 	sceneView:insert(targetsLayer)
 	
-	local backgroundImg = display.newImage(assetPath.."bgd.png", display.contentCenterX,display.contentCenterY)
-	backgroundImg.height = display.contentHeight
-	backgroundImg.width = display.contentWidth
+	local backgroundImg = display.newImage(assetPath.."bgd.png", display.contentCenterX, display.contentCenterY)
+	backgroundImg.width, backgroundImg.height = display.viewableContentWidth + 2, display.viewableContentHeight + 2
 	backgroundLayer:insert(backgroundImg)
 
 	local bannerTable = {
-		[1] = {x = display.contentWidth * 0.9, xScale = (display.contentWidth * 0.1) / BANNER_WIDTH},
-		[2] = {x = display.contentWidth * 0.1, xScale = -(display.contentWidth * 0.1) / BANNER_WIDTH}
+		[1] = {x = display.contentWidth * 0.9, xScale = BANNER_SCALE},
+		[2] = {x = display.contentWidth * 0.1, xScale = -BANNER_SCALE}
 	}
 	
 	for bannerIndex = 1, #bannerTable do
 		local bannerImg = display.newImage(assetPath.."flag.png")
-		bannerImg.xScale = bannerTable[bannerIndex].xScale
-		bannerImg.yScale = (display.contentWidth * 0.1) / BANNER_WIDTH
+		bannerImg:scale(bannerTable[bannerIndex].xScale, BANNER_SCALE)
 		bannerImg.anchorY = 1
-		bannerImg.x = bannerTable[bannerIndex].x
-		bannerImg.y = display.contentHeight * 0.54
+		bannerImg.x, bannerImg.y = bannerTable[bannerIndex].x, display.contentHeight * 0.54
 		backgroundLayer:insert(bannerImg)
 	end
 	
 	boardImg = display.newImage(assetPath.."board.png")
 	boardImg:scale((display.contentWidth * 0.45) / boardImg.width, (display.contentWidth * 0.45) / boardImg.width)
-	boardImg.x = display.contentCenterX
-	boardImg.y = display.screenOriginY + 100
+	boardImg.x, boardImg.y = display.contentCenterX, display.screenOriginY + 100
 	backgroundLayer:insert(boardImg)
 end
 
@@ -437,9 +420,9 @@ function game:show(event)
 	
 	if phase == "will" then 
 		initialize(event)		
-		createNao()
 		createAttempts()
-		createNaoSprite()
+		createAttemptsSprite()
+		createNao()
 		createTargets()
 		createTimer()
 	elseif phase == "did" then 
