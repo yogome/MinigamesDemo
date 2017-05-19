@@ -13,33 +13,33 @@ local boardImg, progressTable, naoPortrait, naoJumping
 local missingImg, correctTxt, answersList
 local currentAttempt, tapsEnabled, clockTimer
 local manager, isFirstTime
-local backIndex, frontIndex
+local backIndex, middleIndex, frontIndex
 ----------------------------------------------- Constants
 local BANNER_WIDTH = 98
 local TOTAL_ATTEMPTS = 5
 local NUM_TARGETS = 3
 local OPTIONS_LEFTPOS = {
 	[1] = { 
-		[1] = { x = display.contentWidth * 0.45, y = display.contentHeight * 0.85 },
-		[2] = { x = display.contentWidth * 0.10, y = display.contentHeight * 0.65 },
-		[3] = { x = display.contentWidth * 0.30, y = display.contentHeight * 0.75 }
+		[1] = { x = display.contentWidth * 0.45, y = display.contentHeight * 0.85, zIndex = 1 },
+		[2] = { x = display.contentWidth * 0.10, y = display.contentHeight * 0.65, zIndex = 3 },
+		[3] = { x = display.contentWidth * 0.30, y = display.contentHeight * 0.75, zIndex = 2 }
 	},
 	[2] =  { 
-		[1] = { x = display.contentWidth * 0.15, y = display.contentHeight * 0.85 },
-		[2] = { x = display.contentWidth * 0.45, y = display.contentHeight * 0.80 },
-		[3] = { x = display.contentWidth * 0.30, y = display.contentHeight * 0.65 }
+		[1] = { x = display.contentWidth * 0.15, y = display.contentHeight * 0.85, zIndex = 1 },
+		[2] = { x = display.contentWidth * 0.45, y = display.contentHeight * 0.80, zIndex = 2 },
+		[3] = { x = display.contentWidth * 0.30, y = display.contentHeight * 0.65, zIndex = 3 }
 	}
 }
 local OPTIONS_RIGHTPOS = {
 	[1] = { 
-		[1] = { x = display.contentWidth * 0.60, y = display.contentHeight * 0.65 },
-		[2] = { x = display.contentWidth * 0.70, y = display.contentHeight * 0.80 },
-		[3] = { x = display.contentWidth * 0.90, y = display.contentHeight * 0.85 }
+		[1] = { x = display.contentWidth * 0.60, y = display.contentHeight * 0.65, zIndex = 3 },
+		[2] = { x = display.contentWidth * 0.70, y = display.contentHeight * 0.80, zIndex = 2},
+		[3] = { x = display.contentWidth * 0.90, y = display.contentHeight * 0.85, zIndex = 1 }
 	},
 	[2] =  { 
-		[1] = { x = display.contentWidth * 0.90, y = display.contentHeight * 0.85 },
-		[2] = { x = display.contentWidth * 0.60, y = display.contentHeight * 0.75 },
-		[3] = { x = display.contentWidth * 0.75, y = display.contentHeight * 0.65 }
+		[1] = { x = display.contentWidth * 0.90, y = display.contentHeight * 0.85, zIndex = 1 },
+		[2] = { x = display.contentWidth * 0.60, y = display.contentHeight * 0.75, zIndex = 2 },
+		[3] = { x = display.contentWidth * 0.75, y = display.contentHeight * 0.65, zIndex = 3 }
 	}
 }
 ----------------------------------------------- Caches
@@ -137,7 +137,6 @@ local function createNao()
 	naoPortrait.anchorY = 1
 	naoPortrait.x = display.contentWidth * 0.20
 	naoPortrait.y = display.contentHeight * 0.85
-	frontIndex:insert(naoPortrait)
 end
 	
 local function moveNao()
@@ -146,6 +145,7 @@ local function moveNao()
 			function()
 				director.to(scenePath, naoPortrait, { time = 500, x = display.contentWidth * 0.20, y = display.contentHeight * 0.85 })
 				naoPortrait.xScale = (display.contentWidth * 0.10) / naoPortrait.width
+				targetsLayer:insert(naoPortrait)
 			end
 		)
 	else
@@ -153,25 +153,38 @@ local function moveNao()
 			function()
 				director.to(scenePath, naoPortrait, { time = 500, x = display.contentWidth * 0.80, y = display.contentHeight * 0.85 })
 				naoPortrait.xScale = -(display.contentWidth * 0.10) / naoPortrait.width
+				targetsLayer:insert(naoPortrait)
 			end
 		)
 	end
 end	
 
+local function arrangeZIndex(selectedLayer, objectToInsert)
+	if selectedLayer.zIndex == 1 then
+		frontIndex:insert(objectToInsert)
+	elseif selectedLayer.zIndex == 2 then
+		middleIndex:insert(objectToInsert)
+	elseif selectedLayer.zIndex == 3 then
+		backIndex:insert(objectToInsert)
+	end
+end
+
 local function onSignTap(event)
-	local currentTarget = event.target
+	local selectedTarget = event.target
+	
 	if tapsEnabled then
 		tapsEnabled = false
 		local powerCubeImg = display.newImage(assetPath.."powercube.png")
 		powerCubeImg.alpha = 0
 		powerCubeImg.anchorY = 1
-		powerCubeImg.x = currentTarget.x
-		powerCubeImg.y = currentTarget.y - currentTarget.contentHeight
+		powerCubeImg.x = selectedTarget.x
+		powerCubeImg.y = selectedTarget.y - selectedTarget.contentHeight
 		
-		director.to(scenePath, naoPortrait, { time = 800, x = currentTarget.x, y = currentTarget.y })
+		arrangeZIndex(selectedTarget, naoPortrait)
+		director.to(scenePath, naoPortrait, { time = 800, x = selectedTarget.x, y = selectedTarget.y })
 		moveNao()
 		
-		if currentTarget.isCorrect and currentAttempt <= 5 then
+		if selectedTarget.isCorrect and currentAttempt <= 5 then
 			director.performWithDelay(scenePath, 1500,
 				function()
 					director.to(scenePath, powerCubeImg, { 
@@ -222,7 +235,7 @@ local function onSignTap(event)
 				director.to(scenePath, powerCubeImg, { time = 500, alpha = 0, onComplete = function() display.remove(powerCubeImg) end })
 				if currentAttempt <= TOTAL_ATTEMPTS then
 					answersList = createQuestion()
-					currentTarget:callCreateTargets()
+					selectedTarget:callCreateTargets()
 				else
 					manager.correct()
 				end
@@ -234,6 +247,17 @@ end
 
 local function createTargets()
 	targetsGroup = display.newGroup()
+	targetsLayer:insert(targetsGroup)
+	
+	backIndex = display.newGroup()
+	targetsGroup:insert(backIndex)
+	
+	middleIndex = display.newGroup()
+	targetsGroup:insert(middleIndex)
+	
+	frontIndex = display.newGroup()
+	targetsGroup:insert(frontIndex)
+	
 	targetsGroup.alpha = 0
 	local targetPos = math.random(1,2)
 	
@@ -241,15 +265,19 @@ local function createTargets()
 		local targetBoxGroup = display.newGroup()
 		targetBoxGroup.anchorChildren = true
 		targetBoxGroup.anchorY = 2
+		
 		if currentAttempt % 2 == 0 then
 			targetBoxGroup.x = OPTIONS_LEFTPOS[targetPos][targetIndex].x
 			targetBoxGroup.y = OPTIONS_LEFTPOS[targetPos][targetIndex].y
+			targetBoxGroup.zIndex = OPTIONS_LEFTPOS[targetPos][targetIndex].zIndex
 		else
 			targetBoxGroup.x = OPTIONS_RIGHTPOS[targetPos][targetIndex].x
 			targetBoxGroup.y = OPTIONS_RIGHTPOS[targetPos][targetIndex].y
+			targetBoxGroup.zIndex = OPTIONS_RIGHTPOS[targetPos][targetIndex].zIndex
 		end
-		targetsGroup:insert(targetBoxGroup)
 		
+		arrangeZIndex(targetBoxGroup, targetBoxGroup)
+
 		local targetImg = display.newImage(assetPath.."answers.png")
 		targetImg:scale((display.contentWidth * 0.13) / targetImg.width, (display.contentWidth * 0.13) / targetImg.width)
 		targetBoxGroup:insert(targetImg)
@@ -324,6 +352,9 @@ local function cleanVariables()
 		display.remove(frontIndex)
 		frontIndex = nil
 		
+		display.remove(middleIndex)
+		middleIndex = nil
+		
 		display.remove(backIndex)
 		backIndex = nil
 end
@@ -338,6 +369,7 @@ local function initialize(event)
 	
 	currentAttempt = 1
 	tapsEnabled = true
+	
 	answersList = createQuestion()
 end
 ----------------------------------------------- Module functions
@@ -366,12 +398,6 @@ function game:create(event)
 	
 	targetsLayer = display.newGroup() 
 	sceneView:insert(targetsLayer)
-	
-	backIndex = display.newGroup()
-	targetsLayer:insert(backIndex)
-	
-	frontIndex = display.newGroup()
-	targetsLayer:insert(frontIndex)
 	
 	local backgroundImg = display.newImage(assetPath.."bgd.png", display.contentCenterX,display.contentCenterY)
 	backgroundImg.height = display.contentHeight
