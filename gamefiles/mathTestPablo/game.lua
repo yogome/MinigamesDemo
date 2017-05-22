@@ -10,7 +10,7 @@ local backgroundLayer, boardLayer, dummyLayer, groundLayer
 local star, clockTimer, naoJumps
 local boardGroup, dummyGroup, clockGroup, progressBarGroup, answerGroup
 local progressTable, tableNumber, miniGameSelect, dummyResults, dummyNumbers
-local counterStage, tapFlag, boardElement, storeBoardElementProperties
+local counterStage, tapFlag, boardElement, storeBoardElementPosition
 local isFirstTime, manager
 ----------------------------------------------- Constants
 local ATTEMPT_NUMBER = 5
@@ -62,8 +62,8 @@ local function showAnswer()
 	
 	local answer = display.newImage(assetPath.. boardElementsTable[1].path)
 	answer:scale(0.9, 0.9)
-	answer.x = storeBoardElementProperties[5].x
-	answer.y = storeBoardElementProperties[5].y
+	answer.x = storeBoardElementPosition[5].x
+	answer.y = storeBoardElementPosition[5].y
 	answerGroup:insert(answer)
 	
 	local answerText = display.newText(tableNumber.resultOperation, 0, 0, native.systemFont, 40)
@@ -97,15 +97,15 @@ local function showBoard()
 	board:scale(display.contentWidth * 0.7 / board.width, display.contentWidth * 0.55 / board.width)
 	boardGroup:insert(board)
 	
-	storeBoardElementProperties = {}
+	storeBoardElementPosition = {}
 	
 	local textCounter = 0
 	for index = 1, #boardElementsTable do
-		boardElement = display.newImage(assetPath.. boardElementsTable[index].path)
+		local boardElement = display.newImage(assetPath.. boardElementsTable[index].path)
 		boardElement:scale(0.8,0.8)
 		boardElement.x = board.x - board.contentWidth * 0.5 + (board.contentWidth / (#boardElementsTable + 1) * index)
 		boardElement.y = board.y + board.contentHeight * 0.1
-		storeBoardElementProperties[index] = boardElement
+		storeBoardElementPosition[index] = boardElement
 		boardGroup:insert(boardElement)
 		
 		if index % 2 ~= 0 then
@@ -215,7 +215,6 @@ local function createTapDummy()
 						generateNumbers()
 						createTapDummy()
 						showBoard()
-						
 					end})
 				elseif tableNumber.resultOperation ~= currentDummy.number then
 					star.x = star.xStart
@@ -227,7 +226,6 @@ local function createTapDummy()
 						generateNumbers()
 						createTapDummy()
 						showBoard()
-						
 					end})
 				end
 		end})
@@ -242,22 +240,23 @@ local function createTapDummy()
 	dummyLayer:insert(dummyGroup)
 	
 	for index = 1, numOfImages do
+		
 		local newDummy = display.newGroup()
 		newDummy.x = temporalTable[index].x
 		newDummy.y = display.contentCenterY + 80
 		dummyGroup:insert(newDummy)
 		
 		local boardElement = display.newImageRect(assetPath.."dummy.png", 200, 350)
+		newDummy.number = dummyResults[index].text
 		newDummy:insert(boardElement)
 		
-		local dummyText = display.newText(dummyResults[index].text, 0, 0, native.systemFont, 40)
+		local dummyText = display.newText(newDummy.number, 0, 0, native.systemFont, 40)
 		dummyText.x = boardElement.x + boardElement.contentWidth * 0.015
 		dummyText.y = boardElement.y - boardElement.contentHeight * 0.23
 		newDummy:insert(dummyText)
 		
-		newDummy.number = dummyResults[index].text
-		
 		newDummy:addEventListener("tap",tapDummy)
+		
 	end
 end
 
@@ -311,7 +310,6 @@ local function initialize(event)
 	counterStage = 0
 	
 	tapFlag = true
-	
 end
 ----------------------------------------------- Module functions
 function game.getInfo() 
