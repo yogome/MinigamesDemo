@@ -151,7 +151,7 @@ local function createSpriteofnao()
 	progressBarGroup:insert(naoJumps)
 	naoJumps.anchorY = 0.8
 	naoJumps.x = progressTable[1].x
-	naoJumps.y = progressTable[2].y
+	naoJumps.y = progressTable[1].y
 end
 
 local function shuffleTable(tab)
@@ -197,37 +197,36 @@ local function createTapDummy()
 	local function tapDummy(event)
 		local currentDummy = event.target 
 		if tapFlag then
-			showAnswer()
+		showAnswer()
 		counterStage = counterStage + 1
 		tapFlag = false
 		director.to(scenePath, star, { time=1000, x = currentDummy.x, y = currentDummy.y, rotation = star.rotation + 1080, transition = easing.outInQuad, onComplete = function()
-			
-		
-				if counterStage == ATTEMPT_NUMBER then 
+			if counterStage == ATTEMPT_NUMBER then
+				director.performWithDelay(scenePath, 2000, function() 
+					display.remove(dummyGroup)
 					manager.correct()
-				end
-				if tableNumber.resultOperation == currentDummy.number then
-					star.x = star.xStart
-					star.y = star.yStart
-					director.to(scenePath, naoJumps, { time = 1000, x = progressTable[counterStage + 1].x, y = progressTable[counterStage + 1].y, onStart = function() naoJumps:play() end })
-					progressTable[counterStage].fill = progressTable[counterStage].right
-					director.to(scenePath, dummyGroup, {time = 1000, alpha = 0, onComplete = function()
-						generateNumbers()
-						createTapDummy()
-						showBoard()
-					end})
-				elseif tableNumber.resultOperation ~= currentDummy.number then
-					star.x = star.xStart
-					star.y = star.yStart
-					progressTable[counterStage].fill = progressTable[counterStage].wrong
-					director.to(scenePath, naoJumps, { time = 1000, x = progressTable[counterStage + 1].x, y = progressTable[counterStage + 1].y, onStart = function() naoJumps:play() end })
-					director.to(scenePath, naoJumps, { time = 1000, alpha = 1})
-					director.to(scenePath, dummyGroup, {time = 1000, alpha = 0, onComplete = function()
-						generateNumbers()
-						createTapDummy()
-						showBoard()
-					end})
-				end
+					end, 1)
+			else
+				director.to(scenePath, naoJumps, { time = 1000, x = progressTable[counterStage + 1].x, y = progressTable[counterStage + 1].y, onStart = function() naoJumps:play() end })
+				director.to(scenePath, naoJumps, { time = 1000, alpha = 1})
+				director.to(scenePath, dummyGroup, {time = 1000, alpha = 0, onComplete = function()
+					generateNumbers()
+					createTapDummy()
+					showBoard()
+				end})
+			end
+			
+			if tableNumber.resultOperation == currentDummy.number and counterStage <= ATTEMPT_NUMBER then
+				star.x = star.xStart
+				star.y = star.yStart
+				progressTable[counterStage].fill = progressTable[counterStage].right
+			elseif tableNumber.resultOperation ~= currentDummy.number and counterStage <= ATTEMPT_NUMBER then
+				star.x = star.xStart
+				star.y = star.yStart
+				progressTable[counterStage].fill = progressTable[counterStage].wrong
+			end
+			
+			
 		end})
 	end
 		return true
