@@ -163,25 +163,19 @@ local function moveNao()
 	local naoXScale = (display.contentWidth * 0.10) / naoPortrait.width
 	
 	if currentAttempt % 2 == 0 then
-		director.performWithDelay(scenePath, 1500, function()
-			director.to(scenePath, naoPortrait, {time = 500, x = display.contentWidth * 0.20, y = display.contentHeight * 0.85})
-			naoPortrait.xScale = naoXScale
-			targetsLayer:insert(naoPortrait)
-		end)
+		director.to(scenePath, naoPortrait, {delay = 1500, time = 500, x = display.contentWidth * 0.80, y = display.contentHeight * 0.85})
+		naoPortrait.xScale = -naoXScale
+		targetsLayer:insert(naoPortrait)
 	else
-		director.performWithDelay(scenePath, 1500, function()
-			director.to(scenePath, naoPortrait, {time = 500, x = display.contentWidth * 0.80, y = display.contentHeight * 0.85})
-			naoPortrait.xScale = -naoXScale
-			targetsLayer:insert(naoPortrait)
-		end)
+		director.to(scenePath, naoPortrait, {delay = 1500, time = 500, x = display.contentWidth * 0.20, y = display.contentHeight * 0.85})
+		naoPortrait.xScale = naoXScale
+		targetsLayer:insert(naoPortrait)
 	end
 end	
 
 local function removeTargets()
-	director.to(scenePath, targetsGroup, {time = 500, alpha = 0, onComplete = function() 
-		director.to(scenePath, targetsGroup, {time = 500, alpha = 0, onComplete = function() 
-			display.remove(targetsGroup) 
-		end})
+	director.to(scenePath, targetsGroup, {delay = 1500, time = 500, alpha = 0, onComplete = function() 
+		display.remove(targetsGroup) 
 	end})
 end
 
@@ -197,20 +191,15 @@ local function onSignTap(event)
 		targetsGroup:insert(powerCubeImg)
 		
 		arrangeZIndex(selectedTarget, naoPortrait)
-		director.to(scenePath, naoPortrait, {time = 800, x = selectedTarget.x, y = selectedTarget.y})
-		moveNao()
+		director.to(scenePath, naoPortrait, {time = 800, x = selectedTarget.x, y = selectedTarget.y, onComplete = function() moveNao() end})
 		
 		if selectedTarget.isCorrect and currentAttempt <= 5 then
-			director.performWithDelay(scenePath, 1500, function()
-				director.to(scenePath, powerCubeImg, {time = 500, alpha = 1, y = powerCubeImg.y - 20, onComplete = function()
-					removeTargets()
-				end})
-			end)
+			director.to(scenePath, powerCubeImg, {time = 500, alpha = 1, y = powerCubeImg.y - 20, onComplete = function()
+				removeTargets()
+			end})
 			progressTable[currentAttempt].fill = progressTable[currentAttempt].rightFill
 		elseif currentAttempt <= 5 then
-			director.performWithDelay(scenePath, 1500, function()
-				removeTargets()
-			end)
+			removeTargets()
 			progressTable[currentAttempt].fill = progressTable[currentAttempt].wrongFill
 		end
 		
@@ -225,15 +214,15 @@ local function onSignTap(event)
 		director.to(scenePath, missingImg, {time = 300, alpha = 0})
 		director.to(scenePath, correctTxt, {time = 500, alpha = 1})
 		
-		director.performWithDelay(scenePath, 3100, function()	
-			director.to(scenePath, powerCubeImg, {time = 500, alpha = 0})
+
+		director.to(scenePath, powerCubeImg, {delay = 3100, time = 500, alpha = 0, onComplete = function()					
 			if currentAttempt <= TOTAL_ATTEMPTS then
 				answersList = createQuestion()
 				selectedTarget:callCreateTargets()
 			else
 				manager.correct()
 			end
-		end)	
+		end})
 	end
 	
 	return true
