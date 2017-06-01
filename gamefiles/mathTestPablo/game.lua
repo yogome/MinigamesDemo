@@ -70,7 +70,6 @@ local function showAnswer()
 	answerText.x = answer.x
 	answerText.y = answer.y
 	answerGroup:insert(answerText)
-	
 end
 
 local function createNao()
@@ -100,23 +99,22 @@ local function showBoard()
 	storeBoardElementPosition = {}
 	
 	local textCounter = 0
-	for index = 1, #boardElementsTable do
-		local boardElement = display.newImage(assetPath.. boardElementsTable[index].path)
-		boardElement:scale(0.8,0.8)
-		boardElement.x = board.x - board.contentWidth * 0.5 + (board.contentWidth / (#boardElementsTable + 1) * index)
-		boardElement.y = board.y + board.contentHeight * 0.1
-		storeBoardElementPosition[index] = boardElement
-		boardGroup:insert(boardElement)
-		
-		if index % 2 ~= 0 then
-			textCounter = textCounter + 1
+		for index = 1, #boardElementsTable do
+			local boardElement = display.newImage(assetPath.. boardElementsTable[index].path)
+			boardElement:scale(0.8,0.8)
+			boardElement.x = board.x - board.contentWidth * 0.5 + (board.contentWidth / (#boardElementsTable + 1) * index)
+			boardElement.y = board.y + board.contentHeight * 0.1
+			storeBoardElementPosition[index] = boardElement
+			boardGroup:insert(boardElement)
 			
-			local numberTextBoard = display.newText(dummyNumbers[textCounter].text, 0, 0, native.systemFont, 40)
-			numberTextBoard.x, numberTextBoard.y = boardElement.x, boardElement.y
-			boardGroup:insert(numberTextBoard)
-		end
-		
-	end
+			if index % 2 ~= 0 then
+				textCounter = textCounter + 1
+				
+				local numberTextBoard = display.newText(dummyNumbers[textCounter].text, 0, 0, native.systemFont, 45)
+				numberTextBoard.x, numberTextBoard.y = boardElement.x, boardElement.y
+				boardGroup:insert(numberTextBoard)
+			end 
+		end 
 	tapFlag = true
 end
 
@@ -127,12 +125,13 @@ local function createProgressBar()
 	local attemptFill = {type = "image", filename = assetPath.."progress.png"}
 	local attemptRight = {type = "image", filename = assetPath.."progress_right.png"}
 	local attempWrong = {type = "image", filename = assetPath.."progress_wrong.png"}
+	
 	progressTable = {}
 	
 	for attemptIndex = 1, ATTEMPT_NUMBER do
 		local attemptImg = display.newRect(0, 0, 50, 50)
 		attemptImg:scale((display.contentWidth * 0.05) / attemptImg.width, (display.contentWidth * 0.05) / attemptImg.width)
-		attemptImg.x = display.contentCenterX - ((ATTEMPT_NUMBER/2) - 0.5) * attemptImg.contentWidth + attemptImg.contentWidth*(attemptIndex - 1)
+		attemptImg.x = display.contentCenterX - ((ATTEMPT_NUMBER/2) - 0.5) * attemptImg.contentWidth + attemptImg.contentWidth * (attemptIndex - 1)
 		attemptImg.y = display.screenOriginY  + display.contentHeight - 40
 		attemptImg.fill = attemptFill
 		attemptImg.right = attemptRight
@@ -202,20 +201,19 @@ local function createTapDummy()
 		tapFlag = false
 		director.to(scenePath, star, { time=1000, x = currentDummy.x, y = currentDummy.y, rotation = star.rotation + 1080, transition = easing.outInQuad, onComplete = function()
 			if counterStage == ATTEMPT_NUMBER then
-				director.performWithDelay(scenePath, 2000, function() 
+				director.performWithDelay(scenePath, 2000, function()
 					display.remove(dummyGroup)
 					manager.correct()
 					end, 1)
 			else
 				director.to(scenePath, naoJumps, { time = 1000, x = progressTable[counterStage + 1].x, y = progressTable[counterStage + 1].y, onStart = function() naoJumps:play() end })
 				director.to(scenePath, naoJumps, { time = 1000, alpha = 1})
-				director.to(scenePath, dummyGroup, {time = 1000, alpha = 0, onComplete = function()
+				director.to(scenePath, dummyGroup, { time = 1000, alpha = 0, onComplete = function()
 					generateNumbers()
 					createTapDummy()
 					showBoard()
 				end})
 			end
-			
 			if tableNumber.resultOperation == currentDummy.number and counterStage <= ATTEMPT_NUMBER then
 				star.x = star.xStart
 				star.y = star.yStart
@@ -225,8 +223,6 @@ local function createTapDummy()
 				star.y = star.yStart
 				progressTable[counterStage].fill = progressTable[counterStage].wrong
 			end
-			
-			
 		end})
 	end
 		return true
@@ -242,7 +238,7 @@ local function createTapDummy()
 		
 		local newDummy = display.newGroup()
 		newDummy.x = temporalTable[index].x
-		newDummy.y = display.contentCenterY + 80
+		newDummy.y = display.contentCenterY + 100
 		dummyGroup:insert(newDummy)
 		
 		local boardElement = display.newImageRect(assetPath.."dummy.png", 200, 350)
@@ -255,19 +251,17 @@ local function createTapDummy()
 		newDummy:insert(dummyText)
 		
 		newDummy:addEventListener("tap",tapDummy)
-		
 	end
 end
 
 local function animationClock(clockHand)
-	director.to(scenePath, clockHand, {time = 1000, rotation = clockHand.rotation + 360, onComplete = function()
-	end})	
+	director.to(scenePath, clockHand, {time = 1000, rotation = clockHand.rotation + 360})	
 end
 
-local function updateTime(tiempo, TIME_REMAINING, clockHand)
+local function updateTime(timeText, clockHand)
 clockTimer = director.performWithDelay(scenePath, 1000, function() 
 	TIME_REMAINING = TIME_REMAINING - 1
-	tiempo.text = TIME_REMAINING
+	timeText.text = TIME_REMAINING
 		if TIME_REMAINING == 0 then
 			manager.wrong()
 		end
@@ -288,12 +282,12 @@ local function displayClock()
 	clockHand.anchorY = 1
 	clockGroup:insert(clockHand)
 	
-	local tiempo = display.newText(TIME_REMAINING,0, 0, native.systemFont, 35)
-	tiempo:setFillColor(0, 0, 0)
-	tiempo.x, tiempo.y = timerClock.x + 20, timerClock.y + 4
-	clockGroup:insert(tiempo)
+	local timeText = display.newText(TIME_REMAINING,0, 0, native.systemFont, 35)
+	timeText:setFillColor(0, 0, 0)
+	timeText.x, timeText.y = timerClock.x + 20, timerClock.y + 4
+	clockGroup:insert(timeText)
 	
-	updateTime(tiempo, TIME_REMAINING, clockHand)
+	updateTime(timeText, clockHand)
 end
 
 local function initialize(event)
