@@ -244,21 +244,21 @@ local function createTapDummy()
 	dummyLayer:insert(dummyGroup)
 	
 	for index = 1, numOfImages do
-			local newDummy = display.newGroup()
-			newDummy.x = temporalTable[index].x
-			newDummy.y = display.contentCenterY + 100
-			dummyGroup:insert(newDummy)
-			
-			local boardElement = display.newImageRect(assetPath.."dummy.png", 200, 350)
-			newDummy.number = dummyResults[index].text
-			newDummy:insert(boardElement)
-			
-			local dummyText = display.newText(newDummy.number, 0, 0, native.systemFont, 40)
-			dummyText.x = boardElement.x + boardElement.contentWidth * 0.015
-			dummyText.y = boardElement.y - boardElement.contentHeight * 0.23
-			newDummy:insert(dummyText)
-			
-			newDummy:addEventListener("tap",tapDummy)
+		local newDummy = display.newGroup()
+		newDummy.x = temporalTable[index].x
+		newDummy.y = display.contentCenterY + 100
+		dummyGroup:insert(newDummy)
+		
+		local boardElement = display.newImageRect(assetPath.."dummy.png", 200, 350)
+		newDummy.number = dummyResults[index].text
+		newDummy:insert(boardElement)
+		
+		local dummyText = display.newText(newDummy.number, 0, 0, native.systemFont, 40)
+		dummyText.x = boardElement.x + boardElement.contentWidth * 0.015
+		dummyText.y = boardElement.y - boardElement.contentHeight * 0.23
+		newDummy:insert(dummyText)
+		
+		newDummy:addEventListener("tap",tapDummy)
 	end
 	director.to(scenePath, dummyGroup, {time = 700, alpha = 1})
 end
