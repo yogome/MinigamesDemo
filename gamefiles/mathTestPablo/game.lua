@@ -103,24 +103,24 @@ local function showBoard()
 	
 	storeBoardElementPosition = {}
 	local textCounter = 0
-			for index = 1, #boardElementsTable do
-				local boardElement = display.newImage(assetPath.. boardElementsTable[index].path)
-				boardElement:scale(0.8,0.8)
-				boardElement.x = board.x - board.contentWidth * 0.5 + (board.contentWidth / (#boardElementsTable + 1) * index)
-				boardElement.y = board.y + board.contentHeight * 0.1
-				storeBoardElementPosition[index] = boardElement
-				boardGroup:insert(boardElement)
+		for index = 1, #boardElementsTable do
+			local boardElement = display.newImage(assetPath.. boardElementsTable[index].path)
+			boardElement:scale(0.8,0.8)
+			boardElement.x = board.x - board.contentWidth * 0.5 + (board.contentWidth / (#boardElementsTable + 1) * index)
+			boardElement.y = board.y + board.contentHeight * 0.1
+			storeBoardElementPosition[index] = boardElement
+			boardGroup:insert(boardElement)
+			
+			if index % 2 ~= 0 then
+				textCounter = textCounter + 1
 				
-				if index % 2 ~= 0 then
-					textCounter = textCounter + 1
-					
-					local numberTextBoard = display.newText(dummyNumbers[textCounter].text, 0, 0, native.systemFont, 45)
-					numberTextBoard.x, numberTextBoard.y = boardElement.x, boardElement.y
-					numberTextBoard.alpha = 0
-					boardGroup:insert(numberTextBoard)
-					director.to(scenePath, numberTextBoard, { time = 500, alpha = 1})
-				end
-			end 
+				local numberTextBoard = display.newText(dummyNumbers[textCounter].text, 0, 0, native.systemFont, 45)
+				numberTextBoard.x, numberTextBoard.y = boardElement.x, boardElement.y
+				numberTextBoard.alpha = 0
+				boardGroup:insert(numberTextBoard)
+				director.to(scenePath, numberTextBoard, { time = 500, alpha = 1})
+			end
+		end 
 	tapFlag = true
 end
 
@@ -243,23 +243,23 @@ local function createTapDummy()
 	dummyGroup.alpha = 0
 	dummyLayer:insert(dummyGroup)
 	
-		for index = 1, numOfImages do
-				local newDummy = display.newGroup()
-				newDummy.x = temporalTable[index].x
-				newDummy.y = display.contentCenterY + 100
-				dummyGroup:insert(newDummy)
-				
-				local boardElement = display.newImageRect(assetPath.."dummy.png", 200, 350)
-				newDummy.number = dummyResults[index].text
-				newDummy:insert(boardElement)
-				
-				local dummyText = display.newText(newDummy.number, 0, 0, native.systemFont, 40)
-				dummyText.x = boardElement.x + boardElement.contentWidth * 0.015
-				dummyText.y = boardElement.y - boardElement.contentHeight * 0.23
-				newDummy:insert(dummyText)
-				
-				newDummy:addEventListener("tap",tapDummy)
-		end
+	for index = 1, numOfImages do
+			local newDummy = display.newGroup()
+			newDummy.x = temporalTable[index].x
+			newDummy.y = display.contentCenterY + 100
+			dummyGroup:insert(newDummy)
+			
+			local boardElement = display.newImageRect(assetPath.."dummy.png", 200, 350)
+			newDummy.number = dummyResults[index].text
+			newDummy:insert(boardElement)
+			
+			local dummyText = display.newText(newDummy.number, 0, 0, native.systemFont, 40)
+			dummyText.x = boardElement.x + boardElement.contentWidth * 0.015
+			dummyText.y = boardElement.y - boardElement.contentHeight * 0.23
+			newDummy:insert(dummyText)
+			
+			newDummy:addEventListener("tap",tapDummy)
+	end
 	director.to(scenePath, dummyGroup, {time = 700, alpha = 1})
 end
 
@@ -268,13 +268,13 @@ local function animationClock(clockHand)
 end
 
 local function updateTime(timeText, clockHand)
-clockTimer = director.performWithDelay(scenePath, 1000, function() 
-	TIME_REMAINING = TIME_REMAINING - 1
-	timeText.text = TIME_REMAINING
+	clockTimer = director.performWithDelay(scenePath, 1000, function() 
+		TIME_REMAINING = TIME_REMAINING - 1
+		timeText.text = TIME_REMAINING
 		if TIME_REMAINING == 0 then
 			manager.wrong()
 		end
-	animationClock(clockHand)
+		animationClock(clockHand)
 	end, TIME_REMAINING)
 end
 
