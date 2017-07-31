@@ -20,6 +20,10 @@ local CONVEYOR_LINES_NUMBER = 41
 local CONVEYOR_SCREW_QUANTITY = 20
 local PANEL_HEIGHT = 120
 local NUMBER_MATERIALS = 4
+local SCALE_MATERIAL = 0.9
+local MATERIAL_TEXT_POSITION_OFFSTE_Y = 75
+local CONVEYOR_LINE_SIZE = {8, 180}
+local CONVEYOR_HEIGHT = 194
 
 local FONT_NAME = native.systemFont --settings.fontName
 local FONT_SIZE_NUMBER = 45
@@ -31,10 +35,10 @@ local NUMBER_QUANTITY_COLOR = {0, 0, 0}
 local PRODUCTS_GENERATED = 10
 
 local MATERIALS = {
-    [1] = {image = "wood.png", text = "Wood"}, 
-	[2] = {image = "mineral.png", text = "Mineral"},
-	[3] = {image = "cotton.png", text = "Cotton"},
-	[4] = {image = "petroleum.png", text = "Petroleum"}
+    [1] = {image = "wood.png", text = "Wood", offSetX = -384, textPositionOffsteX = -400}, 
+	[2] = {image = "mineral.png", text = "Mineral", offSetX = -128, textPositionOffsteX = -140},
+	[3] = {image = "cotton.png", text = "Cotton", offSetX = 128, textPositionOffsteX = 145},
+	[4] = {image = "petroleum.png", text = "Petroleum", offSetX = 384, textPositionOffsteX = 420}
 }
 
 local PRODUCTS = {
@@ -124,14 +128,14 @@ local function createYogotar()
 end
 	
 local function createConveyor()
-	local conveyor = display.newImageRect(assetPath.."conveyor.png", SCREEN_WIDTH, 194)
+	local conveyor = display.newImageRect(assetPath.."conveyor.png", SCREEN_WIDTH, CONVEYOR_HEIGHT)
     conveyorGroup:insert(conveyor)
 	
 	local linesGroup = display.newGroup()
 	conveyorGroup:insert(linesGroup)
 	
 	for linesIndex = 1, CONVEYOR_LINES_NUMBER do
-        local conveyorLine = display.newImageRect(assetPath.."panel.png", 8, 180)
+        local conveyorLine = display.newImageRect(assetPath.."panel.png", CONVEYOR_LINE_SIZE[1], CONVEYOR_LINE_SIZE[2])
         conveyorLine.x = display.screenOriginX + lineDistance - display.contentCenterX
         conveyorLine.y = conveyor.y - 25
 		conveyorLine.rotation = - 30
@@ -177,55 +181,35 @@ local function createMaterials()
 	boxes.y = display.contentHeight - 110
 	interactiveLayer:insert(boxes)
 	
-	local box = display.newImage(boxes, assetPath.."boxes.png")
-	local woodText = display.newText(boxes, localization.getString("testMinigameTonyCommonMaterialWood"), -400 , 75, FONT_NAME, FONT_SIZE_MATERIAL)
-	local mineralText = display.newText(boxes, localization.getString("testMinigameTonyCommonMaterialMineral"), -140 , 75, FONT_NAME, FONT_SIZE_MATERIAL)
-	local cottonText = display.newText(boxes, localization.getString("testMinigameTonyCommonMaterialCotton"), 145 , 75, FONT_NAME, FONT_SIZE_MATERIAL)
-	local petroleumText = display.newText(boxes, localization.getString("testMinigameTonyCommonMaterialPetroleum"), 420 , 75, FONT_NAME, FONT_SIZE_MATERIAL)
-   
 	local materialsGroup = display.newGroup()
 	materialsGroup.x = display.contentCenterX
 	materialsGroup.y = display.contentHeight - 160
 	interactiveLayer:insert(materialsGroup)
 	
-	local wood = display.newImage(assetPath.."wood.png")
-	wood.xScale = 0.9 
-	wood.yScale = 0.9
-    wood.x = -384
-	materialsGroup:insert(wood)
-  
-	local mineral = display.newImage(assetPath.."mineral.png")
-	mineral.xScale = 0.9 
-	mineral.yScale = 0.9
-    mineral.x = -128
-    materialsGroup:insert(mineral)
-	
-	local cotton = display.newImage(assetPath.."cotton.png")
-	cotton.xScale = 0.9 
-	cotton.yScale = 0.9
-    cotton.x = 128
-    materialsGroup:insert(cotton)
-	
-	local petroleum = display.newImage(assetPath.."petroleum.png")
-	petroleum.xScale = 0.9 
-	petroleum.yScale = 0.9
-    petroleum.x = 384
-    materialsGroup:insert(petroleum)
-	
 	local interactiveGroup = display.newGroup()
 	interactiveLayer:insert(interactiveGroup)
-
-	local materialDistance = 256
-	for materialIndex = 1, NUMBER_MATERIALS do 
+	
+	local box = display.newImage(boxes, assetPath.."boxes.png")
+	boxes:insert(box)
+	
+	for materialIndex = 1, NUMBER_MATERIALS do
+		local materialImage = display.newImage(assetPath..MATERIALS[materialIndex].image)
+		materialImage.xScale = SCALE_MATERIAL
+		materialImage.yScale = SCALE_MATERIAL
+		materialImage.x = MATERIALS[materialIndex].offSetX
+		materialsGroup:insert(materialImage)
+		
+		local materialText = display.newText(boxes, localization.getString("testMinigameTonyCommonMaterial"..MATERIALS[materialIndex].text), MATERIALS[materialIndex].textPositionOffsteX, MATERIAL_TEXT_POSITION_OFFSTE_Y, FONT_NAME, FONT_SIZE_MATERIAL)
+		boxes:insert(materialText)
+	
 		local material = display.newImage(assetPath..MATERIALS[materialIndex].image)
-		material.xScale = 0.9
-		material.yScale = 0.9
-		material.x = display.contentCenterX - materialDistance - 128
+		material.xScale = SCALE_MATERIAL
+		material.yScale = SCALE_MATERIAL
+		material.x = display.contentCenterX + MATERIALS[materialIndex].offSetX
 		material.y = display.contentHeight - 160
 		material.xOrign = material.x
 		material.yOrign = material.y
 		material.image = MATERIALS[materialIndex].image
-		materialDistance = materialDistance - 256
 		material:addEventListener("touch", dragMaterial)
 		interactiveGroup: insert(material)
 	end
