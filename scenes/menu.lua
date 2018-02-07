@@ -50,6 +50,10 @@ local function goTony()
 	director.gotoScene("scenes.manager", {params = {minigames = {"gamefiles.scienceTestTony.game"}}})
 end
 
+local function goMauricio()
+	director.gotoScene("scenes.manager", {params = {minigames = {"gamefiles.progTestMauricio.game"}}})
+end
+
 local function toggleLanguage(event)
 	languageIndex = languageIndex + 1
 	languageIndex = languageIndex <= #LANGUAGES and languageIndex or 1
@@ -186,6 +190,7 @@ function scene:create(event)
 	self.addButton("Go Hector", goHector, COLOR_DEFAULT, 1)
 	self.addButton("Go Osiel", goOsiel, COLOR_DEFAULT, 1)
 	self.addButton("Go Tony", goTony, COLOR_DEFAULT, 1)
+  self.addButton("Go Mauricio", goMauricio, COLOR_DEFAULT, 1)
 	self.addButton("Lang:"..language, toggleLanguage, COLOR_DEFAULT, 1)
 end
 
