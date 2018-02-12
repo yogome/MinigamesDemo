@@ -1,0 +1,83 @@
+
+frame1.png
+size: 1024,512
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+frame1
+  rotate: false
+  xy: 2, 167
+  size: 464, 342
+  orig: 464, 342
+  offset: 0, 0
+  index: -1
+frame1Arm1Arth
+  rotate: true
+  xy: 2, 2
+  size: 30, 48
+  orig: 30, 48
+  offset: 0, 0
+  index: -1
+frame1Arm2Arth
+  rotate: false
+  xy: 676, 273
+  size: 25, 29
+  orig: 25, 29
+  offset: 0, 0
+  index: -1
+frame1ArthuriusHead
+  rotate: false
+  xy: 676, 395
+  size: 123, 114
+  orig: 123, 114
+  offset: 0, 0
+  index: -1
+frame1BodyArth
+  rotate: false
+  xy: 801, 420
+  size: 57, 89
+  orig: 57, 89
+  offset: 0, 0
+  index: -1
+frame1BodyEagle
+  rotate: false
+  xy: 676, 304
+  size: 89, 89
+  orig: 89, 89
+  offset: 0, 0
+  index: -1
+frame1Door
+  rotate: false
+  xy: 468, 190
+  size: 206, 319
+  orig: 206, 319
+  offset: 0, 0
+  index: -1
+frame1Hand1Arthurius
+  rotate: false
+  xy: 369, 137
+  size: 44, 28
+  orig: 44, 28
+  offset: 0, 0
+  index: -1
+frame1HeadArth
+  rotate: false
+  xy: 252, 59
+  size: 115, 106
+  orig: 115, 106
+  offset: 0, 0
+  index: -1
+frame1Ohhh
+  rotate: false
+  xy: 2, 34
+  size: 248, 131
+  orig: 248, 131
+  offset: 0, 0
+  index: -1
+frame1shadowArth
+  rotate: false
+  xy: 468, 167
+  size: 89, 21
+  orig: 89, 21
+  offset: 0, 0
+  index: -1

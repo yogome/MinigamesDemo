@@ -1,0 +1,363 @@
+
+roboto.png
+size: 1024,1024
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+itemsrobot/atm1
+  rotate: false
+  xy: 2, 404
+  size: 240, 307
+  orig: 240, 307
+  offset: 0, 0
+  index: -1
+itemsrobot/atm2
+  rotate: false
+  xy: 2, 713
+  size: 241, 308
+  orig: 241, 308
+  offset: 0, 0
+  index: -1
+itemsrobot/atmEmpty
+  rotate: false
+  xy: 245, 714
+  size: 240, 307
+  orig: 240, 307
+  offset: 0, 0
+  index: -1
+itemsrobot/bascula
+  rotate: true
+  xy: 173, 2
+  size: 175, 71
+  orig: 175, 71
+  offset: 0, 0
+  index: -1
+itemsrobot/ipad
+  rotate: false
+  xy: 853, 692
+  size: 111, 102
+  orig: 111, 102
+  offset: 0, 0
+  index: -1
+itemsrobot/iphone1
+  rotate: false
+  xy: 2, 8
+  size: 169, 169
+  orig: 169, 169
+  offset: 0, 0
+  index: -1
+itemsrobot/iphone2
+  rotate: false
+  xy: 663, 852
+  size: 169, 169
+  orig: 169, 169
+  offset: 0, 0
+  index: -1
+itemsrobot/iphone3
+  rotate: false
+  xy: 487, 830
+  size: 174, 191
+  orig: 174, 191
+  offset: 0, 0
+  index: -1
+itemsrobot/laptop
+  rotate: false
+  xy: 834, 870
+  size: 155, 151
+  orig: 155, 151
+  offset: 0, 0
+  index: -1
+itemsrobot/videogame
+  rotate: false
+  xy: 295, 655
+  size: 106, 57
+  orig: 106, 57
+  offset: 0, 0
+  index: -1
+roboto/anthena1
+  rotate: false
+  xy: 558, 578
+  size: 41, 44
+  orig: 41, 44
+  offset: 0, 0
+  index: -1
+roboto/anthena2
+  rotate: false
+  xy: 601, 585
+  size: 40, 44
+  orig: 40, 44
+  offset: 0, 0
+  index: -1
+roboto/arm1
+  rotate: false
+  xy: 580, 631
+  size: 71, 34
+  orig: 71, 34
+  offset: 0, 0
+  index: -1
+roboto/arm2
+  rotate: true
+  xy: 244, 405
+  size: 71, 34
+  orig: 71, 34
+  offset: 0, 0
+  index: -1
+roboto/chest
+  rotate: false
+  xy: 225, 182
+  size: 34, 34
+  orig: 34, 34
+  offset: 0, 0
+  index: -1
+roboto/creature_eye1
+  rotate: false
+  xy: 992, 659
+  size: 30, 36
+  orig: 30, 36
+  offset: 0, 0
+  index: -1
+roboto/creature_eye2
+  rotate: false
+  xy: 992, 621
+  size: 30, 36
+  orig: 30, 36
+  offset: 0, 0
+  index: -1
+roboto/creature_eye3
+  rotate: false
+  xy: 643, 588
+  size: 30, 36
+  orig: 30, 36
+  offset: 0, 0
+  index: -1
+roboto/creature_eye4
+  rotate: false
+  xy: 675, 588
+  size: 30, 36
+  orig: 30, 36
+  offset: 0, 0
+  index: -1
+roboto/deodorant
+  rotate: false
+  xy: 246, 104
+  size: 22, 36
+  orig: 22, 36
+  offset: 0, 0
+  index: -1
+roboto/ear1
+  rotate: false
+  xy: 295, 575
+  size: 54, 78
+  orig: 54, 78
+  offset: 0, 0
+  index: -1
+roboto/ear2
+  rotate: false
+  xy: 991, 960
+  size: 25, 61
+  orig: 25, 61
+  offset: 0, 0
+  index: -1
+roboto/eyes_a
+  rotate: false
+  xy: 663, 773
+  size: 147, 77
+  orig: 147, 77
+  offset: 0, 0
+  index: -1
+roboto/eyes_b
+  rotate: false
+  xy: 834, 796
+  size: 147, 72
+  orig: 147, 72
+  offset: 0, 0
+  index: -1
+roboto/eyes_c
+  rotate: true
+  xy: 779, 631
+  size: 140, 72
+  orig: 140, 72
+  offset: 0, 0
+  index: -1
+roboto/eyes_d
+  rotate: false
+  xy: 853, 621
+  size: 137, 69
+  orig: 137, 69
+  offset: 0, 0
+  index: -1
+roboto/eyes_shadow
+  rotate: true
+  xy: 244, 574
+  size: 137, 49
+  orig: 137, 49
+  offset: 0, 0
+  index: -1
+roboto/foot1_a
+  rotate: false
+  xy: 812, 773
+  size: 39, 21
+  orig: 39, 21
+  offset: 0, 0
+  index: -1
+roboto/foot1_b
+  rotate: false
+  xy: 707, 603
+  size: 39, 21
+  orig: 39, 21
+  offset: 0, 0
+  index: -1
+roboto/foot2_a
+  rotate: false
+  xy: 707, 580
+  size: 38, 21
+  orig: 38, 21
+  offset: 0, 0
+  index: -1
+roboto/foot2_b
+  rotate: true
+  xy: 246, 142
+  size: 38, 21
+  orig: 38, 21
+  offset: 0, 0
+  index: -1
+roboto/forearm1_a
+  rotate: true
+  xy: 351, 571
+  size: 82, 47
+  orig: 82, 47
+  offset: 0, 0
+  index: -1
+roboto/forearm1_b
+  rotate: false
+  xy: 477, 580
+  size: 79, 42
+  orig: 79, 42
+  offset: 0, 0
+  index: -1
+roboto/forearm1_d
+  rotate: false
+  xy: 487, 624
+  size: 91, 41
+  orig: 91, 41
+  offset: 0, 0
+  index: -1
+roboto/forearm2_a
+  rotate: true
+  xy: 966, 697
+  size: 83, 42
+  orig: 83, 42
+  offset: 0, 0
+  index: -1
+roboto/forearm2_b
+  rotate: false
+  xy: 400, 547
+  size: 75, 39
+  orig: 75, 39
+  offset: 0, 0
+  index: -1
+roboto/forearm2_d
+  rotate: true
+  xy: 983, 782
+  size: 86, 39
+  orig: 86, 39
+  offset: 0, 0
+  index: -1
+roboto/head1
+  rotate: false
+  xy: 2, 179
+  size: 221, 223
+  orig: 221, 223
+  offset: 0, 0
+  index: -1
+roboto/head2
+  rotate: true
+  xy: 400, 588
+  size: 54, 75
+  orig: 54, 75
+  offset: 0, 0
+  index: -1
+roboto/knee1
+  rotate: false
+  xy: 812, 823
+  size: 20, 27
+  orig: 20, 27
+  offset: 0, 0
+  index: -1
+roboto/knee2
+  rotate: false
+  xy: 991, 875
+  size: 20, 27
+  orig: 20, 27
+  offset: 0, 0
+  index: -1
+roboto/leg1
+  rotate: true
+  xy: 653, 626
+  size: 24, 53
+  orig: 24, 53
+  offset: 0, 0
+  index: -1
+roboto/leg2
+  rotate: true
+  xy: 477, 554
+  size: 24, 54
+  orig: 24, 54
+  offset: 0, 0
+  index: -1
+roboto/martian
+  rotate: true
+  xy: 403, 644
+  size: 68, 82
+  orig: 68, 82
+  offset: 0, 0
+  index: -1
+roboto/mouth
+  rotate: true
+  xy: 244, 478
+  size: 94, 41
+  orig: 94, 41
+  offset: 0, 0
+  index: -1
+roboto/shadow
+  rotate: true
+  xy: 225, 218
+  size: 184, 44
+  orig: 184, 44
+  offset: 0, 0
+  index: -1
+roboto/shin1
+  rotate: true
+  xy: 708, 626
+  size: 24, 53
+  orig: 24, 53
+  offset: 0, 0
+  index: -1
+roboto/shin2
+  rotate: false
+  xy: 991, 904
+  size: 24, 54
+  orig: 24, 54
+  offset: 0, 0
+  index: -1
+roboto/taladro_a
+  rotate: false
+  xy: 487, 739
+  size: 164, 89
+  orig: 164, 89
+  offset: 0, 0
+  index: -1
+roboto/taladro_b
+  rotate: false
+  xy: 487, 667
+  size: 164, 70
+  orig: 164, 70
+  offset: 0, 0
+  index: -1
+roboto/torso1
+  rotate: true
+  xy: 653, 652
+  size: 119, 124
+  orig: 119, 124
+  offset: 0, 0
+  index: -1

@@ -1,0 +1,104 @@
+
+frame2.png
+size: 1024,512
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+frame2
+  rotate: false
+  xy: 2, 153
+  size: 458, 337
+  orig: 458, 337
+  offset: 0, 0
+  index: -1
+frame2Arm1Roboto
+  rotate: false
+  xy: 583, 343
+  size: 22, 46
+  orig: 22, 46
+  offset: 0, 0
+  index: -1
+frame2Arm2Roboto
+  rotate: true
+  xy: 346, 130
+  size: 21, 44
+  orig: 21, 44
+  offset: 0, 0
+  index: -1
+frame2BodyArth
+  rotate: true
+  xy: 726, 400
+  size: 90, 92
+  orig: 90, 92
+  offset: 0, 0
+  index: -1
+frame2BodyEagle
+  rotate: false
+  xy: 632, 399
+  size: 92, 91
+  orig: 92, 91
+  offset: 0, 0
+  index: -1
+frame2BodyRoboto
+  rotate: true
+  xy: 172, 57
+  size: 53, 72
+  orig: 53, 72
+  offset: 0, 0
+  index: -1
+frame2BodyRoboto2
+  rotate: false
+  xy: 918, 418
+  size: 53, 72
+  orig: 53, 72
+  offset: 0, 0
+  index: -1
+frame2Chup2
+  rotate: true
+  xy: 2, 2
+  size: 48, 106
+  orig: 48, 106
+  offset: 0, 0
+  index: -1
+frame2HeadArth
+  rotate: false
+  xy: 462, 278
+  size: 119, 111
+  orig: 119, 111
+  offset: 0, 0
+  index: -1
+frame2HeadEagle
+  rotate: false
+  xy: 462, 167
+  size: 119, 109
+  orig: 119, 109
+  offset: 0, 0
+  index: -1
+frame2HeadRoboto
+  rotate: false
+  xy: 820, 412
+  size: 96, 78
+  orig: 96, 78
+  offset: 0, 0
+  index: -1
+frame2TubeBottom
+  rotate: false
+  xy: 2, 52
+  size: 168, 99
+  orig: 168, 99
+  offset: 0, 0
+  index: -1
+frame2TubeUpper
+  rotate: false
+  xy: 462, 391
+  size: 168, 99
+  orig: 168, 99
+  offset: 0, 0
+  index: -1
+frame2ahhh
+  rotate: false
+  xy: 172, 112
+  size: 172, 39
+  orig: 172, 39
+  offset: 0, 0
+  index: -1

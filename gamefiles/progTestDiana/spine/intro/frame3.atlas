@@ -1,0 +1,167 @@
+
+frame3.png
+size: 1024,1024
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+frame3
+  rotate: false
+  xy: 2, 651
+  size: 954, 360
+  orig: 954, 360
+  offset: 0, 0
+  index: -1
+frame3Arm2Eagle
+  rotate: false
+  xy: 98, 122
+  size: 36, 50
+  orig: 36, 50
+  offset: 0, 0
+  index: -1
+frame3BodyArt
+  rotate: true
+  xy: 706, 568
+  size: 81, 93
+  orig: 81, 93
+  offset: 0, 0
+  index: -1
+frame3BodyEagle
+  rotate: true
+  xy: 801, 588
+  size: 61, 95
+  orig: 61, 95
+  offset: 0, 0
+  index: -1
+frame3BodyRobot2
+  rotate: false
+  xy: 898, 581
+  size: 54, 68
+  orig: 54, 68
+  offset: 0, 0
+  index: -1
+frame3Cel
+  rotate: true
+  xy: 98, 174
+  size: 51, 42
+  orig: 51, 42
+  offset: 0, 0
+  index: -1
+frame3Crash
+  rotate: false
+  xy: 2, 2
+  size: 69, 69
+  orig: 69, 69
+  offset: 0, 0
+  index: -1
+frame3Head
+  rotate: false
+  xy: 2, 227
+  size: 132, 122
+  orig: 132, 122
+  offset: 0, 0
+  index: -1
+frame3HeadArth
+  rotate: false
+  xy: 325, 529
+  size: 127, 120
+  orig: 127, 120
+  offset: 0, 0
+  index: -1
+frame3HeadRoboto1
+  rotate: false
+  xy: 608, 570
+  size: 96, 79
+  orig: 96, 79
+  offset: 0, 0
+  index: -1
+frame3Onomatopeya
+  rotate: false
+  xy: 188, 521
+  size: 135, 128
+  orig: 135, 128
+  offset: 0, 0
+  index: -1
+frame3Pic1
+  rotate: true
+  xy: 2, 73
+  size: 152, 94
+  orig: 152, 94
+  offset: 0, 0
+  index: -1
+frame3Pic2
+  rotate: false
+  xy: 454, 555
+  size: 152, 94
+  orig: 152, 94
+  offset: 0, 0
+  index: -1
+frame3Shadow
+  rotate: true
+  xy: 994, 958
+  size: 53, 15
+  orig: 53, 15
+  offset: 0, 0
+  index: -1
+frame3ShineCircle
+  rotate: false
+  xy: 2, 351
+  size: 159, 144
+  orig: 159, 144
+  offset: 0, 0
+  index: -1
+frame3Tachan
+  rotate: false
+  xy: 2, 497
+  size: 184, 152
+  orig: 184, 152
+  offset: 0, 0
+  index: -1
+frame3TubeFront
+  rotate: true
+  xy: 958, 794
+  size: 217, 34
+  orig: 217, 34
+  offset: 0, 0
+  index: -1
+frame3arm1Eagle
+  rotate: false
+  xy: 958, 735
+  size: 34, 57
+  orig: 34, 57
+  offset: 0, 0
+  index: -1
+frame3hand1Arthu
+  rotate: true
+  xy: 958, 694
+  size: 39, 33
+  orig: 39, 33
+  offset: 0, 0
+  index: -1
+frame3shadow1
+  rotate: false
+  xy: 188, 497
+  size: 93, 22
+  orig: 93, 22
+  offset: 0, 0
+  index: -1
+frame3shadow2
+  rotate: true
+  xy: 163, 400
+  size: 95, 22
+  orig: 95, 22
+  offset: 0, 0
+  index: -1
+frame3shineCel1
+  rotate: false
+  xy: 187, 447
+  size: 68, 48
+  orig: 68, 48
+  offset: 0, 0
+  index: -1
+frame3shineCel2
+  rotate: false
+  xy: 187, 397
+  size: 68, 48
+  orig: 68, 48
+  offset: 0, 0
+  index: -1
