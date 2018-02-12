@@ -13,6 +13,7 @@ local van, storedDevicesCounter, totalDevicesToSort
 local tapsEnabled, transitionsRunning
 local counterSwitchBoxSides, boxes, randomizedBoxData
 local currentLevel, elapsedGameTimer, currentLevelTime
+local elapsedTimeBackgroundDisplay, elapsedTimeHandDisplay, remainingTimeDisplay, remainingTimeCounterText
 ----------------------------------------------- Constants
 local TRANSITION_TAG = "transitionTag"
 
@@ -40,9 +41,9 @@ local CLOUD_DATA = {
 }
 
 local LEVEL_DATA = {
-	[1] = {availableTime = 0, devicesToSort = 15, devicesPoolSize = 8},
-	[2] = {availableTime = 60000, devicesToSort = 20, devicesPoolSize = 11},
-	[3] = {availableTime = 45000, devicesToSort = 20, devicesPoolSize = 14}
+	[1] = {availableTime = 0, devicesToSort = 10, devicesPoolSize = 8},
+	[2] = {availableTime = 60000, devicesToSort = 15, devicesPoolSize = 11},
+	[3] = {availableTime = 45000, devicesToSort = 15, devicesPoolSize = 14}
 }
 
 
@@ -74,6 +75,14 @@ local function startGameTimer()
 	end)
 end
 
+local function changeTimerText()
+	remainingTimeCounterText = timer.performWithDelay(1000, function() 
+		remainingTimeDisplay.text = remainingTimeDisplay.text - 1
+	end, LEVEL_DATA[currentLevel].availableTime / 1000)
+	
+	transition.to(elapsedTimeHandDisplay, {tag = "timerHand", time = 1000, rotation = 360, iterations = -1})
+end
+
 local function shakeObject(self)
 	transition.to(self, {tag = TRANSITION_TAG, time = 70, rotation = 10, onComplete = function()
 		transition.to(self, {tag = TRANSITION_TAG, time = 70, rotation = -10, onComplete = function()
@@ -96,9 +105,6 @@ local function randomizeDataTable()
 end
 
 local function sortBoxes()
-	local randomBox = math.random(1, 2)
-	local computingFill = {type = "image", filename = assetPath.."caja1.png"}
-	local homeFill = {type = "image", filename = assetPath.."caja2.png"}
 	randomizeDataTable()
 	
 	for totalBoxes = 1, #boxes do
@@ -107,10 +113,6 @@ local function sortBoxes()
 end
 
 local function boxesToVan(gameFinished)
-	local closedHomeBoxFill = {type = "image", filename = assetPath.."cajaCasaClose.png"}
-	local closedComputingBoxFill = {type = "image", filename = assetPath.."cajaPcClose.png"}
-	
-	if elapsedGameTimer then timer.pause(elapsedGameTimer) end
 	
 	for totalBoxes = 1, #boxes do
 		boxes[totalBoxes].fill = randomizedBoxData[totalBoxes].closedImageFill
@@ -135,6 +137,8 @@ local function boxesToVan(gameFinished)
 			end
 		else
 			van:removeSelf()
+			timer.pause(remainingTimeCounterText)
+			transition.pause("timerHand")
 			van = display.newImage(assetPath.."camionetaCerrada.png", display.contentCenterX, display.contentCenterY)
 			backgroundGroup:insert(van)
 			transition.to(van, {tag = TRANSITION_TAG, delay = 1000, time = 1000, xScale = 0.1, yScale = 0.1, alpha = 1, y = display.contentHeight * 0.45, onComplete = function()
@@ -144,8 +148,6 @@ local function boxesToVan(gameFinished)
 	end})
 		end
 	end
-
-	if elapsedGameTimer then timer.resume(elapsedGameTimer) end
 
 	return true
 end
@@ -251,6 +253,11 @@ local function cleanUp()
 		elapsedGameTimer = nil
 	end
 	
+	if remainingTimeCounterText then
+		timer.cancel(remainingTimeCounterText)
+		remainingTimeCounterText = nil
+	end
+	
 	if transitionsRunning then
 		transition.cancel(TRANSITION_TAG)
 		transitionsRunning = false
@@ -318,6 +325,25 @@ local function createClouds()
 	end
 end
 
+local function createGameTimer()
+	
+	if currentLevel > 1 then
+		elapsedTimeBackgroundDisplay = display.newImage(assetPath.."timer.png", 0, 0)
+		elapsedTimeBackgroundDisplay:scale(1.3, 1.3)
+		uIGroup:insert(elapsedTimeBackgroundDisplay)
+		
+		elapsedTimeHandDisplay = display.newImage(assetPath.."hand.png", elapsedTimeBackgroundDisplay.contentWidth * -0.232, elapsedTimeBackgroundDisplay.contentHeight * 0.05)
+		elapsedTimeHandDisplay:scale(1.3, 1.3)
+		elapsedTimeHandDisplay.anchorY = 0.83
+		elapsedTimeHandDisplay.rotation = -22
+		uIGroup:insert(elapsedTimeHandDisplay)
+		
+		remainingTimeDisplay = display.newText(LEVEL_DATA[currentLevel].availableTime / 1000, elapsedTimeBackgroundDisplay.contentWidth * 0.17, elapsedTimeBackgroundDisplay.contentHeight * 0.04, native.systemFontBold, 32)
+		remainingTimeDisplay:setFillColor(0, 0, 0)
+		uIGroup:insert(remainingTimeDisplay)
+	end
+end
+
 local function createGroups()
 	backgroundGroup = display.newGroup()
 	backgroundLayer:insert(backgroundGroup)
@@ -327,6 +353,10 @@ local function createGroups()
 
 	dynamicGroup = display.newGroup()
 	dynamicLayer:insert(dynamicGroup)
+	
+	uIGroup = display.newGroup()
+	uIGroup.x, uIGroup.y = display.contentCenterX, display.contentHeight * 0.1
+	uILayer:insert(uIGroup)
 end
 
 local function initialize(event)
@@ -344,7 +374,7 @@ local function initialize(event)
 	
 	boxes = {}
   
-	currentLevel = 1 --TODO: Replace with actual scenParams level.
+	currentLevel = 2 --TODO: Replace with actual scenParams level.
 	storedDevicesCounter = 0
 	counterSwitchBoxSides = 0
 	currentLevelTime = LEVEL_DATA[currentLevel].availableTime
@@ -376,6 +406,9 @@ function game:create()
 
 	targetLayer = display.newGroup() 
 	sceneView:insert(targetLayer)
+	
+	uILayer = display.newGroup()
+	sceneView:insert(uILayer)
 
 	local backgroundImage = display.newImageRect(assetPath..'background.png', display.contentWidth, display.contentHeight)
 	backgroundImage.x, backgroundImage.y = display.contentCenterX, display.contentCenterY
@@ -388,9 +421,11 @@ function game:show(event)
 	if phase == "will" then 
 		initialize(event)
 		createGroups()
+		createGameTimer()
 		createClouds()
 		createVan()
 		startGameTimer()
+		changeTimerText()
 		createBoxes()
 		van:generateNewDevice()
 	end
