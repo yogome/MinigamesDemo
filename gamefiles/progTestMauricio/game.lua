@@ -42,7 +42,7 @@ local CLOUD_DATA = {
 
 local LEVEL_DATA = {
 	[1] = {availableTime = 0, devicesToSort = 10, devicesPoolSize = 8},
-	[2] = {availableTime = 60000, devicesToSort = 15, devicesPoolSize = 11},
+	[2] = {availableTime = 5000, devicesToSort = 1, devicesPoolSize = 11},
 	[3] = {availableTime = 45000, devicesToSort = 15, devicesPoolSize = 14}
 }
 
@@ -136,9 +136,9 @@ local function boxesToVan(gameFinished)
 				end
 			end
 		else
-			van:removeSelf()
-			timer.pause(remainingTimeCounterText)
+			if remainingTimeCounterText then timer.cancel(remainingTimeCounterText) end
 			transition.pause("timerHand")
+			van:removeSelf()
 			van = display.newImage(assetPath.."camionetaCerrada.png", display.contentCenterX, display.contentCenterY)
 			backgroundGroup:insert(van)
 			transition.to(van, {tag = TRANSITION_TAG, delay = 1000, time = 1000, xScale = 0.1, yScale = 0.1, alpha = 1, y = display.contentHeight * 0.45, onComplete = function()
