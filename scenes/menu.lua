@@ -55,7 +55,7 @@ local function goMauricio()
 end
 
 local function goDiana()
-	director.gotoScene("scenes.manager", {params = {minigames = {"gamefiles.langOlympicSports.game"}}})
+	director.gotoScene("scenes.manager", {params = {minigames = {"gamefiles.progTestDiana.game"}}})
 end
 
 local function toggleLanguage(event)
