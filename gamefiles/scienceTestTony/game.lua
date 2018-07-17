@@ -306,19 +306,7 @@ local function initialize(event)
 	backgroundLayer:insert(conveyorGroup)
 end
 ----------------------------------------------- Module functions
-function game.getInfo() 
-	return {
-		correctDelay = 500, 
-		wrongDelay = 500, 
-		name = "MinigameTony", 
-		category = "science", 
-		subcategories = {"materials"}, 
-		age = {min = 0, max = 99}, 
-		grade = {min = 0, max = 99}, 
-		gamemode = "findAnswer", 
-		requires = {}
-	}
-end 
+
 
 function game:create(event) 
 	local sceneView = self.view

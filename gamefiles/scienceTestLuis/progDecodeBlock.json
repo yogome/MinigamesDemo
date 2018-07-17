@@ -1,0 +1,20 @@
+{
+  "age":{
+    "min":99,
+    "max":99
+  },
+  "subject":"math",
+  "correctDelay":4000,
+  "gamemode":"findAnswer",
+  "grade":{
+    "min":0,
+    "max":99
+  },
+  "levels":3,
+  "name":"Wash Monsters",
+  "requires":[],
+  "categories":[""],
+  "tags":[""],
+  "wrongDelay":4000,
+  "available":true
+}
