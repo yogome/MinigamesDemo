@@ -10,6 +10,7 @@ local correctCipher, codeInput, totalButtons, screenNumberTable, tutorialTextTab
 local backgroundLayer, gameObjectsLayer, UILayer
 local gameObjectGroup, bgGroup, overlayGroup
 local lettersUsed, boxesUsed, timesLost
+local manager
 local minigameLevel
 local gridOptions
 local isFirstTime
@@ -21,30 +22,6 @@ local TOTAL_ATTEMPTS = 3
 ----------------------------------------------- Caches
 local mRandom = math.random
 ----------------------------------------------- Functions
-	
-local function loseCondition()
---	local correctGroup = display.newGroup()
---	correctGroup.isVisible = false
-	
---	local textOptions = {
---		text = "a = 1, b = 2, c = 3",
---		x = 10,
---		y = 0,
---		width = 550,
---		font = FONT_NAME,
---		fontSize = 60,
---		align = "center",
---	}
-
---	local text = display.newText(textOptions)
-----	text:setFillColor(unpack(COLOR_FONT_FEEDBACK))
---	correctGroup:insert(text)
-	
---	local options = {delay = nil, skipWindow = false}
---	manager.wrong({id = "group", group = correctGroup}, options)
-manager.wrong()
-end
-
 local function clearScreen()
 	for cleaner = 1, #screenNumberTable do
 		display.remove(screenNumberTable[cleaner])
@@ -61,18 +38,21 @@ local function loseAnimation()
 	end
 	clearScreen()
 	
-	for fillingIndex = 1, #correctCipher + 1 do
+	for fillingIndex = 1, timesLost + 1 do
 		timer.performWithDelay(500 * fillingIndex, function()
-			if fillingIndex <= #correctCipher then
+			if fillingIndex <= timesLost then
 				totalButtons[correctCipher[fillingIndex]].fill = totalButtons[correctCipher[fillingIndex]].onFill
 			else
-				for unfillingIndex = 1, #correctCipher do
+				for unfillingIndex = 1, timesLost do
 					timer.performWithDelay(500 * unfillingIndex, function()
 						totalButtons[correctCipher[unfillingIndex]].fill = totalButtons[correctCipher[unfillingIndex]].offFill	
 						totalButtons[correctCipher[unfillingIndex]].isFilled = false
-						if unfillingIndex == #correctCipher then
+						if unfillingIndex == timesLost then
 							transition.resume("gameTimer")
 							tapsEnabled = true
+							if timesLost == gridOptions[minigameLevel].codeSize then
+								manager.wrong()
+							end
 						end
 					end)
 				end
@@ -93,17 +73,22 @@ local function winCondition()
 		tapsEnabled = false
 		manager.correct()
 	else
-		transition.to(gameObjectGroup, {time = 150, x = gameObjectGroup.x + 20, y = gameObjectGroup.y + 20, iterations = 2, onComplete = function()
+		transition.to(gameObjectGroup, {time = 150, x = gameObjectGroup.x + 20, y = gameObjectGroup.y + 20, iterations = 4, onComplete = function()
 			transition.to(gameObjectGroup, {time = 150, x = gameObjectGroup.x - 20, y = gameObjectGroup.y - 20})
 		end})
-		transition.to(rockBoard, {time = 150, x = rockBoard.x + 20, y = rockBoard.y + 20, iterations = 2, onComplete = function()
+		transition.to(rockBoard, {time = 150, x = rockBoard.x + 20, y = rockBoard.y + 20, iterations = 4, onComplete = function()
 			transition.to(rockBoard, {time = 150, x = rockBoard.x - 20, y = rockBoard.y - 20})
 		end})
 		timesLost = timesLost + 1
-		timer.performWithDelay(1000, loseAnimation)
+		if timesLost == 3 and minigameLevel == 1 then
+			manager.wrong()
+		elseif timesLost >3 then
+			timesLost = 3
+		end
+		timer.performWithDelay(1000, loseAnimation())
 		if timesLost == TOTAL_ATTEMPTS and minigameLevel == 1 then
 			tapsEnabled = false
-			timer.performWithDelay(2000, loseCondition())
+			timer.performWithDelay(2000, loseAnimation())
 		end
 	end
 end
@@ -136,13 +121,13 @@ local function createTimer()
 	
 	transition.to(timerGroup, {time = 1000, alpha = 1, onComplete = function()
 		transition.to(orangeCircle.fill.effect, {tag = "gameTimer", time = 15000, progress = 0, onComplete = function ()
-			loseCondition()
+			timesLost = gridOptions[minigameLevel].codeSize
+			loseAnimation()
 		end})			
 	end})
 end
 
 local function overlayTransitions(overlayMover)	
-	
 	transition.to(tutorialTextTable[overlayMover], {tag = "transitionTag",time = 1000, alpha = 1, onComplete = function ()
 		transition.to(tutorialTextTable[overlayMover], {tag = "transitionTag",time = 1000, alpha = 0, onComplete = function () 
 		overlayMover = overlayMover + 1
@@ -169,7 +154,7 @@ local function createOverlay()
 	overlayGroup:insert(overlayBoard)
 	
 	local function handleButtonEvent(event)
-		if ("ended" == event.phase) then
+		if "ended" == event.phase then
 			transition.cancel("transitionTag")
 			transition.to(overlayGroup, {alpha = 0, time = 500, onComplete = function ()
 				display.remove(overlayGroup)	
@@ -182,30 +167,30 @@ local function createOverlay()
 	end
 	
 	local textOptions = {
-	[1] = {text = "a = 1"},
-	[2] = {text = "b = 2"},
-	[3] = {text = "c = 3"},
-	[4] = {text = "d = 4"},
-	[5] = {text = "e = 5"},
-	[6] = {text = "f = 6"}
+		[1] = {text = "a = 1"},
+		[2] = {text = "b = 2"},
+		[3] = {text = "c = 3"},
+		[4] = {text = "d = 4"},
+		[5] = {text = "e = 5"},
+		[6] = {text = "f = 6"}
 	}
 	
-	for i = 1, #textOptions do
-		local tutorialText = display.newText(textOptions[i])
+	for textSelector = 1, #textOptions do
+		local tutorialText = display.newText(textOptions[textSelector])
 		tutorialText.x , tutorialText.y = display.contentCenterX, display.contentCenterY 
 		tutorialText.font = native.systemFont
 		tutorialText:setFillColor(102/255,0/255,99/255)
 		tutorialText.alpha = 0
 		tutorialText.size = 96
 		overlayGroup:insert(tutorialText)
-		tutorialTextTable[i] = tutorialText
+		tutorialTextTable[textSelector] = tutorialText
 	end
-			
-		local button1 = widget.newButton({
-        defaultFile = assetPath.."botonOK-1.png",
-        overFile = assetPath.."botonOK-2.png",
-        onEvent = handleButtonEvent
-    })
+	
+	local button1 = widget.newButton({
+		defaultFile = assetPath.."botonOK-1.png",
+		overFile = assetPath.."botonOK-2.png",
+		onEvent = handleButtonEvent
+	})
 
 	button1.x, button1.y = display.contentCenterX, display.contentCenterY + button1.contentWidth * 0.8
 	button1.xScale = 0.5
@@ -216,6 +201,7 @@ local function createOverlay()
 end
 
 local function onButtonTap(event) 
+	if tapsEnabled then
 		local button = event.target
 		button.fill = button.onFill
 		timer.performWithDelay(100, function ()
@@ -236,6 +222,7 @@ local function onButtonTap(event)
 		end
 		return true
 	end
+end
 
 local function createBackOK()
 	local returnUnpressedButton = {
@@ -303,27 +290,28 @@ local function createGrid()
 		filename = assetPath.."boton_1.png"
 	}
 	local gridToUse = gridOptions[minigameLevel] 
-	local boxScale = gridToUse.Scale
 	for rowsUsed = 1, gridToUse.rows do 
 		for columnsUsed = 1, gridToUse.columns do
 			local btnSize = 150 * GLOBAL_SCALE
 			local boxX = (rockBoard.x - rockBoard.contentWidth * 0.45) + columnsUsed * rockBoard.contentWidth / (gridToUse.columns + 1.5)
+			local alphaToUse = 1
 			
 			local box = display.newImageRect(assetPath.."boton_1.png", btnSize, btnSize)
 			local boxY = (rockBoard.contentHeight / (gridToUse.rows + 2) * rowsUsed) + box.contentHeight * 0.8
-			box.xScale, box.yScale = boxScale, boxScale
 			box.x, box.y = boxX, boxY
 			box.isFilled = false	
 			box.onFill = pressedButton 
+			box.alpha = alphaToUse
 			box.offFill = unpressedButton
 			box.code = gridToUse.codeSize
 			box.number = numberOnButton
 			box:addEventListener("tap", onBoxTap)
 			gameObjectGroup:insert(box)
 			
-			local numbers = display.newText(numberOnButton,0, 0, FONT_NAME, 26 * GLOBAL_SCALE)
+			local numbers = display.newText(numberOnButton,0, 0, native.systemFont, 26 * GLOBAL_SCALE)
 			numbers.x, numbers.y = boxX, boxY 
 			numbers:setFillColor(0)
+			numbers.alpha = alphaToUse
 			totalButtons[numberOnButton] = box
 			numberOnButton = numberOnButton + 1
 			gameObjectGroup:insert(numbers)
@@ -400,7 +388,7 @@ local function cleanUp()
 	display.remove(overlayGroup)
 	overlayGroup = nil
 	
-	transition.cancel(gameTimer)
+	transition.cancel("gameTimer")
 end
 
 local function initialize(event)
