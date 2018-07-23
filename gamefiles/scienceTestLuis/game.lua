@@ -401,7 +401,7 @@ local function initialize(event)
 	
 	tapsEnabled = false
 	
-	minigameLevel = 2
+	minigameLevel = 3
 	lettersUsed = 0
 	timesLost = 0
 
