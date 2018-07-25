@@ -1,57 +1,94 @@
------------------------------------------------ Requires
+----------------------------------------------- progDecodeBlock, Caesar Cipher Decoding Game
 local scenePath = ... 
 local folder = scenePath:match("(.-)[^%.]+$") 
 local assetPath = string.gsub(folder,"[%.]","/")
+local extratable = require("libs.helpers.extratable")
 local director = require("libs.helpers.director")
 local widget = require("widget")
 local game = director.newScene() 
 ----------------------------------------------- Variables
-local correctCipher, codeInput, totalButtons, screenNumberTable, tutorialTextTable
+local correctCipher, codeInput, totalButtons
 local backgroundLayer, gameObjectsLayer, UILayer
 local gameObjectGroup, bgGroup, overlayGroup
-local lettersUsed, boxesUsed, timesLost
+local boxesUsed, retryCounter
 local manager
 local minigameLevel
-local gridOptions
-local isFirstTime
+local isFirstTime	
 local tapsEnabled 
 local rockBoard
 ----------------------------------------------- Constants
+local TRANSITION_TAG = "transitionTag"
+local GAME_TIMER = "gameTimer" 
 local GLOBAL_SCALE = display.contentHeight / 768
 local TOTAL_ATTEMPTS = 3
+local MAX_BUTTONS = 11
+local GAME_TOTAL_TIME = 15000
+local UI_BUTTON_SIZE = 0.6 * GLOBAL_SCALE
+local BOX_BUTTON_SIZE = 150 * GLOBAL_SCALE 
+local DEFAULT_OK = assetPath.."botonOK-1.png"
+local PRESSED_OK = assetPath.."botonOK-2.png"
+local DEFAULT_BACK = assetPath.."btn_r2.png"
+local PRESSED_BACK = assetPath.."btn_r1.png"
+local TUTORIAL_TEXT_COLOR = {102/255, 0/255, 99/255}
+local ORANGE_CIRCLE_COLOR = {1, 140/255, 0}
+local TEXT_OPTIONS = {
+		[1] = {text = "a", cipher = 1},
+		[2] = {text = "b", cipher = 2},
+		[3] = {text = "c", cipher = 3},
+		[4] = {text = "d", cipher = 4},
+		[5] = {text = "e", cipher = 5},
+		[6] = {text = "f", cipher = 6},
+		[7] = {text = "g", cipher = 7},
+		[8] = {text = "h", cipher = 8},
+		[9] = {text = "i", cipher = 9},
+		[10] = {text = "j", cipher = 0}
+	}
+local GRID_OPTIONS = {
+	[1] = {rows = 3, columns = 2, Scale = GLOBAL_SCALE , code = 4}, 
+	[2] = {rows = 3, columns = 3, Scale = GLOBAL_SCALE * 0.80, code = 6},
+	[3] = {rows = 3, columns = 4, Scale = GLOBAL_SCALE * 0.90, code = 8},
+}
+local PRESSED_BUTTON_FILL = {
+	type = "image",
+	filename = assetPath.."boton_2.png"
+}
+local PRESSED_BUTTON_OFFILL = {
+	type = "image",
+	filename = assetPath.."boton_1.png"
+}
 ----------------------------------------------- Caches
-local mRandom = math.random
 ----------------------------------------------- Functions
-local function clearScreen()
-	for cleaner = 1, #screenNumberTable do
-		display.remove(screenNumberTable[cleaner])
-		codeInput[cleaner] = nil
+local function clearInGameCalculatorScreen()
+	for numberRemovalIndex = 1, #codeInput do
+		display.remove(codeInput[numberRemovalIndex])
+		codeInput[numberRemovalIndex] = nil
 	end
 end
-
-local function loseAnimation()
-	transition.pause("gameTimer")
-	tapsEnabled = false
-	for resetter = 1, #totalButtons do
-		totalButtons[resetter].fill = totalButtons[resetter].offFill
-		totalButtons[resetter].isFilled = false
-	end
-	clearScreen()
+  
+local function performLoseAnimation()
+	transition.pause(GAME_TIMER)
 	
-	for fillingIndex = 1, timesLost + 1 do
+	for resetIndex = 1, #totalButtons do
+		totalButtons[resetIndex].fill = totalButtons[resetIndex].offFill
+		totalButtons[resetIndex].isFilled = false
+	end
+	clearInGameCalculatorScreen()
+	
+	for fillingIndex = 1, retryCounter + 1 do
 		timer.performWithDelay(500 * fillingIndex, function()
-			if fillingIndex <= timesLost then
+			if fillingIndex <= retryCounter then
 				totalButtons[correctCipher[fillingIndex]].fill = totalButtons[correctCipher[fillingIndex]].onFill
 			else
-				for unfillingIndex = 1, timesLost do
+				for unfillingIndex = 1, retryCounter do
 					timer.performWithDelay(500 * unfillingIndex, function()
 						totalButtons[correctCipher[unfillingIndex]].fill = totalButtons[correctCipher[unfillingIndex]].offFill	
 						totalButtons[correctCipher[unfillingIndex]].isFilled = false
-						if unfillingIndex == timesLost then
-							transition.resume("gameTimer")
-							tapsEnabled = true
-							if timesLost == gridOptions[minigameLevel].codeSize then
+						if unfillingIndex == retryCounter then
+							if (retryCounter == TOTAL_ATTEMPTS and minigameLevel == 1) or retryCounter == GRID_OPTIONS[minigameLevel].code then
 								manager.wrong()
+							else
+								transition.resume(GAME_TIMER)
+								tapsEnabled = true
 							end
 						end
 					end)
@@ -61,36 +98,31 @@ local function loseAnimation()
 	end
 end
 
-local function winCondition()
-	local correctNums = 0
-	for answerChecker = 1, #correctCipher do
-		if correctCipher[answerChecker] == codeInput[answerChecker] then
-			correctNums = correctNums + 1
-		end
-	end
-	
-	if correctNums == gridOptions[minigameLevel].codeSize then
+local function checkCorrectAnswer()
+		retryCounter = retryCounter >= TOTAL_ATTEMPTS and 3 or retryCounter + 1
+		local correctNums = 0
 		tapsEnabled = false
-		manager.correct()
-	else
-		transition.to(gameObjectGroup, {time = 150, x = gameObjectGroup.x + 20, y = gameObjectGroup.y + 20, iterations = 4, onComplete = function()
-			transition.to(gameObjectGroup, {time = 150, x = gameObjectGroup.x - 20, y = gameObjectGroup.y - 20})
-		end})
-		transition.to(rockBoard, {time = 150, x = rockBoard.x + 20, y = rockBoard.y + 20, iterations = 4, onComplete = function()
-			transition.to(rockBoard, {time = 150, x = rockBoard.x - 20, y = rockBoard.y - 20})
-		end})
-		timesLost = timesLost + 1
-		if timesLost == 3 and minigameLevel == 1 then
-			manager.wrong()
-		elseif timesLost >3 then
-			timesLost = 3
+		
+		for answerCheckerIndex = 1, #codeInput do
+			if correctCipher[answerCheckerIndex] == tonumber(codeInput[answerCheckerIndex].text) then
+				correctNums = correctNums + 1
+			end
 		end
-		timer.performWithDelay(1000, loseAnimation())
-		if timesLost == TOTAL_ATTEMPTS and minigameLevel == 1 then
-			tapsEnabled = false
-			timer.performWithDelay(2000, loseAnimation())
+		
+		if correctNums == GRID_OPTIONS[minigameLevel].code then
+			transition.pause(GAME_TIMER)
+			manager.correct()
+		else
+			transition.to(gameObjectGroup, {time = 150, x = gameObjectGroup.x + 20 * GLOBAL_SCALE, y = gameObjectGroup.y + 20 * GLOBAL_SCALE, iterations = 4, onComplete = function()
+				transition.to(gameObjectGroup, {time = 150, x = gameObjectGroup.x - 20 * GLOBAL_SCALE, y = gameObjectGroup.y - 20 * GLOBAL_SCALE})
+			end})
+			transition.to(rockBoard, {time = 150, x = rockBoard.x + 20 * GLOBAL_SCALE, y = rockBoard.y + 20 * GLOBAL_SCALE, iterations = 4, onComplete = function()
+				transition.to(rockBoard, {time = 150, x = rockBoard.x - 20 * GLOBAL_SCALE, y = rockBoard.y - 20 * GLOBAL_SCALE, onComplete = function()
+					performLoseAnimation()
+				end})
+			end})
 		end
-	end
+	return true
 end
 
 local function createTimer()
@@ -103,11 +135,9 @@ local function createTimer()
 	timerGroup:insert(whiteCircle)
 	
 	local orangeCircle = display.newCircle(whiteCircle.x, whiteCircle.y, whiteCircle.contentWidth * 0.5)
-	orangeCircle:setFillColor(1, 140/255, 0)
-	orangeCircle.xScale, orangeCircle.yScale = -1, 1
+	orangeCircle:setFillColor(unpack(ORANGE_CIRCLE_COLOR))
+	orangeCircle.xScale = -orangeCircle.xScale
 	orangeCircle.fill.effect = "filter.radialWipe"
-	orangeCircle.fill.effect.center = { 0.5, 0.5 }
-	orangeCircle.fill.effect.smoothness = 0
 	orangeCircle.fill.effect.axisOrientation = 0.25
 	orangeCircle.fill.effect.progress = 1
 	timerGroup:insert(orangeCircle)
@@ -118,245 +148,189 @@ local function createTimer()
 	timerGroup.alpha = 0
 	timerGroup:insert(timerFrame)
 	
-	
-	transition.to(timerGroup, {time = 1000, alpha = 1, onComplete = function()
-		transition.to(orangeCircle.fill.effect, {tag = "gameTimer", time = 15000, progress = 0, onComplete = function ()
-			timesLost = gridOptions[minigameLevel].codeSize
-			loseAnimation()
+	transition.to(timerGroup, {tag = GAME_TIMER, time = 1000, alpha = 1, onComplete = function()
+		transition.to(orangeCircle.fill.effect, {tag = GAME_TIMER, time = GAME_TOTAL_TIME, progress = 0, onComplete = function ()
+			retryCounter = GRID_OPTIONS[minigameLevel].code
+			performLoseAnimation()
 		end})			
 	end})
 end
 
-local function overlayTransitions(overlayMover)	
-	transition.to(tutorialTextTable[overlayMover], {tag = "transitionTag",time = 1000, alpha = 1, onComplete = function ()
-		transition.to(tutorialTextTable[overlayMover], {tag = "transitionTag",time = 1000, alpha = 0, onComplete = function () 
-		overlayMover = overlayMover + 1
-		if overlayMover == #tutorialTextTable + 1 then
-			overlayMover = 1
-		end
-		overlayTransitions(overlayMover)
+local function transitionOverlayObjects(tutorialTextTable, currentItemIndex)	
+	transition.to(tutorialTextTable[currentItemIndex], {tag = TRANSITION_TAG,time = 1000, alpha = 1, onComplete = function ()
+		transition.to(tutorialTextTable[currentItemIndex], {tag = TRANSITION_TAG,time = 1000, alpha = 0, onComplete = function () 
+			currentItemIndex = currentItemIndex == #tutorialTextTable and 1 or currentItemIndex + 1
+			transitionOverlayObjects(tutorialTextTable, currentItemIndex)
 		end})
 	end})	
 end	
 
+local function handleOkOverlayButton(event)
+	if "ended" == event.phase then
+		transition.cancel(TRANSITION_TAG)
+		transition.to(overlayGroup, {alpha = 0, time = 500, onComplete = function ()
+			display.remove(overlayGroup)	
+			if minigameLevel > 1 then 
+				createTimer()
+			end
+			tapsEnabled = true
+		end})
+	end
+end
+
 local function createOverlay()
+	local tutorialTextTable = {}
+	local currentItemIndex = 1
+	
 	local fadedScreen = display.newRect(display.contentCenterX, display.contentCenterY, display.contentWidth, display.contentHeight)
 	fadedScreen:setFillColor(0)
 	fadedScreen.alpha = 0.9
 	overlayGroup:insert(fadedScreen)
 	
-	local fondoOverlay = display.newImage(assetPath.."ventana_overlay.png")
-	fondoOverlay.x, fondoOverlay.y = display.contentCenterX, display.contentCenterY
-	overlayGroup:insert(fondoOverlay)
+	local overlayBackground = display.newImage(assetPath.."ventana_overlay.png")
+	overlayBackground.x, overlayBackground.y = display.contentCenterX, display.contentCenterY
+	overlayGroup:insert(overlayBackground)
 	
 	local overlayBoard = display.newImage(assetPath.."roca_overlay.png")
 	overlayBoard.x, overlayBoard.y = display.contentCenterX, display.contentCenterY
 	overlayGroup:insert(overlayBoard)
 	
-	local function handleButtonEvent(event)
-		if "ended" == event.phase then
-			transition.cancel("transitionTag")
-			transition.to(overlayGroup, {alpha = 0, time = 500, onComplete = function ()
-				display.remove(overlayGroup)	
-				if minigameLevel > 1 then 
-					createTimer()
-				end
-				tapsEnabled = true
-			end})
-		end
-	end
-	
-	local textOptions = {
-		[1] = {text = "a = 1"},
-		[2] = {text = "b = 2"},
-		[3] = {text = "c = 3"},
-		[4] = {text = "d = 4"},
-		[5] = {text = "e = 5"},
-		[6] = {text = "f = 6"}
-	}
-	
-	for textSelector = 1, #textOptions do
-		local tutorialText = display.newText(textOptions[textSelector])
-		tutorialText.x , tutorialText.y = display.contentCenterX, display.contentCenterY 
-		tutorialText.font = native.systemFont
-		tutorialText:setFillColor(102/255,0/255,99/255)
+	for textSelectorIndex = 1, #TEXT_OPTIONS do
+		local tutorialText = display.newText(TEXT_OPTIONS[textSelectorIndex].text.." = "..TEXT_OPTIONS[textSelectorIndex].cipher, display.contentCenterX, display.contentCenterY,  native.systemFont, 96)
+		tutorialText:setFillColor(unpack(TUTORIAL_TEXT_COLOR))
 		tutorialText.alpha = 0
-		tutorialText.size = 96
 		overlayGroup:insert(tutorialText)
-		tutorialTextTable[textSelector] = tutorialText
+		tutorialTextTable[textSelectorIndex] = tutorialText
 	end
 	
-	local button1 = widget.newButton({
-		defaultFile = assetPath.."botonOK-1.png",
-		overFile = assetPath.."botonOK-2.png",
-		onEvent = handleButtonEvent
+	local okButton = widget.newButton({
+		defaultFile = DEFAULT_OK,
+		overFile = PRESSED_OK,
+		onEvent = handleOkOverlayButton
 	})
-
-	button1.x, button1.y = display.contentCenterX, display.contentCenterY + button1.contentWidth * 0.8
-	button1.xScale = 0.5
-	button1.yScale = 0.5
-	overlayGroup:insert(button1)
+	okButton.x, okButton.y = display.contentCenterX, display.contentCenterY + okButton.contentWidth * 0.8
+	okButton.xScale, okButton.yScale = 0.5, 0.5
+	overlayGroup:insert(okButton)
 	
-	overlayTransitions(1)
+	transitionOverlayObjects(tutorialTextTable, currentItemIndex)
 end
 
-local function onButtonTap(event) 
+local function pressBackButton()
 	if tapsEnabled then
-		local button = event.target
-		button.fill = button.onFill
-		timer.performWithDelay(100, function ()
-			button.fill = button.offFill
-		end)
-		if tapsEnabled then
-			if button.name == "ok" then
-				winCondition()
-			elseif button.name == "back" then
-				if #boxesUsed > 0 then
-					boxesUsed[#boxesUsed].isFilled = false
-					boxesUsed[#boxesUsed].fill = boxesUsed[#boxesUsed].offFill	
-					display.remove(boxesUsed[#boxesUsed].screenNumber)
-					table.remove(boxesUsed, #boxesUsed)
-					codeInput[#codeInput] = nil
-				end
-			end
+		if #boxesUsed > 0 then
+			boxesUsed[#boxesUsed].isFilled = false
+			boxesUsed[#boxesUsed].fill = boxesUsed[#boxesUsed].offFill	
+			display.remove(codeInput[#codeInput])
+			table.remove(codeInput, #codeInput)
+			table.remove(boxesUsed, #boxesUsed)
 		end
-		return true
 	end
+	return true
 end
 
-local function createBackOK()
-	local returnUnpressedButton = {
-		type = "image",
-		filename = assetPath.."btn_r2.png"
-	}
-	local returnPressedButton = {
-		type = "image",
-		filename = assetPath.."btn_r1.png"
-	}
-	local okUnpressedButton = {
-		type = "image",
-		filename = assetPath.."botonOK-1.png"
-	}
-	local okPressedButton = {
-		type = "image",
-		filename = assetPath.."botonOK-2.png"
-	}
-	local btnSize = 150 * 0.8 * GLOBAL_SCALE
-	local backBtn = display.newImageRect(assetPath.."btn_r2.png", btnSize, btnSize)
-	backBtn.x, backBtn.y = rockBoard.x - (rockBoard.contentWidth * 0.4), rockBoard.contentHeight * 0.75
-	backBtn.name = "back"
-	backBtn.onFill = returnPressedButton 
-	backBtn.offFill = returnUnpressedButton
-	backBtn:addEventListener("tap", onButtonTap)
-	gameObjectGroup:insert(backBtn)
-	
-	local okBtn = display.newImageRect(assetPath.."botonOK-1.png", btnSize, btnSize)
+local function createUIButtons()
+	local okBtn = widget.newButton({
+		defaultFile = DEFAULT_OK,
+		overFile = PRESSED_OK,
+		onPress = checkCorrectAnswer
+	})
+	okBtn.xScale, okBtn.yScale = UI_BUTTON_SIZE, UI_BUTTON_SIZE 	
 	okBtn.x, okBtn.y = rockBoard.x + (rockBoard.contentWidth * 0.4), rockBoard.contentHeight * 0.75
-	okBtn.name = "ok"
-	okBtn.onFill = okPressedButton
-	okBtn.offFill = okUnpressedButton
-	okBtn:addEventListener("tap",onButtonTap)
 	gameObjectGroup:insert(okBtn)
+
+	local backBtn = widget.newButton({
+		defaultFile = DEFAULT_BACK,
+		overFile = PRESSED_BACK,
+		onPress = pressBackButton 
+	})
+	backBtn.x, backBtn.y = rockBoard.x - (rockBoard.contentWidth * 0.4), rockBoard.contentHeight * 0.75
+	gameObjectGroup:insert(backBtn)
 end
 
-local function onBoxTap(event)	
+local function tapBoxButton(event)	
 	local box = event.target
-	if #boxesUsed < box.code and tapsEnabled then 
-		if not box.isFilled then
-			box.isFilled = true
-			box.fill = box.onFill
-			box.wasPressedLast = true
-			
-			local shownNumber = display.newText(box.number, display.contentCenterX - (box.width * 1.36) + (#codeInput * 60), rockBoard.contentHeight * 0.08, native.systemFont, 60 * GLOBAL_SCALE )
-			gameObjectGroup:insert(shownNumber)
-			
-			box.screenNumber = shownNumber
-			codeInput[#codeInput + 1] = box.number
-			screenNumberTable[#screenNumberTable + 1] = shownNumber
-			boxesUsed[#codeInput] = box
-		end
+	if #boxesUsed < box.code and tapsEnabled and not box.isFilled then 
+		box.isFilled = true
+		box.fill = box.onFill
+		
+		local screenNumber = display.newText(box.labelValue, display.contentCenterX - (box.width * 1.36) + (#codeInput * 60), rockBoard.contentHeight * 0.08, native.systemFont, 60 * GLOBAL_SCALE)
+		gameObjectGroup:insert(screenNumber)
+		
+		codeInput[#codeInput + 1] = screenNumber
+		boxesUsed[#codeInput] = box
 	end
 	return true
 end
 	
 local function createGrid()
-	local numberOnButton = 1 
-	local pressedButton = {
-		type = "image",
-		filename = assetPath.."boton_2.png"
-	}
-	local unpressedButton = {
-		type = "image",
-		filename = assetPath.."boton_1.png"
-	}
-	local gridToUse = gridOptions[minigameLevel] 
+	local labelValue = 1 
+	local gridToUse = GRID_OPTIONS[minigameLevel] 
 	for rowsUsed = 1, gridToUse.rows do 
 		for columnsUsed = 1, gridToUse.columns do
-			local btnSize = 150 * GLOBAL_SCALE
 			local boxX = (rockBoard.x - rockBoard.contentWidth * 0.45) + columnsUsed * rockBoard.contentWidth / (gridToUse.columns + 1.5)
+			local boxY = (rockBoard.contentHeight / (gridToUse.rows + 2) * rowsUsed) + BOX_BUTTON_SIZE * 0.8
 			local alphaToUse = 1
 			
-			local box = display.newImageRect(assetPath.."boton_1.png", btnSize, btnSize)
-			local boxY = (rockBoard.contentHeight / (gridToUse.rows + 2) * rowsUsed) + box.contentHeight * 0.8
-			box.x, box.y = boxX, boxY
-			box.isFilled = false	
-			box.onFill = pressedButton 
-			box.alpha = alphaToUse
-			box.offFill = unpressedButton
-			box.code = gridToUse.codeSize
-			box.number = numberOnButton
-			box:addEventListener("tap", onBoxTap)
-			gameObjectGroup:insert(box)
+			local boxButton = display.newImageRect(assetPath.."boton_1.png", BOX_BUTTON_SIZE, BOX_BUTTON_SIZE) 
+			boxButton.x, boxButton.y = boxX, boxY
+			boxButton.isFilled = false	
+			boxButton.onFill = PRESSED_BUTTON_FILL 
+			boxButton.alpha = alphaToUse
+			boxButton.offFill = PRESSED_BUTTON_OFFILL
+			boxButton.code = gridToUse.code
+			boxButton.labelValue = labelValue --correct
+			boxButton:addEventListener("tap", tapBoxButton)
+			gameObjectGroup:insert(boxButton)
 			
-			local numbers = display.newText(numberOnButton,0, 0, native.systemFont, 26 * GLOBAL_SCALE)
-			numbers.x, numbers.y = boxX, boxY 
-			numbers:setFillColor(0)
-			numbers.alpha = alphaToUse
-			totalButtons[numberOnButton] = box
-			numberOnButton = numberOnButton + 1
-			gameObjectGroup:insert(numbers)
+			totalButtons[labelValue] = boxButton
+			
+			local boxLabel = display.newText(labelValue, 0, 0, native.systemFont, 26 * GLOBAL_SCALE)
+			boxLabel.x, boxLabel.y = boxX, boxY 
+			boxLabel:setFillColor(0)
+			boxLabel.alpha = alphaToUse
+			gameObjectGroup:insert(boxLabel)
+			
+			labelValue = labelValue + 1
 			
 			if minigameLevel > 2 then
 				boxX = (rockBoard.x - rockBoard.contentWidth * 0.45) + (columnsUsed + 0.8) * rockBoard.contentWidth / (gridToUse.columns + 1)
-				if numberOnButton > 11 then
-					box.alpha = 0
-					numbers.alpha = 0
-				elseif numberOnButton >= 10 then
-					box.x = boxX
-					numbers.x = boxX
+				if labelValue > MAX_BUTTONS then
+					boxButton.alpha = 0
+					boxLabel.alpha = 0
+				elseif labelValue >= MAX_BUTTONS - 1 then
+					if labelValue == MAX_BUTTONS then
+						boxLabel.text = "0"
+						boxButton.labelValue = 0
+					end
+					boxButton.x = boxX
+					boxLabel.x = boxX
 				end
 			end
 		end
 	end
 end
 
-local function createCodes()
-	local alphabet = {
-		[1] = {text = "a", wasUsed = false, cipher = 1},
-		[2] = {text = "b", wasUsed = false, cipher = 2},
-		[3] = {text = "c", wasUsed = false, cipher = 3},
-		[4] = {text = "d", wasUsed = false, cipher = 4},
-		[5] = {text = "e", wasUsed = false, cipher = 5},
-		[6] = {text = "f", wasUsed = false, cipher = 6},
-		[7] = {text = "g", wasUsed = false, cipher = 7},
-		[8] = {text = "h", wasUsed = false, cipher = 8},
-		[9] = {text = "i", wasUsed = false, cipher = 9},
-		[10] = {text = "j", wasUsed = false, cipher = 0}
-	}
-	local code = display.newText("Code: ", rockBoard.x, rockBoard.contentHeight * 0.18, native.systemFont, 36 * GLOBAL_SCALE)
-	gameObjectGroup:insert(code)
+local function createCode()
+	local codetoSolve = display.newText("code: ", rockBoard.x, rockBoard.contentHeight * 0.18, native.systemFont, 36 * GLOBAL_SCALE) 
+	gameObjectGroup:insert(codetoSolve)
 	
-	while lettersUsed < gridOptions[minigameLevel].codeSize do
-		local rng = mRandom(gridOptions[minigameLevel].codeSize)
-		if alphabet[rng].wasUsed == false then
-			local letter = alphabet[rng].text
-			
-			alphabet[rng].wasUsed = true
-			lettersUsed = lettersUsed + 1
-			code.text = code.text..letter
-			correctCipher[lettersUsed] = alphabet[rng].cipher
-			gameObjectGroup:insert(code)
+	local gameCodeToSolveTable = {}
+	for gameCodeIndex = 1, GRID_OPTIONS[minigameLevel].code do
+		gameCodeToSolveTable[gameCodeIndex] = TEXT_OPTIONS[gameCodeIndex]
+	end
+	
+	local textTableCopy = extratable.shuffle(gameCodeToSolveTable) 
+	
+	for textOptionIndex = 1, GRID_OPTIONS[minigameLevel].code do
+		if textTableCopy[textOptionIndex].text == "j" and minigameLevel < 3 then
+			table.remove(textTableCopy, textOptionIndex)
+		elseif textTableCopy[textOptionIndex].cipher > 6 and minigameLevel == 1 then
+			table.remove(textTableCopy, textOptionIndex)
 		end
+		local letter = textTableCopy[textOptionIndex].text
+		codetoSolve.text = codetoSolve.text..letter
+		correctCipher[textOptionIndex] = textTableCopy[textOptionIndex].cipher
+		gameObjectGroup:insert(codetoSolve)
 	end
 end
 
@@ -379,6 +353,8 @@ local function createGroups()
 end
 
 local function cleanUp()
+	transition.cancel(GAME_TIMER)
+	
 	display.remove(gameObjectGroup)
 	gameObjectGroup = nil	
 	
@@ -388,7 +364,6 @@ local function cleanUp()
 	display.remove(overlayGroup)
 	overlayGroup = nil
 	
-	transition.cancel("gameTimer")
 end
 
 local function initialize(event)
@@ -401,21 +376,13 @@ local function initialize(event)
 	
 	tapsEnabled = false
 	
-	minigameLevel = 3
-	lettersUsed = 0
-	timesLost = 0
+	minigameLevel = 2
+	retryCounter = 0
 
-	screenNumberTable = {}
-	tutorialTextTable = {}
 	correctCipher = {}
 	totalButtons = {}
 	boxesUsed = {}
 	codeInput = {}
-	gridOptions = {
-		[1] = {rows = 3, columns = 2, Scale = GLOBAL_SCALE , codeSize = 4}, 
-		[2] = {rows = 3, columns = 3, Scale = GLOBAL_SCALE * 0.80, codeSize = 6},
-		[3] = {rows = 3, columns = 4, Scale = GLOBAL_SCALE * 0.90, codeSize = 8},
-	}
 end
 ------------------------------------------ Module functions
 function game.getInfo() 
@@ -457,8 +424,8 @@ function game:show(event)
 		initialize(event)
 		createOverlay()
 		createGrid()
-		createCodes()
-		createBackOK()
+		createCode()
+		createUIButtons()
 	elseif phase == "did" then 
 	end
 end
