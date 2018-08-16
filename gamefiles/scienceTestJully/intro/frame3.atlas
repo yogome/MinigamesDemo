@@ -1,0 +1,48 @@
+
+frame3.png
+size: 1024,512
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+armTomikoFrame3
+  rotate: false
+  xy: 750, 296
+  size: 53, 66
+  orig: 53, 66
+  offset: 0, 0
+  index: -1
+frame3
+  rotate: false
+  xy: 2, 159
+  size: 461, 316
+  orig: 461, 316
+  offset: 0, 0
+  index: -1
+hairTomikoFRame3
+  rotate: true
+  xy: 2, 2
+  size: 155, 216
+  orig: 155, 216
+  offset: 0, 0
+  index: -1
+handTomikoFRame3
+  rotate: false
+  xy: 220, 59
+  size: 113, 98
+  orig: 113, 98
+  offset: 0, 0
+  index: -1
+headFTomikoRame3
+  rotate: false
+  xy: 465, 213
+  size: 283, 262
+  orig: 283, 262
+  offset: 0, 0
+  index: -1
+hmmFrame3
+  rotate: false
+  xy: 750, 364
+  size: 251, 111
+  orig: 251, 111
+  offset: 0, 0
+  index: -1

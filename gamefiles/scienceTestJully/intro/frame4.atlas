@@ -1,0 +1,104 @@
+
+frame4.png
+size: 1024,512
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+arm1OonaFrame4
+  rotate: true
+  xy: 2, 2
+  size: 28, 37
+  orig: 28, 37
+  offset: 0, 0
+  index: -1
+arm2oonaFrame4
+  rotate: false
+  xy: 308, 122
+  size: 31, 20
+  orig: 31, 20
+  offset: 0, 0
+  index: -1
+bodyoonaFrame4
+  rotate: false
+  xy: 230, 111
+  size: 76, 83
+  orig: 76, 83
+  offset: 0, 0
+  index: -1
+feet1oonaFrame4
+  rotate: false
+  xy: 673, 416
+  size: 42, 32
+  orig: 42, 32
+  offset: 0, 0
+  index: -1
+feet2oonaFrame4
+  rotate: false
+  xy: 758, 476
+  size: 35, 34
+  orig: 35, 34
+  offset: 0, 0
+  index: -1
+frame4
+  rotate: false
+  xy: 2, 196
+  size: 477, 314
+  orig: 477, 314
+  offset: 0, 0
+  index: -1
+hand1OonaFrame4
+  rotate: false
+  xy: 481, 266
+  size: 51, 39
+  orig: 51, 39
+  offset: 0, 0
+  index: -1
+hand2oonaFrame4
+  rotate: false
+  xy: 308, 144
+  size: 83, 50
+  orig: 83, 50
+  offset: 0, 0
+  index: -1
+headoonaFrame4
+  rotate: false
+  xy: 481, 371
+  size: 190, 139
+  orig: 190, 139
+  offset: 0, 0
+  index: -1
+leg1oonaFrame4
+  rotate: false
+  xy: 230, 60
+  size: 46, 49
+  orig: 46, 49
+  offset: 0, 0
+  index: -1
+leg2oonaFrame4
+  rotate: false
+  xy: 580, 328
+  size: 43, 41
+  orig: 43, 41
+  offset: 0, 0
+  index: -1
+spark2Frame4
+  rotate: false
+  xy: 673, 450
+  size: 83, 60
+  orig: 83, 60
+  offset: 0, 0
+  index: -1
+sparkFrame4
+  rotate: false
+  xy: 481, 307
+  size: 97, 62
+  orig: 97, 62
+  offset: 0, 0
+  index: -1
+yaaasssFrame4
+  rotate: false
+  xy: 2, 32
+  size: 226, 162
+  orig: 226, 162
+  offset: 0, 0
+  index: -1

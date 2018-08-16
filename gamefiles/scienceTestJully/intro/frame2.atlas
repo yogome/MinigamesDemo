@@ -1,0 +1,132 @@
+
+frame2.png
+size: 1024,512
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+arm1EstrellaFrame2
+  rotate: false
+  xy: 885, 466
+  size: 43, 44
+  orig: 43, 44
+  offset: 0, 0
+  index: -1
+arm2EstrellaFrame2
+  rotate: false
+  xy: 387, 127
+  size: 33, 40
+  orig: 33, 40
+  offset: 0, 0
+  index: -1
+bodyBunnyFrame2
+  rotate: false
+  xy: 683, 407
+  size: 103, 103
+  orig: 103, 103
+  offset: 0, 0
+  index: -1
+bodyEstrellaFRame2
+  rotate: false
+  xy: 175, 63
+  size: 96, 104
+  orig: 96, 104
+  offset: 0, 0
+  index: -1
+ear1BunnyFrame2
+  rotate: false
+  xy: 476, 182
+  size: 65, 41
+  orig: 65, 41
+  offset: 0, 0
+  index: -1
+ear2BunnyFrame2
+  rotate: true
+  xy: 273, 71
+  size: 34, 53
+  orig: 34, 53
+  offset: 0, 0
+  index: -1
+frame2
+  rotate: false
+  xy: 2, 169
+  size: 472, 341
+  orig: 472, 341
+  offset: 0, 0
+  index: -1
+globeFrame2
+  rotate: false
+  xy: 2, 61
+  size: 171, 106
+  orig: 171, 106
+  offset: 0, 0
+  index: -1
+hairEstrellaFrame2
+  rotate: true
+  xy: 476, 225
+  size: 94, 182
+  orig: 94, 182
+  offset: 0, 0
+  index: -1
+hand2EstrellaFRame2
+  rotate: false
+  xy: 683, 352
+  size: 51, 53
+  orig: 51, 53
+  offset: 0, 0
+  index: -1
+handEstrellaFRame2
+  rotate: false
+  xy: 273, 107
+  size: 112, 60
+  orig: 112, 60
+  offset: 0, 0
+  index: -1
+headBunnyFrame2
+  rotate: false
+  xy: 788, 411
+  size: 95, 99
+  orig: 95, 99
+  offset: 0, 0
+  index: -1
+headEstrellaFrame2
+  rotate: false
+  xy: 476, 321
+  size: 205, 189
+  orig: 205, 189
+  offset: 0, 0
+  index: -1
+leg1BunnyFRame2
+  rotate: true
+  xy: 2, 27
+  size: 32, 75
+  orig: 32, 75
+  offset: 0, 0
+  index: -1
+leg2BunnyFrame2
+  rotate: false
+  xy: 543, 202
+  size: 24, 21
+  orig: 24, 21
+  offset: 0, 0
+  index: -1
+leg3BunnyFrame2
+  rotate: false
+  xy: 79, 33
+  size: 20, 26
+  orig: 20, 26
+  offset: 0, 0
+  index: -1
+noseBunnyFrame2
+  rotate: true
+  xy: 660, 286
+  size: 33, 20
+  orig: 33, 20
+  offset: 0, 0
+  index: -1
+tailBunnyFrame2
+  rotate: true
+  xy: 2, 2
+  size: 23, 32
+  orig: 23, 32
+  offset: 0, 0
+  index: -1

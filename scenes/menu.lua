@@ -62,6 +62,10 @@ local function goLuis()
 	director.gotoScene("scenes.manager", {params = {minigames = {"gamefiles.scienceTestLuis.game"}}})
 end
 
+local function goJully()
+	director.gotoScene("scenes.manager", {params = {minigames = {"gamefiles.scienceTestJully.game"}}})
+end
+
 local function goArturo()
 	director.gotoScene("scenes.manager", {params = {minigames = {"gamefiles.progTestArturo.game"}}})
 end
@@ -202,9 +206,10 @@ function scene:create(event)
 	self.addButton("Go Hector", goHector, COLOR_DEFAULT, 1)
 	self.addButton("Go Osiel", goOsiel, COLOR_DEFAULT, 1)
 	self.addButton("Go Tony", goTony, COLOR_DEFAULT, 1)
-  self.addButton("Go Mauricio", goMauricio, COLOR_DEFAULT, 1)
+	self.addButton("Go Mauricio", goMauricio, COLOR_DEFAULT, 1)
 	self.addButton("Go Diana", goDiana, COLOR_DEFAULT, 1)
 	self.addButton("Go Luis", goLuis, COLOR_DEFAULT, 1)
+	self.addButton("Go Jully", goJully, COLOR_DEFAULT, 1)
 	self.addButton("Go Arturo", goArturo, COLOR_DEFAULT, 1)
 
 	self.addButton("Lang:"..language, toggleLanguage, COLOR_DEFAULT, 1)

@@ -1,0 +1,251 @@
+
+frame1.png
+size: 1024,512
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+Ha1Frame1
+  rotate: true
+  xy: 458, 191
+  size: 82, 50
+  orig: 82, 50
+  offset: 0, 0
+  index: -1
+arm1EstrellaFrame1
+  rotate: true
+  xy: 407, 118
+  size: 29, 30
+  orig: 29, 30
+  offset: 0, 0
+  index: -1
+arm1TomikoFRame1
+  rotate: true
+  xy: 929, 476
+  size: 18, 27
+  orig: 18, 27
+  offset: 0, 0
+  index: -1
+arm1oonaFrame1
+  rotate: false
+  xy: 439, 160
+  size: 17, 25
+  orig: 17, 25
+  offset: 0, 0
+  index: -1
+arm2EstrellaFrame1
+  rotate: false
+  xy: 382, 90
+  size: 22, 27
+  orig: 22, 27
+  offset: 0, 0
+  index: -1
+arm2TomikoFrame1
+  rotate: false
+  xy: 641, 367
+  size: 25, 32
+  orig: 25, 32
+  offset: 0, 0
+  index: -1
+arm2oonaFRame1
+  rotate: true
+  xy: 788, 445
+  size: 22, 29
+  orig: 22, 29
+  offset: 0, 0
+  index: -1
+bodyBunnyFrame1
+  rotate: false
+  xy: 611, 439
+  size: 71, 71
+  orig: 71, 71
+  offset: 0, 0
+  index: -1
+bodyEstrellaFrame1
+  rotate: false
+  xy: 278, 114
+  size: 65, 71
+  orig: 65, 71
+  offset: 0, 0
+  index: -1
+bodyTomikoFrame1
+  rotate: false
+  xy: 523, 328
+  size: 62, 70
+  orig: 62, 70
+  offset: 0, 0
+  index: -1
+bodyoonaFrame1
+  rotate: false
+  xy: 345, 119
+  size: 60, 66
+  orig: 60, 66
+  offset: 0, 0
+  index: -1
+candy1TomikoFrame1
+  rotate: false
+  xy: 897, 469
+  size: 30, 25
+  orig: 30, 25
+  offset: 0, 0
+  index: -1
+ear1BunnyFrame1
+  rotate: false
+  xy: 92, 27
+  size: 45, 29
+  orig: 45, 29
+  offset: 0, 0
+  index: -1
+ear2BunnyFrame1
+  rotate: true
+  xy: 750, 443
+  size: 24, 36
+  orig: 24, 36
+  offset: 0, 0
+  index: -1
+frame1
+  rotate: false
+  xy: 2, 187
+  size: 454, 323
+  orig: 454, 323
+  offset: 0, 0
+  index: -1
+ha2Frame1
+  rotate: false
+  xy: 611, 401
+  size: 55, 36
+  orig: 55, 36
+  offset: 0, 0
+  index: -1
+ha3Frame1
+  rotate: false
+  xy: 523, 291
+  size: 55, 35
+  orig: 55, 35
+  offset: 0, 0
+  index: -1
+hairEstrellaFrame1
+  rotate: false
+  xy: 458, 275
+  size: 63, 123
+  orig: 63, 123
+  offset: 0, 0
+  index: -1
+hairTomikoFrame1
+  rotate: true
+  xy: 2, 3
+  size: 53, 88
+  orig: 53, 88
+  offset: 0, 0
+  index: -1
+hand1EstrellaFrame1
+  rotate: false
+  xy: 750, 469
+  size: 76, 41
+  orig: 76, 41
+  offset: 0, 0
+  index: -1
+hand1TomikoFrame1
+  rotate: false
+  xy: 407, 149
+  size: 30, 36
+  orig: 30, 36
+  offset: 0, 0
+  index: -1
+hand1oonaFrame1
+  rotate: false
+  xy: 611, 366
+  size: 28, 33
+  orig: 28, 33
+  offset: 0, 0
+  index: -1
+hand2EstrellaFrame1
+  rotate: false
+  xy: 345, 81
+  size: 35, 36
+  orig: 35, 36
+  offset: 0, 0
+  index: -1
+hand2TomikoFrame1
+  rotate: false
+  xy: 828, 470
+  size: 67, 40
+  orig: 67, 40
+  offset: 0, 0
+  index: -1
+hand2oonaFrame1
+  rotate: false
+  xy: 278, 70
+  size: 65, 42
+  orig: 65, 42
+  offset: 0, 0
+  index: -1
+headBunnyFrame1
+  rotate: false
+  xy: 684, 443
+  size: 64, 67
+  orig: 64, 67
+  offset: 0, 0
+  index: -1
+headEstrellaFrame1
+  rotate: false
+  xy: 2, 58
+  size: 138, 127
+  orig: 138, 127
+  offset: 0, 0
+  index: -1
+headOonaFrame1
+  rotate: false
+  xy: 458, 400
+  size: 151, 110
+  orig: 151, 110
+  offset: 0, 0
+  index: -1
+headTomikoFrame1
+  rotate: false
+  xy: 142, 62
+  size: 134, 123
+  orig: 134, 123
+  offset: 0, 0
+  index: -1
+leg1BunnyFRame1
+  rotate: false
+  xy: 587, 347
+  size: 22, 51
+  orig: 22, 51
+  offset: 0, 0
+  index: -1
+leg2BunnyFrame1
+  rotate: true
+  xy: 668, 421
+  size: 16, 14
+  orig: 16, 14
+  offset: 0, 0
+  index: -1
+leg3BunnyFrame1
+  rotate: true
+  xy: 980, 496
+  size: 14, 18
+  orig: 14, 18
+  offset: 0, 0
+  index: -1
+noseBunnyFrame1
+  rotate: true
+  xy: 92, 2
+  size: 23, 14
+  orig: 23, 14
+  offset: 0, 0
+  index: -1
+shadowBunnyFrame1
+  rotate: false
+  xy: 897, 496
+  size: 81, 14
+  orig: 81, 14
+  offset: 0, 0
+  index: -1
+tailBunnyFrame1
+  rotate: false
+  xy: 458, 168
+  size: 16, 21
+  orig: 16, 21
+  offset: 0, 0
+  index: -1
