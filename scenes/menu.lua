@@ -26,38 +26,6 @@ local COLOR_DEFAULT = {0.3,0.3,0.8}
 
 local LANGUAGES = {"en","es","pt"}
 ----------------------------------------------- Functions
-local function goAndres()
-	director.gotoScene("scenes.manager", {params = {minigames = {"gamefiles.mathTestAndres.game"}}})
-end
-
-local function goPablo()
-	director.gotoScene("scenes.manager", {params = {minigames = {"gamefiles.mathTestPablo.game"}}})
-end
-
-local function goIvan()
-	director.gotoScene("scenes.manager", {params = {minigames = {"gamefiles.mathTestIvan.game"}}})
-end
-
-local function goHector()
-	director.gotoScene("scenes.manager", {params = {minigames = {"gamefiles.mathTestHector.game"}}})
-end
-
-local function goOsiel()
-	director.gotoScene("scenes.manager", {params = {minigames = {"gamefiles.mathTestOsiel.game"}}})
-end
-
-local function goTony()
-	director.gotoScene("scenes.manager", {params = {minigames = {"gamefiles.scienceTestTony.game"}}})
-end
-
-local function goMauricio()
-	director.gotoScene("scenes.manager", {params = {minigames = {"gamefiles.progTestMauricio.game"}}})
-end
-
-local function goDiana()
-	director.gotoScene("scenes.manager", {params = {minigames = {"gamefiles.progTestDiana.game"}}})
-end
-
 local function goLuis()
 	director.gotoScene("scenes.manager", {params = {minigames = {"gamefiles.scienceTestLuis.game"}}})
 end
@@ -200,14 +168,6 @@ function scene:create(event)
 	menuView = createMenuView()
 	self.view:insert(menuView)
 	
-	self.addButton("Go Andres", goAndres, COLOR_DEFAULT, 1)
-	self.addButton("Go Pablo", goPablo, COLOR_DEFAULT, 1)
-	self.addButton("Go Ivan", goIvan, COLOR_DEFAULT, 1)
-	self.addButton("Go Hector", goHector, COLOR_DEFAULT, 1)
-	self.addButton("Go Osiel", goOsiel, COLOR_DEFAULT, 1)
-	self.addButton("Go Tony", goTony, COLOR_DEFAULT, 1)
-	self.addButton("Go Mauricio", goMauricio, COLOR_DEFAULT, 1)
-	self.addButton("Go Diana", goDiana, COLOR_DEFAULT, 1)
 	self.addButton("Go Luis", goLuis, COLOR_DEFAULT, 1)
 	self.addButton("Go Jully", goJully, COLOR_DEFAULT, 1)
 	self.addButton("Go Arturo", goArturo, COLOR_DEFAULT, 1)
