@@ -394,7 +394,7 @@ local function createTimer()
 		
 		transition.to(timerEmptyImage, {tag = TAG_TIMER, time = 2300, alpha = 1})
 		transition.to(timerFlowerImage, {tag = TAG_TIMER, time = 2300, alpha = 1, onComplete = function()
-			transition.to(timerMovement.fill.effect, {tag = TAG_TIMER, time = LIMIT_START_TIME, progress = 0.10, onComplete = function() --add timers as constants
+			transition.to(timerMovement.fill.effect, {tag = TAG_TIMER, time = LIMIT_START_TIME, progress = 0.10, onComplete = function()
 				timerEmptyImage:setFillColor(unpack(COLOR_END_TIME))
 				transition.to(timerMovement.fill.effect, {tag = TAG_TIMER, time = LIMIT_END_TIME , progress = 0, onComplete = function()
 					transition.cancel(TAG_TRANSITION)
