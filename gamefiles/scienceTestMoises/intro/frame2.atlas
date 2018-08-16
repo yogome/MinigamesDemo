@@ -1,0 +1,69 @@
+
+frame2.png
+size: 1024,512
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+aahhhFrame1
+  rotate: true
+  xy: 692, 5
+  size: 244, 139
+  orig: 244, 139
+  offset: 0, 0
+  index: -1
+arm1DinamitaFrame2
+  rotate: false
+  xy: 969, 443
+  size: 51, 63
+  orig: 51, 63
+  offset: 0, 0
+  index: -1
+arm2DinamitaFrame2
+  rotate: true
+  xy: 969, 385
+  size: 56, 39
+  orig: 56, 39
+  offset: 0, 0
+  index: -1
+bodyDinamitaFrame2
+  rotate: false
+  xy: 833, 131
+  size: 125, 118
+  orig: 125, 118
+  offset: 0, 0
+  index: -1
+frame2a
+  rotate: true
+  xy: 2, 2
+  size: 504, 343
+  orig: 504, 343
+  offset: 0, 0
+  index: -1
+frame2b
+  rotate: true
+  xy: 347, 2
+  size: 504, 343
+  orig: 504, 343
+  offset: 0, 0
+  index: -1
+hand1DinamitaFrame2
+  rotate: true
+  xy: 833, 46
+  size: 83, 74
+  orig: 83, 74
+  offset: 0, 0
+  index: -1
+hand2DinamitaFRame2
+  rotate: true
+  xy: 960, 174
+  size: 75, 62
+  orig: 75, 62
+  offset: 0, 0
+  index: -1
+headDinamitaFrame2
+  rotate: false
+  xy: 692, 251
+  size: 275, 255
+  orig: 275, 255
+  offset: 0, 0
+  index: -1

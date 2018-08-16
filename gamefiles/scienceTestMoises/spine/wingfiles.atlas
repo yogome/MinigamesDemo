@@ -1,0 +1,90 @@
+
+wingfiles.png
+size: 1024,256
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+green/body
+  rotate: false
+  xy: 2, 120
+  size: 116, 131
+  orig: 116, 131
+  offset: 0, 0
+  index: -1
+green/wing1
+  rotate: false
+  xy: 135, 41
+  size: 117, 77
+  orig: 117, 77
+  offset: 0, 0
+  index: -1
+green/wing2
+  rotate: false
+  xy: 712, 176
+  size: 110, 75
+  orig: 110, 75
+  offset: 0, 0
+  index: -1
+pink/body
+  rotate: false
+  xy: 238, 120
+  size: 115, 131
+  orig: 115, 131
+  offset: 0, 0
+  index: -1
+pink/wing1
+  rotate: false
+  xy: 355, 174
+  size: 117, 77
+  orig: 117, 77
+  offset: 0, 0
+  index: -1
+pink/wing2
+  rotate: false
+  xy: 254, 43
+  size: 109, 75
+  orig: 109, 75
+  offset: 0, 0
+  index: -1
+red/body
+  rotate: false
+  xy: 120, 120
+  size: 116, 131
+  orig: 116, 131
+  offset: 0, 0
+  index: -1
+red/wing1
+  rotate: false
+  xy: 474, 174
+  size: 117, 77
+  orig: 117, 77
+  offset: 0, 0
+  index: -1
+red/wing2
+  rotate: false
+  xy: 824, 176
+  size: 110, 75
+  orig: 110, 75
+  offset: 0, 0
+  index: -1
+yellow/body
+  rotate: true
+  xy: 2, 2
+  size: 116, 131
+  orig: 116, 131
+  offset: 0, 0
+  index: -1
+yellow/wing1
+  rotate: false
+  xy: 593, 174
+  size: 117, 77
+  orig: 117, 77
+  offset: 0, 0
+  index: -1
+yellow/wing2
+  rotate: true
+  xy: 936, 142
+  size: 109, 75
+  orig: 109, 75
+  offset: 0, 0
+  index: -1

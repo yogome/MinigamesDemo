@@ -1,0 +1,55 @@
+
+frame1.png
+size: 1024,512
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+frame1
+  rotate: false
+  xy: 2, 105
+  size: 453, 367
+  orig: 453, 367
+  offset: 0, 0
+  index: -1
+ha2Frame1
+  rotate: false
+  xy: 748, 341
+  size: 72, 49
+  orig: 72, 49
+  offset: 0, 0
+  index: -1
+haFrame1
+  rotate: false
+  xy: 245, 48
+  size: 82, 55
+  orig: 82, 55
+  offset: 0, 0
+  index: -1
+headIgnorantiaFrame1
+  rotate: true
+  xy: 457, 108
+  size: 67, 77
+  orig: 67, 77
+  offset: 0, 0
+  index: -1
+muaFrame1
+  rotate: false
+  xy: 748, 392
+  size: 145, 80
+  orig: 145, 80
+  offset: 0, 0
+  index: -1
+screenFrame1
+  rotate: false
+  xy: 457, 177
+  size: 289, 295
+  orig: 289, 295
+  offset: 0, 0
+  index: -1
+typewriterFrame1
+  rotate: false
+  xy: 2, 2
+  size: 241, 101
+  orig: 241, 101
+  offset: 0, 0
+  index: -1
