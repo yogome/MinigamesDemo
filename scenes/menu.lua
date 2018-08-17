@@ -39,7 +39,7 @@ local function goArturo()
 end
 
 local function goMoises()
-	director.gotoScene("scenes.manager", {params = {minigames = {"gamefiles.progTestMoises.game"}}})
+	director.gotoScene("scenes.manager", {params = {minigames = {"gamefiles.scienceTestMoises.game"}}})
 end
 
 local function toggleLanguage(event)
