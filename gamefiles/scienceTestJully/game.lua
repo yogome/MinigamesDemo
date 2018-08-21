@@ -1,4 +1,4 @@
------------------------------------------------ progBooleanCards
+----------------------------------------------- progBooleanCards - Boolean operations with cards
 local scenePath = ... 
 local folder = scenePath:match("(.-)[^%.]+$") 
 local assetPath = string.gsub(folder,"[%.]","/") 
@@ -199,7 +199,7 @@ local function showBooleanCondition()
 	end
 end
 
-local function showCards()
+local function creatCardObject()
 	local totalCardWidth
 	local positionCardx
 	
@@ -247,11 +247,12 @@ local function showCards()
 end
 
 local function createCardData(numberTable, colorTable)
-	local numberCardRandom
-	local colorCardRandom
-		
+	local numberCardRandom, colorCardRandom
+	local firstCard = 1
+	local secureFirstTwoCard = 2
+	
 	for cardRandomIndex = 1, LEVEL_DATA[minigameLevel].numberCardTotal  do
-		if cardRandomIndex == 1 and booleanConditionalRandom ~= "OR" then
+		if cardRandomIndex == firstCard and booleanConditionalRandom ~= "OR" then
 			if booleanConditionalRandom == "AND" then
 				if conditionsGroup[cardRandomIndex].typeConditions == "color" and conditionsGroup[cardRandomIndex + 1].typeConditions == "color" then
 					numberCardRandom = CARD_NUMBERS[mathRandom(#CARD_NUMBERS)]
@@ -271,7 +272,7 @@ local function createCardData(numberTable, colorTable)
 					colorCardRandom = CARD_COLOR_TABLE[mathRandom(#CARD_COLOR_TABLE)]
 				end
 			end
-		elseif cardRandomIndex <= 2 and booleanConditionalRandom == "OR" then
+		elseif cardRandomIndex <= secureFirstTwoCard and booleanConditionalRandom == "OR" then
 			if conditionsGroup[cardRandomIndex].typeConditions == "number" then
 				numberCardRandom = conditionsGroup[cardRandomIndex].displayToUse
 				colorCardRandom = CARD_COLOR_TABLE[mathRandom(#CARD_COLOR_TABLE)]
@@ -286,14 +287,14 @@ local function createCardData(numberTable, colorTable)
 			end
 			colorCardRandom = colorTable[mathRandom(#colorTable)]
 		end
-		if cardRandomIndex <= 2 then
+		if cardRandomIndex <= secureFirstTwoCard then
 			correctCards[cardRandomIndex] = {number = numberCardRandom, color = colorCardRandom}
 		end
 		cardTable[cardRandomIndex] = {number = numberCardRandom, color = colorCardRandom}
 	end
 	cardTable = extratable.shuffle(cardTable)
 	
-	showCards()
+	creatCardObject()
 end
 
 local function createConditionValue()
@@ -408,13 +409,6 @@ local function createTimer()
 	end
 end
 
-local function startGame()
-	if minigameLevel > 1 then
-		createTimer()
-	end
-	createBooleanCondition()
-end
-
 local function createHand()
 	handMoveImage = display.newImage(assetPath.."manita.png")
 	handMoveImage.xScale = GLOBAL_SCALE
@@ -441,7 +435,7 @@ local function createBarEnergy()
 	energyContainer.fillValue = 0
 	energyContainer.anchorChildren = false
 	energyContainer.anchorX = 0
-	energyContainer:translate(display.contentCenterX - 165 * GLOBAL_SCALE, display.contentHeight - 87 * GLOBAL_SCALE)
+	energyContainer:translate(display.contentCenterX - 145 * GLOBAL_SCALE, display.contentHeight - 87 * GLOBAL_SCALE)
 	uiGroup:insert(energyContainer)
 	
 	local barEnergyImage = display.newImage(assetPath.."b_energia4.png")
@@ -569,7 +563,10 @@ function game:show(event)
 		createScene()
 		createHand()
 		createBarEnergy()
-		startGame() 
+		createBooleanCondition()
+		if minigameLevel > 1 then
+			createTimer()
+		end
 	end
 end
 
