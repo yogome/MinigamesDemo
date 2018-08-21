@@ -1,4 +1,4 @@
------------------------------------------------ Requires
+----------------------------------------------- progVariableIceCream - 4th and 5th grade arithmetic operations
 local scenePath = ... 
 local folder = scenePath:match("(.-)[^%.]+$") 
 local assetPath = string.gsub(folder,"[%.]","/") 
@@ -89,6 +89,37 @@ local function showNumbers(numberIndex)
 	end})
 end
 
+local function showFailureFeedback()
+	failCounter = failCounter + 1
+	for answerIndex = 1, #questionMarkBoxes do
+		transition.to(questionMarkBoxes[answerIndex].answer, {tag = TRANSITION_TAG, time = 500, alpha = 0, 
+		onComplete = function()
+			questionMarkBoxes[answerIndex].answer = display.remove(questionMarkBoxes[answerIndex].answer)
+		end})
+	end
+	
+	local dishMelted = display.newImage(assetPath.."wronganswer.png")
+	dishMelted.xScale, dishMelted.yScale = GLOBAL_SCALE, GLOBAL_SCALE
+	dishMelted.x, dishMelted.y = display.contentCenterX - dishMelted.contentWidth * 0.25, screenReference.counterTop.y - screenReference.counterTop.height * 0.87
+	dishMelted.alpha = 0
+	dynamicGroup:insert(dishMelted)
+	
+	transition.to(dish.back, {tag = TRANSITION_TAG, alpha = 0})
+	transition.to(dish.front, {tag = TRANSITION_TAG, alpha = 0})
+	transition.to(dishMelted, {tag = TRANSITION_TAG, alpha = 1, 
+	onComplete = function()
+		transition.to(dishMelted, {tag = TRANSITION_TAG, delay = 350, time = 300, alpha = 0, x = display.screenOriginX,
+		onComplete = function() 
+			dishMelted = display.remove(dishMelted)
+			if failCounter < ATTEMPTS then
+				resetDish()
+			else
+				manager.wrong()
+			end
+		end})
+	end})
+end
+
 local function validateAnswer()
 	local errorCount = 0
 	for answerIndex = 1, #ANSWER_ORDER do
@@ -113,34 +144,7 @@ local function validateAnswer()
 	if inputResult == targetNumber then
 		showNumbers(1)
 	else
-		failCounter = failCounter + 1
-		for answerIndex = 1, #questionMarkBoxes do
-			transition.to(questionMarkBoxes[answerIndex].answer, {tag = TRANSITION_TAG, time = 500, alpha = 0, 
-			onComplete = function()
-				questionMarkBoxes[answerIndex].answer = display.remove(questionMarkBoxes[answerIndex].answer)
-			end})
-		end
-		
-		local dishMelted = display.newImage(assetPath.."wronganswer.png")
-		dishMelted.xScale, dishMelted.yScale = GLOBAL_SCALE, GLOBAL_SCALE
-		dishMelted.x, dishMelted.y = display.contentCenterX - dishMelted.contentWidth * 0.25, screenReference.counterTop.y - screenReference.counterTop.height * 0.87
-		dishMelted.alpha = 0
-		dynamicGroup:insert(dishMelted)
-		
-		transition.to(dish.back, {tag = TRANSITION_TAG, alpha = 0})
-		transition.to(dish.front, {tag = TRANSITION_TAG, alpha = 0})
-		transition.to(dishMelted, {tag = TRANSITION_TAG, alpha = 1, 
-		onComplete = function()
-			transition.to(dishMelted, {tag = TRANSITION_TAG, delay = 350, time = 300, alpha = 0, x = display.screenOriginX,
-			onComplete = function() 
-				dishMelted = display.remove(dishMelted)
-				if failCounter < ATTEMPTS then
-					resetDish()
-				else
-					manager.wrong()
-				end
-			end})
-		end})
+		showFailureFeedback()
 	end
 end
 
@@ -160,10 +164,8 @@ end
 local function checkBounds(target)	
 	for questionIndex = 1, #questionMarkBoxes do
 		local objectBounds = questionMarkBoxes[questionIndex].contentBounds
-		if target.y >= objectBounds.yMin
-		and target.y <= objectBounds.yMax
-		and target.x >= objectBounds.xMin
-		and target.x <= objectBounds.xMax
+		if target.y >= objectBounds.yMin and target.y <= objectBounds.yMax
+		and target.x >= objectBounds.xMin and target.x <= objectBounds.xMax
 		and not questionMarkBoxes[questionIndex].isOccupied then
 			answerCounter = answerCounter + 1
 			transition.to(target, {tag = TRANSITION_TAG, time = 500, x = questionMarkBoxes[questionIndex].x, y = questionMarkBoxes[questionIndex].y,
@@ -175,11 +177,37 @@ local function checkBounds(target)
 				questionMarkBoxes[questionIndex].answer = target
 			end})
 			
+			if answerCounter == ANSWERS then
+				okButton.alpha = 1
+				okButton.isEnabled = true
+			else
+				okButton.alpha = 0
+				okButton.isEnabled = false
+			end
 			return true
 		end
 	end
 	
 	return false
+end
+
+local function spawnIceCreamBall(target, event)
+	local iceCreamBall = display.newImage(assetPath.."ball"..target.number..".png")
+	iceCreamBall.xScale, iceCreamBall.yScale = GLOBAL_SCALE, GLOBAL_SCALE
+	iceCreamBall.x, iceCreamBall.y = event.x, event.y
+	iceCreamBall.number = target.number
+	iceCreamBall.isClone = true
+	iceCreamBall.originX, iceCreamBall.originY = target.x, target.y
+	
+	if target.number == OPERATORS[GRADE][1] or target.number == OPERATORS[GRADE][2] then
+		iceCreamBall.tag = "operator"
+	else
+		iceCreamBall.tag = "number"
+	end
+	
+	overlayGroup:insert(iceCreamBall)
+	
+	return iceCreamBall
 end
 
 local function dragIceCream(event)
@@ -189,22 +217,8 @@ local function dragIceCream(event)
 	if isTouchEnabled and target.isTouchEnabled then 
 		if "began" == phase then
 			if not target.isClone then
-				local iceCreamBall = display.newImage(assetPath.."ball"..target.number..".png")
-				iceCreamBall.xScale, iceCreamBall.yScale = GLOBAL_SCALE, GLOBAL_SCALE
-				iceCreamBall.x, iceCreamBall.y = event.x, event.y
-				iceCreamBall.number = target.number
-				iceCreamBall.isClone = true
-				iceCreamBall.originX, iceCreamBall.originY = target.x, target.y
-				
-				if target.number == OPERATORS[GRADE][1] or target.number == OPERATORS[GRADE][2] then
-					iceCreamBall.tag = "operator"
-				else
-					iceCreamBall.tag = "number"
-				end
-				
-				overlayGroup:insert(iceCreamBall)
+				local iceCreamBall = spawnIceCreamBall(target, event)
 				iceCreamBall:addEventListener("touch", dragIceCream)
-				
 				iceCreamBall.isFocus = true
 				iceCreamBall.isTouchEnabled = true
 				display.currentStage:setFocus(iceCreamBall)
@@ -240,14 +254,6 @@ local function dragIceCream(event)
 						end})
 					end})
 				end
-				
-				if answerCounter == ANSWERS then
-					okButton.alpha = 1
-					okButton.isEnabled = true
-				else
-					okButton.alpha = 0
-					okButton.isEnabled = false
-				end
 			end
 		end
 	end
@@ -255,7 +261,7 @@ local function dragIceCream(event)
 	return true
 end
 
-local function createCounterTop()	
+local function createCashMachine()
 	local cashMachineBase = display.newImage(assetPath.."cashmachinebase.png")
 	cashMachineBase.xScale, cashMachineBase.yScale = GLOBAL_SCALE, GLOBAL_SCALE
 	cashMachineBase.x, cashMachineBase.y = display.contentCenterX + cashMachineBase.contentWidth, screenReference.counterTop.y - screenReference.counterTop.height * 0.8
@@ -270,15 +276,9 @@ local function createCounterTop()
 	numberText.xScale, numberText.yScale = GLOBAL_SCALE, GLOBAL_SCALE
 	numberText:setFillColor(1)
 	dynamicGroup:insert(numberText)
-	
-	for stickIndex = 1, #STICK_INFO do
-		local sticks = display.newImage(assetPath.."sticks"..stickIndex..".png")
-		sticks.anchorX = STICK_INFO[stickIndex].anchor
-		sticks.xScale, sticks.yScale = GLOBAL_SCALE, GLOBAL_SCALE
-		sticks.x, sticks.y = display.contentCenterX + STICK_INFO[stickIndex].xOffset * GLOBAL_SCALE, screenReference.counterTop.y - screenReference.counterTop.height * 0.6
-		backgroundGroup:insert(sticks)
-	end
-	
+end
+
+local function createDish()
 	local dishBack = display.newImage(assetPath.."dishback.png")
 	dishBack.xScale, dishBack.yScale = GLOBAL_SCALE, GLOBAL_SCALE
 	dishBack.x, dishBack.y = display.contentCenterX - dishBack.contentWidth * 0.25, screenReference.counterTop.y - screenReference.counterTop.height * 0.87
@@ -294,8 +294,13 @@ local function createCounterTop()
 		questionMarkBoxes[questionIndex].alpha = 0
 		backgroundGroup:insert(questionMarkBoxes[questionIndex])	
 		questionMarkBoxes[questionIndex].answer = nil
-	end	
+	end
 	
+	dish.back = dishBack
+	dish.front = dishFront
+end
+
+local function createOkButton()
 	okButton = widget.newButton(
 		{
 			width = 150,
@@ -310,9 +315,16 @@ local function createCounterTop()
 	okButton.alpha = 0
 	okButton.isEnabled = false
 	dynamicGroup:insert(okButton)
-	
-	dish.back = dishBack
-	dish.front = dishFront
+end
+
+local function createSticks()		
+	for stickIndex = 1, #STICK_INFO do
+		local sticks = display.newImage(assetPath.."sticks"..stickIndex..".png")
+		sticks.anchorX = STICK_INFO[stickIndex].anchor
+		sticks.xScale, sticks.yScale = GLOBAL_SCALE, GLOBAL_SCALE
+		sticks.x, sticks.y = display.contentCenterX + STICK_INFO[stickIndex].xOffset * GLOBAL_SCALE, screenReference.counterTop.y - screenReference.counterTop.height * 0.6
+		backgroundGroup:insert(sticks)
+	end
 end
 
 local function closeCover(position)
@@ -345,20 +357,8 @@ local function tapListener(event)
 	end
 end
 
-local function createIceCreamContainers()
-	for columnIndex = 1, COLUMNS do
-		for rowIndex = 1, ROWS do			
-			local offset
-			if columnIndex == 1 then
-				offset = 20 * GLOBAL_SCALE
-			else
-				offset = 50 * GLOBAL_SCALE
-			end
-			
-			local rowCenterX = display.contentCenterX - 512 * GLOBAL_SCALE + offset + (columnIndex - 0.5) * screenReference.frost.contentWidth
-			local rowCenterY =  display.viewableContentHeight - 0.5 * screenReference.fridgeContainer.contentHeight + mPow(-1, rowIndex) * 0.25 * screenReference.fridgeContainer.contentHeight
-			
-			local iceCreamBack = display.newImage(assetPath.."icecreamback.png")
+local function createIceCreamContainer(rowCenterX, rowCenterY)
+	local iceCreamBack = display.newImage(assetPath.."icecreamback.png")
 			iceCreamBack.xScale, iceCreamBack.yScale = GLOBAL_SCALE, GLOBAL_SCALE
 			iceCreamBack.x, iceCreamBack.y = rowCenterX, rowCenterY
 			backgroundGroup:insert(iceCreamBack)
@@ -386,6 +386,22 @@ local function createIceCreamContainers()
 			iceCreamCover.iceCream = iceCream
 			
 			iceCreamCovers[#iceCreamCovers + 1] = iceCreamCover
+end
+
+local function setIceCreamContainerPositions()
+	for columnIndex = 1, COLUMNS do
+		for rowIndex = 1, ROWS do			
+			local offset
+			if columnIndex == 1 then
+				offset = 20 * GLOBAL_SCALE
+			else
+				offset = 50 * GLOBAL_SCALE
+			end
+			
+			local rowCenterX = display.contentCenterX - 512 * GLOBAL_SCALE + offset + (columnIndex - 0.5) * screenReference.frost.contentWidth
+			local rowCenterY =  display.viewableContentHeight - 0.5 * screenReference.fridgeContainer.contentHeight + mPow(-1, rowIndex) * 0.25 * screenReference.fridgeContainer.contentHeight
+			
+			createIceCreamContainer(rowCenterX, rowCenterY)
 		end
 	end
 end
@@ -427,15 +443,16 @@ end
 
 local function createTimer()
 	local timerComponent
-	for timerIndex = 1, #TIMER_COMPONENTS do
-		if timerIndex ~= 2 then
-			timerComponent = display.newImage(assetPath..TIMER_COMPONENTS[timerIndex])
+	local secondLayer = 2
+	for layerIndex = 1, #TIMER_COMPONENTS do
+		if layerIndex ~= secondLayer then
+			timerComponent = display.newImage(assetPath..TIMER_COMPONENTS[layerIndex])
 			timerComponent.anchorY = 1
 			timerComponent.xScale, timerComponent.yScale = GLOBAL_SCALE, GLOBAL_SCALE
 			timerComponent.x, timerComponent.y = display.actualContentWidth - 120 * GLOBAL_SCALE, display.actualContentHeight - 10 * GLOBAL_SCALE
 			dynamicGroup:insert(timerComponent)
 		else
-			local timerColor = display.newImage(assetPath..TIMER_COMPONENTS[timerIndex])
+			local timerColor = display.newImage(assetPath..TIMER_COMPONENTS[layerIndex])
 			timerColor.anchorY = 1
 			timerColor.xScale, timerColor.yScale = GLOBAL_SCALE, GLOBAL_SCALE
 			
@@ -744,8 +761,11 @@ function game:show(event)
 		createTimer()
 		shuffleIceCream()
 		generateTargetNumber()
-		createIceCreamContainers()
-		createCounterTop()
+		setIceCreamContainerPositions()
+		createSticks()
+		createCashMachine()
+		createDish()
+		createOkButton()
 		createOverlay()
 	end
 end
