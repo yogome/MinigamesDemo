@@ -1,4 +1,4 @@
------------------------------------------------ Requires
+----------------------------------------------- progDataOrder - Drag files to the same type folder
 local scenePath = ...
 local folder = scenePath:match("(.-)[^%.]+$")
 local assetPath = string.gsub(folder,"[%.]","/")
@@ -203,11 +203,40 @@ local function createPortal()
 	groupBackgroundContent:insert(portal)
 end
 
+local function createFolder(startpointX, posY, indexFolders)
+	local barContainer = display.newImage(assetPath..PROGRESS_BARS_CONTAINERS[indexFolders])
+	barContainer.xScale, barContainer.yScale = GLOBAL_SCALE, GLOBAL_SCALE
+	barContainer.x, barContainer.y = startpointX, posY + barContainer.contentHeight + 30 * GLOBAL_SCALE
+	groupBackgroundContent:insert(barContainer)
+	
+	local progressMask = graphics.newMask(assetPath.."mascara.png")
+	
+	local progressBar = display.newImage(assetPath..PROGRESS_BARS[indexFolders])
+	progressBar.anchorX = 0
+	progressBar.xScale, progressBar.yScale = GLOBAL_SCALE, GLOBAL_SCALE
+	progressBar.x, progressBar.y = startpointX - barContainer.contentWidth * 0.5 + 3 * GLOBAL_SCALE, barContainer.y
+	groupProgressBars:insert(progressBar)
+	
+	progressBar:setMask(progressMask)
+	progressBar.maskX = -progressBar.contentWidth * 0.99
+	progressBar.maskScaleX = GLOBAL_SCALE * 1.1
+	
+	local folderBack = display.newImage(assetPath..FOLDERS_BACK[indexFolders])
+	folderBack.xScale, folderBack.yScale = (display.contentHeight * 0.15) / folderBack.height, (display.contentHeight * 0.15) / folderBack.height
+	folderBack.x, folderBack.y = startpointX, posY - 30 * GLOBAL_SCALE - barContainer.contentHeight
+	groupBackgroundContent:insert(folderBack)
+	
+	local folder = display.newImage(assetPath..FOLDERS[indexFolders])
+	folder.xScale, folder.yScale = (display.contentHeight * 0.15) / folder.height, (display.contentHeight * 0.15) / folder.height
+	folder.x, folder.y = startpointX, posY - barContainer.contentHeight
+	folder.type = DATA_TYPES[indexFolders]
+	groupFolders:insert(folder)
+end
+
 local function createFolders()
 	local spacingX = display.contentWidth / #FOLDERS
 	local startpointX = 150 * GLOBAL_SCALE
 	local posY = display.contentHeight - 110 * GLOBAL_SCALE
-	local posy2 = posY - 30 * GLOBAL_SCALE
 	
 	groupFolders = display.newGroup()
 	dynamicLayer:insert(groupFolders)
@@ -216,34 +245,7 @@ local function createFolders()
 	dynamicLayer:insert(groupProgressBars)
 	
 	for indexFolders = 1, #FOLDERS_BACK do
-		local barContainer = display.newImage(assetPath..PROGRESS_BARS_CONTAINERS[indexFolders])
-		barContainer.xScale, barContainer.yScale = GLOBAL_SCALE, GLOBAL_SCALE
-		barContainer.x, barContainer.y = startpointX, posY + barContainer.contentHeight + 30 * GLOBAL_SCALE
-		groupBackgroundContent:insert(barContainer)
-		
-		local progressMask = graphics.newMask(assetPath.."mascara.png")
-		
-		local progressBar = display.newImage(assetPath..PROGRESS_BARS[indexFolders])
-		progressBar.anchorX = 0
-		progressBar.xScale, progressBar.yScale = GLOBAL_SCALE, GLOBAL_SCALE
-		progressBar.x, progressBar.y = startpointX - barContainer.contentWidth * 0.5 + 3 * GLOBAL_SCALE, barContainer.y
-		groupProgressBars:insert(progressBar)
-		
-		progressBar:setMask(progressMask)
-		progressBar.maskX = -progressBar.contentWidth * 0.99
-		progressBar.maskScaleX = GLOBAL_SCALE * 1.1
-		
-		local folderBack = display.newImage(assetPath..FOLDERS_BACK[indexFolders])
-		folderBack.xScale, folderBack.yScale = (display.contentHeight * 0.15) / folderBack.height, (display.contentHeight * 0.15) / folderBack.height
-		folderBack.x, folderBack.y = startpointX, posy2 - barContainer.contentHeight
-		groupBackgroundContent:insert(folderBack)
-		
-		local folder = display.newImage(assetPath..FOLDERS[indexFolders])
-		folder.xScale, folder.yScale = (display.contentHeight * 0.15) / folder.height, (display.contentHeight * 0.15) / folder.height
-		folder.x, folder.y = startpointX, posY - barContainer.contentHeight
-		folder.type = DATA_TYPES[indexFolders]
-		groupFolders:insert(folder)
-		
+		createFolder(startpointX, posY, indexFolders)
 		startpointX = startpointX + spacingX
 	end
 end
@@ -276,6 +278,8 @@ local function cleanUp()
 	groupBackgroundContent = nil
 	display.remove(groupFiles)
 	groupFiles = nil
+	display.remove(groupProgressBars)
+	groupProgressBars = nil
 	
 	transition.cancel("files")
 
